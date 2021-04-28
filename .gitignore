@@ -8,3 +8,6 @@
 *.out
 /vendor/
 /Godeps/
+
+### Jetbrains ###
+.idea
