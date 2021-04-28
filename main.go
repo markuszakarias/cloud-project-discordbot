@@ -1,11 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/tidwall/gjson"
 )
@@ -284,68 +285,84 @@ var exampleResponse = `{
 // https://newsapi.org/v2/top-headlines?country=no&apiKey=API_KEY
 //
 
-type newsLetter struct {
-	author         string `json:"author"`
-	date_published string `json:"date_published"`
-	title          string `json:"title"`
-	description    string `json:"description"`
-	url_to_story   string `json:"url_to_story"`
+type NewsLetter struct {
+	Author         string `json:"author"`
+	Date_published string `json:"date_published"`
+	Title          string `json:"title"`
+	Description    string `json:"description"`
+	Url_to_story   string `json:"url_to_story"`
 }
 
-type newsLetters struct {
-	newsletters []newsLetter
+type NewsLetters struct {
+	Newsletters [5]NewsLetter `json:"newsletters"`
 }
 
-func populateNewsLetters(paramStruct newsLetter, jsonResponseString string) newsLetter {
-	test1 := gjson.Get(jsonResponseString, "articles.1.author")
-	test2 := gjson.Get(jsonResponseString, "articles.1.publishedAt")
-	test3 := gjson.Get(jsonResponseString, "articles.1.title")
-	test4 := gjson.Get(jsonResponseString, "articles.1.description")
-	test5 := gjson.Get(jsonResponseString, "articles.1.url")
+func populateNewsLetters(paramStruct NewsLetters, jsonResponseString string) NewsLetters {
 
-	test1String := test1.String()
-	test2String := test2.String()
-	test3String := test3.String()
-	test4String := test4.String()
-	test5String := test5.String()
+	// Dette må nok være en for loop som går fem ganger og variablen som incrementers er hvor det en tallet er. Den fyller da struct nummer [i] for hver gang den går rundt.
 
-	paramStruct.author = test1String
-	paramStruct.date_published = test2String
-	paramStruct.title = test3String
-	paramStruct.description = test4String
-	paramStruct.url_to_story = test5String
+	for i := 0; i < 5; i++ {
+		indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
+
+		test1 := gjson.Get(jsonResponseString, "articles."+indexAsString+".author")
+		test2 := gjson.Get(jsonResponseString, "articles."+indexAsString+".publishedAt")
+		test3 := gjson.Get(jsonResponseString, "articles."+indexAsString+".title")
+		test4 := gjson.Get(jsonResponseString, "articles."+indexAsString+".description")
+		test5 := gjson.Get(jsonResponseString, "articles."+indexAsString+".url")
+
+		test1String := test1.String()
+		test2String := test2.String()
+		test3String := test3.String()
+		test4String := test4.String()
+		test5String := test5.String()
+
+		paramStruct.Newsletters[i].Author = test1String
+		paramStruct.Newsletters[i].Date_published = test2String
+		paramStruct.Newsletters[i].Title = test3String
+		paramStruct.Newsletters[i].Description = test4String
+		paramStruct.Newsletters[i].Url_to_story = test5String
+	}
 	return paramStruct
 }
 
 func simpleHandler(w http.ResponseWriter, r *http.Request) {
-	url := "https://newsapi.org/v2/top-headlines?country=no&apiKey=cfa7f832f70e41c899bf6b735ef77abf"
+	/* 	url := "https://newsapi.org/v2/top-headlines?country=no&apiKey=cfa7f832f70e41c899bf6b735ef77abf"
 
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-	}
+	   	request, err := http.NewRequest(http.MethodGet, url, nil)
+	   	if err != nil {
+	   		http.Error(w, "bad request", http.StatusBadRequest)
+	   	}
 
-	r.Header.Add("content-type", "application/json")
+	   	r.Header.Add("content-type", "application/json")
 
-	client := &http.Client{}
+	   	client := &http.Client{}
 
-	// Issue request
-	res, err := client.Do(request)
-	if err != nil {
-		fmt.Errorf("Error in response:", err.Error())
-	}
+	   	// Issue request
+	   	res, err := client.Do(request)
+	   	if err != nil {
+	   		fmt.Errorf("Error in response:", err.Error())
+	   	}
 
-	// Print output
-	output, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Errorf("Error when reading response: ", err.Error())
-	}
+	   	// Print output
+	   	output, err := ioutil.ReadAll(res.Body)
+	   	if err != nil {
+	   		fmt.Errorf("Error when reading response: ", err.Error())
+	   	}
 
-	jsonResponseAsString := string(output)
+	   	jsonResponseAsString := string(output) */
 
-	var test newsLetter
-	articleStruct := populateNewsLetters(test, jsonResponseAsString)
+	var test NewsLetters
+	articleStruct := populateNewsLetters(test, exampleResponse)
 	fmt.Printf("%+v\n", articleStruct)
+
+	data, err := json.Marshal(articleStruct)
+	if err != nil {
+		log.Printf("%v", "Error during JSON marhsall.")
+	}
+	w.Header().Add("content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+
 }
 
 func main() {
