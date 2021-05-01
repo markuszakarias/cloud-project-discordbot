@@ -6,4 +6,5 @@ require (
 	github.com/bwmarrin/discordgo v0.23.2 // indirect
 	github.com/kr/pretty v0.2.1
 	googlemaps.github.io/maps v1.3.2 // indirect
+	github.com/tidwall/gjson v1.7.5
 )
