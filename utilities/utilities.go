@@ -12,25 +12,16 @@ import (
 )
 
 // getNewsApiData returns todays headlines from norwegian media and gives it back in json.
-func GetNewsApiData(w http.ResponseWriter, r *http.Request) string {
+func GetNewsApiData() string {
 	url := "https://newsapi.org/v2/top-headlines?country=no&apiKey=cfa7f832f70e41c899bf6b735ef77abf"
-
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		http.Error(w, "bad request to external news api newsapi.org", http.StatusBadRequest)
-	}
-
-	r.Header.Add("content-type", "application/json")
-
-	client := &http.Client{}
-
-	// Issue request
-	res, err := client.Do(request)
+	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Errorf("Error in response:", err.Error())
 	}
 
-	output, err := ioutil.ReadAll(res.Body)
+	defer resp.Body.Close()
+
+	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Errorf("Error when reading response: ", err.Error())
 	}
@@ -41,25 +32,16 @@ func GetNewsApiData(w http.ResponseWriter, r *http.Request) string {
 }
 
 // GetDailyMealPlanData returns the data we use from the food api.
-func GetDailyMealPlanData(w http.ResponseWriter, r *http.Request) string {
+func GetDailyMealPlanData() string {
 	url := "https://api.spoonacular.com/mealplanner/generate?timeFrame=day&apiKey=eeb5e8160efb4bedb1ccc4aa441b0102"
-
-	request, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		http.Error(w, "bad request to external news api spoonacular.org", http.StatusBadRequest)
-	}
-
-	r.Header.Add("content-type", "application/json")
-
-	client := &http.Client{}
-
-	// Issue request
-	res, err := client.Do(request)
+	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Errorf("Error in response:", err.Error())
 	}
 
-	output, err := ioutil.ReadAll(res.Body)
+	defer resp.Body.Close()
+
+	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Errorf("Error when reading response: ", err.Error())
 	}
@@ -67,6 +49,7 @@ func GetDailyMealPlanData(w http.ResponseWriter, r *http.Request) string {
 	jsonResponseAsString := string(output)
 
 	return jsonResponseAsString
+
 }
 
 // populateNewsLetters walks through the response from the newsletter api and creates a

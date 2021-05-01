@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"projectGroup23/firebase"
+	"projectGroup23/handlers"
 	"strings"
 	"syscall"
 
@@ -66,6 +67,34 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// If the message is "ping" reply with "Pong!"
+	if m.Content == "!newsletter" {
+		data := handlers.GetDailyNewsLetter()
+		for _, article := range data.Newsletters {
+			s.ChannelMessageSend(m.ChannelID, "Author: "+article.Author)
+			s.ChannelMessageSend(m.ChannelID, "Date: "+article.Date_published)
+			s.ChannelMessageSend(m.ChannelID, "Title: "+article.Title)
+			s.ChannelMessageSend(m.ChannelID, "Description: "+article.Description)
+			s.ChannelMessageSend(m.ChannelID, "Url: "+article.Url_to_story)
+			s.ChannelMessageSend(m.ChannelID, " ")
+
+		}
+	}
+
+	if m.Content == "!mealplan" {
+		mealplan := handlers.GetDailyMealPlan()
+		s.ChannelMessageSend(m.ChannelID, "meal message: "+mealplan.MealMessage)
+		for _, meal := range mealplan.Meals {
+			s.ChannelMessageSend(m.ChannelID, "title: "+meal.Title)
+			s.ChannelMessageSend(m.ChannelID, "ready in minuts: "+meal.ReadyInMinutes)
+			s.ChannelMessageSend(m.ChannelID, "url: "+meal.Url)
+		}
+		s.ChannelMessageSend(m.ChannelID, "Calories: "+fmt.Sprint(mealplan.Nutrients.Calories))
+		s.ChannelMessageSend(m.ChannelID, "Protein: "+fmt.Sprint(mealplan.Nutrients.Protein))
+		s.ChannelMessageSend(m.ChannelID, "Fat: "+fmt.Sprint(mealplan.Nutrients.Fat))
+		s.ChannelMessageSend(m.ChannelID, "CarboHydrates: "+fmt.Sprint(mealplan.Nutrients.CarboHydrates))
+
+	}
+
 	if m.Content == "ping" {
 		s.ChannelMessageSend(m.ChannelID, "drit!")
 	}

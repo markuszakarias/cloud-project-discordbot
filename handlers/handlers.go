@@ -1,39 +1,20 @@
 package handlers
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
 	"projectGroup23/structs"
 	"projectGroup23/utilities"
 )
 
-func GetDailyNewsLetter(w http.ResponseWriter, r *http.Request) {
-	jsonResponseAsString := utilities.GetNewsApiData(w, r)
-
+func GetDailyNewsLetter() structs.NewsLetters {
+	jsonResponseAsString := utilities.GetNewsApiData()
 	var newsLetter structs.NewsLetters
 	articleStruct := utilities.PopulateNewsLetters(newsLetter, jsonResponseAsString)
-
-	data, err := json.Marshal(articleStruct)
-	if err != nil {
-		log.Printf("%v", "Error during JSON marhsall.")
-	}
-	w.Header().Add("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	return articleStruct
 }
 
-func GetDailyMealPlan(w http.ResponseWriter, r *http.Request) {
-	mealPlanResponse := utilities.GetDailyMealPlanData(w, r)
-
+func GetDailyMealPlan() structs.MealPlan {
+	mealPlanResponse := utilities.GetDailyMealPlanData()
 	var mealPlanStruct structs.MealPlan
 	mealPlanData := utilities.PopulateMealPlan(mealPlanStruct, mealPlanResponse)
-
-	data, err := json.Marshal(mealPlanData)
-	if err != nil {
-		log.Printf("%v", "Error during JSON marhsall.")
-	}
-	w.Header().Add("content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	return mealPlanData
 }
