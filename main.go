@@ -14,24 +14,6 @@ import (
 
 func main() {
 
-	/*
-		port := os.Getenv("PORT")
-		if port == "" {
-			port = "8080"
-		}
-
-		address := ":" + port
-		fmt.Print("Listening on ", address, "...\n")
-
-		http.HandleFunc("/newsletter", handlers.GetDailyNewsLetter)
-		http.HandleFunc("/mealplan", handlers.GetDailyMealPlan)
-		log.Fatal(http.ListenAndServe(":"+port, nil))
-
-		if err := http.ListenAndServe(address, nil); err != nil {
-			panic(err)
-		}
-	*/
-
 	firebase.InitFirebase()
 
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
@@ -99,8 +81,22 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "drit!")
 	}
 
-	if m.Content == "jokes" {
+	if m.Content == "!notify" {
+		s.ChannelMessageSend(m.ChannelID, "@"+m.Author.ID+" Hey! Remember to wash your hands")
+	}
+
+	if m.Content == "!alljokes" {
 		jokes := firebase.GetAllJokes()
+		for _, a := range jokes {
+			s.ChannelMessageSend(m.ChannelID, a)
+		}
+	}
+
+	if m.Content == "!myjokes" {
+		jokes := firebase.GetAllJokesByUserId(m.Author.ID)
+		if len(jokes) == 0 {
+			s.ChannelMessageSend(m.ChannelID, "You have no jokes yet. Create one with the !createjoke command")
+		}
 		for _, a := range jokes {
 			s.ChannelMessageSend(m.ChannelID, a)
 		}
@@ -108,7 +104,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "!createjoke ") {
 		joke := m.Content[12:]
-		err := firebase.CreateJoke(s.State.User.ID, joke)
+		err := firebase.CreateJoke(m.Author.ID, joke)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 		} else {
@@ -121,9 +117,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
 
-	if m.Content == "minbrukerid" {
-		fmt.Println("asd")
-		s.ChannelMessageSend(m.ChannelID, s.State.User.ID)
+	if m.Content == "!userid" {
+		s.ChannelMessageSend(m.ChannelID, m.Author.ID)
 	}
 
 }

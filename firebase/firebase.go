@@ -56,6 +56,21 @@ func CreateJoke(userId string, jokeText string) error {
 	return err
 }
 
-func getAllJokesByUserId() {
+func GetAllJokesByUserId(userId string) []string {
 	//iter := client.Collection("jokes").Documents(ctx)
+	iter := client.Collection("jokes").Where("createdBy", "==", userId).Documents(ctx)
+	var allJokes []string
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return allJokes
+		}
+		//joke := doc.Data()["text"]
+		var test string = doc.Data()["text"].(string)
+		allJokes = append(allJokes, test)
+	}
+	return allJokes
 }
