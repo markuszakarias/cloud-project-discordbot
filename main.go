@@ -1,59 +1,39 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
+	"log"
+	"net/http"
+	"projectGroup23/utils"
 
-	"github.com/bwmarrin/discordgo"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	var err error
-
-	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
-
-	var s, _ = discordgo.New("Bot " + token)
+	// Opening a database connection with tcp
+	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/todo_app")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	db.SetMaxIdleConns(100)
+	// Wait until the end of the function to close the connection
+	defer db.Close()
 
-	s.AddHandler(messageCreate)
-	s.Identify.Intents = discordgo.IntentsGuildMessages
+	// Creating an instance of the struct
+	db_server := &utils.DB_server{DB: db}
+	appHandler := &utils.RegexHandler{}
 
-	if err = s.Open(); err != nil {
-		panic(err)
-	}
+	// Handlers for the endpoints. Mainly used for testing the output of the database interactions.
+	// Uses regex for URL
+	appHandler.Handler("/app/$", "GET", db_server.TodoAll)
+	appHandler.Handler("/app/$", "POST", db_server.TodoCreate)
+	appHandler.Handler("/app/[0-9]+$", "GET", db_server.TodoObject)
+	appHandler.Handler("/app/[0-9]+$", "PUT", db_server.TodoUpdate)
+	appHandler.Handler("/app/[0-9]+$", "DELETE", db_server.TodoDeleteObject)
 
-	fmt.Println("Bot is now running. Press CTRL-C to exit...")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
+	fmt.Println("Listening on port 8080")
+	http.ListenAndServe(":8080", appHandler)
 
-	// Cleanly close down the Discord session.
-	s.Close()
-
-}
-
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	// If the message is "ping" reply with "Pong!"
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "drit!")
-	}
-
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
-
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
 }
