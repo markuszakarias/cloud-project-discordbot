@@ -70,12 +70,14 @@ func GetIPLocation() structs.IPPosition {
 	return ipp
 }
 
-func GetWeeklyWeatherForecastData() string {
+func GetWeeklyWeatherForecastData(days int) string {
 	ipp := GetIPLocation()
-	cnt := "7"
+	cnt := days
+	units := "metric"
 	apikey := "f6a8e67b1a5f1d5be2bffe4d461cc155" //TODO - Secure API key
 
-	url := "api.openweathermap.org/data/2.5/forecast/daily?q=" + ipp.City + "&cnt=" + cnt + "&appid=" + apikey
+	url := "api.openweathermap.org/data/2.5/forecast/daily?q=" + ipp.City +
+		"&units=" + units + "&cnt=" + string(cnt) + "&appid=" + apikey
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Errorf("Error in response: ", err.Error())
@@ -159,6 +161,41 @@ func PopulateMealPlan(paramStruct structs.MealPlan, jsonResponseString string) s
 	return mealPlanData
 }
 
-func PopulateWeatherForecast(jsonResponseString string) structs.WeatherForecast {
+func PopulateWeatherForecast(jsonResponseString string, days int) structs.WeatherForecasts {
+	var wf structs.WeatherForecast
+	var wfs structs.WeatherForecasts
+	cityJson := gjson.Get(jsonResponseString, "city.name")
 
+	for i := 0; i < days; i++ {
+		date := time.Now().AddDate(0, 0, i).Format("2006-01-02")
+		mainJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".weather.0.main")
+		descJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".weather.0.description")
+		mornJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.morn")
+		dayJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.day")
+		eveJson		:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.eve")
+		nightJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.night")
+		cloudsJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".clouds")
+		windJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".speed")
+		popJson		:= gjson.Get(jsonResponseString, "list." + string(i) + ".pop")
+		rainJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".rain")
+		snowJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".snow")
+
+		wf.Date = date
+		wf.City = cityJson.String()
+		wf.Main = mainJson.String()
+		wf.Desc = descJson.String()
+		wf.Morning = mornJson.Float()
+		wf.Day = dayJson.Float()
+		wf.Eve = eveJson.Float()
+		wf.Night = nightJson.Float()
+		wf.Clouds = cloudsJson.Float()
+		wf.Wind = windJson.Float()
+		wf.POP = popJson.Float()
+		wf.Rain = rainJson.Float()
+		wf.Snow = snowJson.Float()
+
+		wfs.Forecasts = append(wfs.Forecasts, wf)
+	}
+
+	return wfs
 }

@@ -19,8 +19,8 @@ func GetDailyMealPlan() structs.MealPlan {
 	return mealPlanData
 }
 
-func GetWeaklyWeatherForecast() structs.WeatherForecast {
-	wfResponse := utilities.GetWeeklyWeatherForecastData()
-	wf := utilities.PopulateWeatherForecast(wfResponse)
+func GetWeatherForecast(days int) structs.WeatherForecasts {
+	wfResponse := utilities.GetWeeklyWeatherForecastData(days)
+	wf := utilities.PopulateWeatherForecast(wfResponse, days)
 	return wf
 }

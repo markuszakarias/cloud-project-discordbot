@@ -49,6 +49,27 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// If the message is "ping" reply with "Pong!"
+	if m.Content == "!weather" {
+		wf := handlers.GetWeatherForecast(1)
+		s.ChannelMessageSend(m.ChannelID, "Weather forecast for today")
+
+		for _, day := range wf.Forecasts {
+			s.ChannelMessageSend(m.ChannelID, "Date: " + day.Date)
+			s.ChannelMessageSend(m.ChannelID, "City: " + day.City)
+			s.ChannelMessageSend(m.ChannelID, "Main weather: " + day.Main)
+			s.ChannelMessageSend(m.ChannelID, "" + day.Desc)
+			s.ChannelMessageSend(m.ChannelID, "Morning temperature: " + fmt.Sprint(day.Morning))
+			s.ChannelMessageSend(m.ChannelID, "Day temperature: " + fmt.Sprint(day.Day))
+			s.ChannelMessageSend(m.ChannelID, "Evening temperature: " + fmt.Sprint(day.Eve))
+			s.ChannelMessageSend(m.ChannelID, "Night temperature: " + fmt.Sprint(day.Night))
+			s.ChannelMessageSend(m.ChannelID, "Clouds: " + fmt.Sprint(day.Clouds) + "%")
+			s.ChannelMessageSend(m.ChannelID, "Wind: " + fmt.Sprint(day.Wind) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, "Probability of precipitation: " + fmt.Sprint(day.POP))
+			s.ChannelMessageSend(m.ChannelID, "Rain: " + fmt.Sprint(day.Rain) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, "Snow: " + fmt.Sprint(day.Snow) + " m/s")
+		}
+	}
+
 	if m.Content == "!newsletter" {
 		data := handlers.GetDailyNewsLetter()
 		for _, article := range data.Newsletters {

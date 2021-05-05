@@ -39,5 +39,23 @@ type IPPosition struct {
 }
 
 type WeatherForecast struct {
+	Date string `json:"date"`
+	City string `json:"city"`
+	Main string `json:"main"`
+	Desc string `json:"description"`
+	Morning float64 `json:"morning"`
+	Day float64 `json:"day"`
+	Eve float64 `json:"eve"`
+	Night float64 `json:"night"`
+	Clouds float64 `json:"clouds"`
+	Wind float64 `json:"wind"`
+	POP float64 `json:"pop"`
+	Rain float64 `json:"rain"`
+	Snow float64 `json:"snow"`
 
+
+}
+
+type WeatherForecasts struct {
+	Forecasts []WeatherForecast `json:"forecasts"`
 }
