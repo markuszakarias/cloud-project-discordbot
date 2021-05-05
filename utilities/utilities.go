@@ -1,6 +1,7 @@
 package utilities
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -50,6 +51,44 @@ func GetDailyMealPlanData() string {
 
 	return jsonResponseAsString
 
+}
+
+func GetIPLocation() structs.IPPosition {
+	url := "https://ipapi.co/json/"
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Errorf("Error in response: ", err.Error())
+	}
+	defer resp.Body.Close()
+
+	var ipp structs.IPPosition
+	err = json.NewDecoder(resp.Body).Decode(&ipp)
+	if err != nil {
+		fmt.Errorf("Error in JSON decoding: ", err.Error())
+	}
+
+	return ipp
+}
+
+func GetWeeklyWeatherForecastData() string {
+	ipp := GetIPLocation()
+	cnt := "7"
+	apikey := "f6a8e67b1a5f1d5be2bffe4d461cc155" //TODO - Secure API key
+
+	url := "api.openweathermap.org/data/2.5/forecast/daily?q=" + ipp.City + "&cnt=" + cnt + "&appid=" + apikey
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Errorf("Error in response: ", err.Error())
+	}
+	defer resp.Body.Close()
+
+	output, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Errorf("Error when reading response: ", err.Error())
+	}
+	jsonResponseAsString := string(output)
+
+	return jsonResponseAsString
 }
 
 // populateNewsLetters walks through the response from the newsletter api and creates a
@@ -118,4 +157,8 @@ func PopulateMealPlan(paramStruct structs.MealPlan, jsonResponseString string) s
 		mealPlanData.Meals[i].Url = url
 	}
 	return mealPlanData
+}
+
+func PopulateWeatherForecast(jsonResponseString string) structs.WeatherForecast {
+
 }

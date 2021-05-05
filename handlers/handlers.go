@@ -18,3 +18,9 @@ func GetDailyMealPlan() structs.MealPlan {
 	mealPlanData := utilities.PopulateMealPlan(mealPlanStruct, mealPlanResponse)
 	return mealPlanData
 }
+
+func GetWeaklyWeatherForecast() structs.WeatherForecast {
+	wfResponse := utilities.GetWeeklyWeatherForecastData()
+	wf := utilities.PopulateWeatherForecast(wfResponse)
+	return wf
+}
