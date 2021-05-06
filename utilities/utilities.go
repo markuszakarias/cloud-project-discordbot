@@ -53,8 +53,8 @@ func GetDailyMealPlanData() string {
 
 }
 
-func GetIPLocation() structs.IPPosition {
-	url := "https://ipapi.co/json/"
+func GetIPLocation() structs.IPLocation {
+	url := "https://ipwhois.app/json/"
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Errorf("Error in response: ", err.Error())
@@ -62,7 +62,7 @@ func GetIPLocation() structs.IPPosition {
 
 	defer resp.Body.Close()
 
-	var ipp structs.IPPosition
+	var ipp structs.IPLocation
 	err = json.NewDecoder(resp.Body).Decode(&ipp)
 	if err != nil {
 		fmt.Errorf("Error in JSON decoding: ", err.Error())
@@ -74,10 +74,12 @@ func GetIPLocation() structs.IPPosition {
 func GetWeeklyWeatherForecastData(days int) string {
 	ipp := GetIPLocation()
 	units := "metric"
+	cnt := strconv.Itoa(days)
 	apikey := "f6a8e67b1a5f1d5be2bffe4d461cc155" //TODO - Secure API key
 
-	url := "api.openweathermap.org/data/2.5/forecast/daily?q=" + ipp.City +
-		"&units=" + units + "&cnt=" + string(days) + "&appid=" + apikey
+	url := "https://api.openweathermap.org/data/2.5/forecast/daily?q=" + ipp.City +
+		"&units=" + units + "&cnt=" + cnt + "&appid=" + apikey
+
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Errorf("Error in response: ", err.Error())
@@ -85,13 +87,12 @@ func GetWeeklyWeatherForecastData(days int) string {
 
 	defer resp.Body.Close()
 
-	output, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Errorf("Error when reading response: ", err.Error())
 	}
-	jsonResponseAsString := string(output)
 
-	return jsonResponseAsString
+	return string(body)
 }
 
 // populateNewsLetters walks through the response from the newsletter api and creates a
@@ -168,18 +169,20 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 	cityJson := gjson.Get(jsonResponseString, "city.name")
 
 	for i := 0; i < days; i++ {
+		ias := strconv.Itoa(i)
+
 		date := time.Now().AddDate(0, 0, i).Format("2006-01-02")
-		mainJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".weather.0.main")
-		descJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".weather.0.description")
-		mornJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.morn")
-		dayJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.day")
-		eveJson		:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.eve")
-		nightJson 	:= gjson.Get(jsonResponseString, "list." + string(i) + ".temp.night")
-		cloudsJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".clouds")
-		windJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".speed")
-		popJson		:= gjson.Get(jsonResponseString, "list." + string(i) + ".pop")
-		rainJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".rain")
-		snowJson	:= gjson.Get(jsonResponseString, "list." + string(i) + ".snow")
+		mainJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".weather.0.main")
+		descJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".weather.0.description")
+		mornJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".temp.morn")
+		dayJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".temp.day")
+		eveJson		:= gjson.Get(jsonResponseString, "list." + ias + ".temp.eve")
+		nightJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".temp.night")
+		cloudsJson	:= gjson.Get(jsonResponseString, "list." + ias + ".clouds")
+		windJson	:= gjson.Get(jsonResponseString, "list." + ias + ".speed")
+		popJson		:= gjson.Get(jsonResponseString, "list." + ias + ".pop")
+		rainJson	:= gjson.Get(jsonResponseString, "list." + ias + ".rain")
+		snowJson	:= gjson.Get(jsonResponseString, "list." + ias + ".snow")
 
 		wf.Date = date
 		wf.City = cityJson.String()
@@ -199,4 +202,11 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 	}
 
 	return wfs
+}
+
+func PopulateIPLocation(jsonResponseString string) structs.IPLocation {
+	var ipl structs.IPLocation
+	cityJson := gjson.Get(jsonResponseString, "city")
+	ipl.City = cityJson.String()
+	return ipl
 }
