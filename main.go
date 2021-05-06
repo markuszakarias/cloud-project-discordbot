@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 
-	_ "github.com/denisenkom/go-mssqldb"
-	_ "github.com/go-sql-driver/mysql"
+	"cloud.google.com/go/firestore"
+	firebase "firebase.google.com/go"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 type todo_struct struct {
@@ -19,245 +19,161 @@ type todo_struct struct {
 	state    string
 }
 
-var server = "vmdata.database.windows.net"
-var port = 1433
-var user = "eriksen"
-var password = "Tanzania1994!"
-var database = "VM_Data"
+var ctx context.Context
+var client *firestore.Client
 
-var db *sql.DB
+var collection = "todolist"
 
-var err error
+func InitFirebase() {
+	ctx = context.Background()
 
-func main() {
-	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
-		server, user, password, port, database)
-
-	// Create connection pool
-	db, err = sql.Open("sqlserver", connString)
+	opt := option.WithCredentialsFile("./assets/assignment-2-db-firebase-adminsdk-ij2bm-1dbf677c2d.json")
+	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
-		log.Fatal("Error creating connection pool: ", err.Error())
-	}
-	ctx := context.Background()
-	err = db.PingContext(ctx)
-	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("error initializing app: %v", err)
 	}
 
-	// Use this stuct to create/display/delete/update one todo object
+	client, err = app.Firestore(ctx)
+	if err != nil {
+		fmt.Println("This error happened when connecting to firestore.")
+		log.Fatalln(err)
+	}
+
+	// Used a the main todo object
 	var todoObject todo_struct
-	todoObject.userid = "002"
+	todoObject.userid = "001"
 	todoObject.title = "Second Task"
-	todoObject.category = "Second Category"
-	todoObject.state = "active"
+	todoObject.category = "Updated Category"
+	todoObject.state = "inactive"
 
-	// Read all todo
-	err = getTodoAll()
-	if err != nil {
-		log.Fatal("Error reading all todo objects: ", err.Error())
-	}
+	// Used for updating a todo object
+	var updateObject todo_struct
+	updateObject.userid = "001"
+	updateObject.title = "Second Task"
+	updateObject.category = "Updated Category"
+	updateObject.state = "active"
 
-	// Read one todo
-	/* err = getTodoObject("abcdefgh12345678")
+	/* getlist := getTodoAll()
+	fmt.Println(getlist) */
+
+	/* getTodo := getTodoObject(todoObject)
+	fmt.Println(getTodo) */
+
+	/* createTodo := createTodoObject(todoObject)
+	fmt.Println(createTodo) */
+
+	/* err = deleteTodoObject(todoObject)
 	if err != nil {
-		log.Fatal("Error reading todo object: ", err.Error())
+		fmt.Println(err)
 	} */
 
-	// Create todo object
-	/*err = createTodoObject(todoObject)
+	/* err = updateTodoObject(todoObject, updateObject)
 	if err != nil {
-		log.Fatal("Error creating todo object: ", err.Error())
+		fmt.Println(err)
 	} */
 
-	// Delete todo object
-	/* 	err = deleteTodoObject("abcdefgh12345678")
-	   	if err != nil {
-	   		log.Fatal("Error reading all todo objects: ", err.Error())
-	   	} */
-
-	// Update todo object
-	/* 	err = updateTodoObject(todoObject)
-	   	if err != nil {
-	   		log.Fatal("Error updating todo object: ", err.Error())
-	   	} */
 }
 
-func updateTodoObject(todoObject todo_struct) error {
-	ctx := context.Background()
+func getTodoAll() []todo_struct {
+	iter := client.Collection(collection).Documents(ctx)
 
-	if db == nil {
-		err = errors.New("create todo object: db is null")
+	var objects []todo_struct
+	var todoObject todo_struct
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			fmt.Println(err) //TODO error handle this
+		}
+
+		todoObject.userid = doc.Data()["Userid"].(string)
+		todoObject.title = doc.Data()["Title"].(string)
+		todoObject.category = doc.Data()["Category"].(string)
+		todoObject.state = doc.Data()["State"].(string)
+		objects = append(objects, todoObject)
 	}
+	return objects
+}
 
-	// Check db connection
-	err = db.PingContext(ctx)
+func getTodoObject(todoObject todo_struct) todo_struct {
+	data, err := client.Collection(collection).Doc(todoObject.userid).Get(ctx)
 	if err != nil {
-		return err
+		fmt.Println(err) //TODO error handle this
 	}
 
-	tsql := "UPDATE [dbo].[todo] SET Category = @Category WHERE Userid = @Userid;"
+	if data.Data() == nil {
+		fmt.Println("data is nil") //TODO error handle this
+	}
+	todo := data.Data()
+	todo["Userid"] = todoObject.userid
 
-	// Execute non-query with named parameters
-	res, err := db.ExecContext(ctx, tsql,
-		sql.Named("Userid", todoObject.userid),
-		sql.Named("Category", todoObject.category))
+	fmt.Println(todo)
 
+	return todoObject
+}
+
+func createTodoObject(todoObject todo_struct) todo_struct {
+	_, _, err := client.Collection(collection).Add(ctx,
+		map[string]interface{}{
+			"Userid":   todoObject.userid,
+			"Title":    todoObject.title,
+			"Category": todoObject.category,
+			"State":    todoObject.state,
+		})
 	if err != nil {
-		return err
+		return todoObject
 	}
 
-	fmt.Println(res)
+	return todoObject
+}
+
+func updateTodoObject(todoObject todo_struct, updateObject todo_struct) error {
+	query := client.Collection(collection).Where("Userid", "==", todoObject.userid).Where("Title", "==", todoObject.title).Documents(ctx)
+
+	for {
+		doc, err := query.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		todo_id := doc.Ref.ID
+		client.Collection(collection).Doc(todo_id).Set(ctx, map[string]interface{}{
+			"Title":    updateObject.title,
+			"Category": updateObject.category,
+			"State":    updateObject.state,
+		}, firestore.MergeAll)
+	}
 
 	return nil
 }
 
 func deleteTodoObject(todoObject todo_struct) error {
-	ctx := context.Background()
+	query := client.Collection(collection).Where("Userid", "==", todoObject.userid).Where("Title", "==", todoObject.title).Documents(ctx)
 
-	if db == nil {
-		err = errors.New("create todo object: db is null")
-	}
-
-	// Check db connection
-	err = db.PingContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	tsql := "DELETE FROM [dbo].[todo] WHERE Userid = @Userid;"
-
-	// Execute non-query with named parameters
-	res, err := db.ExecContext(ctx, tsql,
-		sql.Named("Userid", todoObject.userid))
-
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(res)
-
-	return nil
-}
-
-func createTodoObject(todoObject todo_struct) error {
-	ctx := context.Background()
-
-	if db == nil {
-		err = errors.New("create todo object: db is null")
-	}
-
-	// Check db connection
-	err = db.PingContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	tsql := `INSERT INTO [dbo].[todo] (Userid, Title, Category, State) VALUES (@Userid, @Title, @Category, @State);
-			select isNull(SCOPE_IDENTITY(), -1);`
-
-	stmt, err := db.Prepare(tsql)
-	if err != nil {
-		return err
-	}
-
-	defer stmt.Close()
-
-	row := stmt.QueryRowContext(ctx,
-		sql.Named("Userid", todoObject.userid),
-		sql.Named("Title", todoObject.title),
-		sql.Named("Category", todoObject.category),
-		sql.Named("State", todoObject.state))
-
-	err = row.Scan(&todoObject.id)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("New ID was created:", todoObject.id)
-
-	return nil
-}
-
-func getTodoAll() error {
-	ctx := context.Background()
-
-	// Check database connection
-	err := db.PingContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	// The sql query to be executed
-	tsql := "SELECT Id, Userid, Title, Category, State FROM [dbo].[todo];"
-
-	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
-	if err != nil {
-		return err
-	}
-
-	// Wait until function ends before
-	defer rows.Close()
-
-	fmt.Println("Print all todo data:")
-
-	// Iterate through the result set.
-	for rows.Next() {
-		var title, userid, category, state string
-		var id int
-
-		// Get values from row.
-		err := rows.Scan(&id, &userid, &title, &category, &state)
+	for {
+		doc, err := query.Next()
+		if err == iterator.Done {
+			break
+		}
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("Id:%d Userid:%s Title: %s, Category: %s, State: %s\n", id, userid, title, category, state)
+		todo_id := doc.Ref.ID
+		res, err := client.Collection(collection).Doc(todo_id).Delete(ctx)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(res)
 	}
 
 	return nil
 }
 
-func getTodoObject(todoObject todo_struct) error {
-	ctx := context.Background()
-
-	// Check database connection
-	err := db.PingContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	// The sql query to be executed
-	tsql := "SELECT Id, Userid, Title, Category, State FROM [dbo].[todo] WHERE Userid = @Userid;"
-
-	// Execute query
-	rows, err := db.QueryContext(ctx, tsql, sql.Named("UserId", todoObject.userid))
-	if err != nil {
-		return err
-	}
-
-	// Wait until function ends before
-	defer rows.Close()
-
-	fmt.Println("Print one todo object:")
-
-	// Iterate through the result set.
-	for rows.Next() {
-
-		// Get values from row.
-		err := rows.Scan(&todoObject.id,
-			&todoObject.userid,
-			&todoObject.title,
-			&todoObject.category,
-			&todoObject.state)
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("Id:%d Userid:%s Title: %s, Category: %s, State: %s\n",
-			todoObject.id, todoObject.userid, todoObject.title, todoObject.category, todoObject.state)
-	}
-
-	return nil
+func main() {
+	InitFirebase()
 }
