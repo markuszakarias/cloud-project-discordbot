@@ -168,8 +168,6 @@ func createTodoObject(todoObject todo_struct) error {
 		sql.Named("Category", todoObject.category),
 		sql.Named("State", todoObject.state))
 
-	fmt.Println("Before scan")
-
 	err = row.Scan(&todoObject.id)
 	if err != nil {
 		return err
