@@ -59,6 +59,7 @@ func GetIPLocation() structs.IPPosition {
 	if err != nil {
 		fmt.Errorf("Error in response: ", err.Error())
 	}
+
 	defer resp.Body.Close()
 
 	var ipp structs.IPPosition
@@ -72,16 +73,16 @@ func GetIPLocation() structs.IPPosition {
 
 func GetWeeklyWeatherForecastData(days int) string {
 	ipp := GetIPLocation()
-	cnt := days
 	units := "metric"
 	apikey := "f6a8e67b1a5f1d5be2bffe4d461cc155" //TODO - Secure API key
 
 	url := "api.openweathermap.org/data/2.5/forecast/daily?q=" + ipp.City +
-		"&units=" + units + "&cnt=" + string(cnt) + "&appid=" + apikey
+		"&units=" + units + "&cnt=" + string(days) + "&appid=" + apikey
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Errorf("Error in response: ", err.Error())
 	}
+
 	defer resp.Body.Close()
 
 	output, err := ioutil.ReadAll(resp.Body)
