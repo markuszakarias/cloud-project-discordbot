@@ -24,3 +24,10 @@ func GetWeatherForecast(days int) structs.WeatherForecasts {
 	wf := utilities.PopulateWeatherForecast(wfResponse, days)
 	return wf
 }
+
+// GetSteamDeals returns deals in the steam store from an external api. It passes along an argument as to how many it should return.
+func GetSteamDeals(command string) structs.Deals {
+	jsonResponseAsString := utilities.GetSteamDeals()
+	dealsData := utilities.GetDeals(jsonResponseAsString, command)
+	return dealsData
+}

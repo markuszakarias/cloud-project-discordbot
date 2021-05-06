@@ -38,7 +38,6 @@ func main() {
 
 	// Cleanly close down the Discord session.
 	s.Close()
-
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -53,19 +52,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		wf := handlers.GetWeatherForecast(1)
 
 		for _, day := range wf.Forecasts {
-			s.ChannelMessageSend(m.ChannelID, ":calendar: " + day.Date)
-			s.ChannelMessageSend(m.ChannelID, ":map: " + day.City)
-			s.ChannelMessageSend(m.ChannelID, day.Main + " - " + day.Desc)
-			s.ChannelMessageSend(m.ChannelID, ":cloud: " + fmt.Sprint(day.Clouds) + "%")
-			s.ChannelMessageSend(m.ChannelID, ":dash: " + fmt.Sprint(day.Wind) + " m/s")
-			s.ChannelMessageSend(m.ChannelID, "Probability of precipitation: " + fmt.Sprint(day.POP))
-			s.ChannelMessageSend(m.ChannelID, ":cloud_rain: " + fmt.Sprint(day.Rain) + " m/s")
-			s.ChannelMessageSend(m.ChannelID, ":cloud_snow: " + fmt.Sprint(day.Snow) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, ":calendar: "+day.Date)
+			s.ChannelMessageSend(m.ChannelID, ":map: "+day.City)
+			s.ChannelMessageSend(m.ChannelID, day.Main+" - "+day.Desc)
+			s.ChannelMessageSend(m.ChannelID, ":cloud: "+fmt.Sprint(day.Clouds)+"%")
+			s.ChannelMessageSend(m.ChannelID, ":dash: "+fmt.Sprint(day.Wind)+" m/s")
+			s.ChannelMessageSend(m.ChannelID, "Probability of precipitation: "+fmt.Sprint(day.POP))
+			s.ChannelMessageSend(m.ChannelID, ":cloud_rain: "+fmt.Sprint(day.Rain)+" m/s")
+			s.ChannelMessageSend(m.ChannelID, ":cloud_snow: "+fmt.Sprint(day.Snow)+" m/s")
 			s.ChannelMessageSend(m.ChannelID, "Temperature:")
-			s.ChannelMessageSend(m.ChannelID, ":city_sunrise: " + fmt.Sprint(day.Morning) + " Celsius")
-			s.ChannelMessageSend(m.ChannelID, ":cityscape: " + fmt.Sprint(day.Day) + " Celsius")
-			s.ChannelMessageSend(m.ChannelID, ":city_dusk: " + fmt.Sprint(day.Eve) + " Celsius")
-			s.ChannelMessageSend(m.ChannelID, ":night_with_stars: " + fmt.Sprint(day.Night) + " Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":city_sunrise: "+fmt.Sprint(day.Morning)+" Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":cityscape: "+fmt.Sprint(day.Day)+" Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":city_dusk: "+fmt.Sprint(day.Eve)+" Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":night_with_stars: "+fmt.Sprint(day.Night)+" Celsius")
 		}
 	}
 
@@ -141,4 +140,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, m.Author.ID)
 	}
 
+	if m.Content == "!steamdeals" || len(m.Content) == 13 {
+		deals := handlers.GetSteamDeals(m.Content)
+		s.ChannelMessageSend(m.ChannelID, "Here are your steam deal(s): ")
+		for _, deal := range deals.Deals {
+			s.ChannelMessageSend(m.ChannelID, "title: "+deal.Title)
+			s.ChannelMessageSend(m.ChannelID, "DealID: "+deal.DealID)
+			s.ChannelMessageSend(m.ChannelID, "NormalPrice: "+deal.NormalPrice)
+			s.ChannelMessageSend(m.ChannelID, "SalePrice: "+deal.SalePrice)
+			s.ChannelMessageSend(m.ChannelID, "Savings: "+deal.Savings)
+			s.ChannelMessageSend(m.ChannelID, "MetacriticScore: "+deal.MetacriticScore)
+			s.ChannelMessageSend(m.ChannelID, "SteamRatingText: "+deal.SteamRatingText)
+			s.ChannelMessageSend(m.ChannelID, "SteamRatingPercent: "+deal.SteamRatingPercent)
+			s.ChannelMessageSend(m.ChannelID, "SteamRatingCount: "+deal.SteamRatingCount)
+		}
+	}
 }
