@@ -2,32 +2,32 @@ package handlers
 
 import (
 	"projectGroup23/structs"
-	"projectGroup23/utilities"
+	"projectGroup23/utils"
 )
 
 func GetDailyNewsLetter() structs.NewsLetters {
-	jsonResponseAsString := utilities.GetNewsApiData()
+	jsonResponseAsString := utils.GetNewsApiData()
 	var newsLetter structs.NewsLetters
-	articleStruct := utilities.PopulateNewsLetters(newsLetter, jsonResponseAsString)
+	articleStruct := utils.PopulateNewsLetters(newsLetter, jsonResponseAsString)
 	return articleStruct
 }
 
 func GetDailyMealPlan() structs.MealPlan {
-	mealPlanResponse := utilities.GetDailyMealPlanData()
+	mealPlanResponse := utils.GetDailyMealPlanData()
 	var mealPlanStruct structs.MealPlan
-	mealPlanData := utilities.PopulateMealPlan(mealPlanStruct, mealPlanResponse)
+	mealPlanData := utils.PopulateMealPlan(mealPlanStruct, mealPlanResponse)
 	return mealPlanData
 }
 
 func GetWeatherForecast(days int) structs.WeatherForecasts {
-	wfResponse := utilities.GetWeeklyWeatherForecastData(days)
-	wf := utilities.PopulateWeatherForecast(wfResponse, days)
+	wfResponse := utils.GetWeeklyWeatherForecastData(days)
+	wf := utils.PopulateWeatherForecast(wfResponse, days)
 	return wf
 }
 
 // GetSteamDeals returns deals in the steam store from an external api. It passes along an argument as to how many it should return.
 func GetSteamDeals(command string) structs.Deals {
-	jsonResponseAsString := utilities.GetSteamDeals()
-	dealsData := utilities.GetDeals(jsonResponseAsString, command)
+	jsonResponseAsString := utils.GetSteamDeals()
+	dealsData := utils.GetDeals(jsonResponseAsString, command)
 	return dealsData
 }
