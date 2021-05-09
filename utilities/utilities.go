@@ -172,17 +172,17 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 		ias := strconv.Itoa(i)
 
 		date := time.Now().AddDate(0, 0, i).Format("2006-01-02")
-		mainJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".weather.0.main")
-		descJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".weather.0.description")
-		mornJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".temp.morn")
-		dayJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".temp.day")
-		eveJson		:= gjson.Get(jsonResponseString, "list." + ias + ".temp.eve")
-		nightJson 	:= gjson.Get(jsonResponseString, "list." + ias + ".temp.night")
-		cloudsJson	:= gjson.Get(jsonResponseString, "list." + ias + ".clouds")
-		windJson	:= gjson.Get(jsonResponseString, "list." + ias + ".speed")
-		popJson		:= gjson.Get(jsonResponseString, "list." + ias + ".pop")
-		rainJson	:= gjson.Get(jsonResponseString, "list." + ias + ".rain")
-		snowJson	:= gjson.Get(jsonResponseString, "list." + ias + ".snow")
+		mainJson := gjson.Get(jsonResponseString, "list."+ias+".weather.0.main")
+		descJson := gjson.Get(jsonResponseString, "list."+ias+".weather.0.description")
+		mornJson := gjson.Get(jsonResponseString, "list."+ias+".temp.morn")
+		dayJson := gjson.Get(jsonResponseString, "list."+ias+".temp.day")
+		eveJson := gjson.Get(jsonResponseString, "list."+ias+".temp.eve")
+		nightJson := gjson.Get(jsonResponseString, "list."+ias+".temp.night")
+		cloudsJson := gjson.Get(jsonResponseString, "list."+ias+".clouds")
+		windJson := gjson.Get(jsonResponseString, "list."+ias+".speed")
+		popJson := gjson.Get(jsonResponseString, "list."+ias+".pop")
+		rainJson := gjson.Get(jsonResponseString, "list."+ias+".rain")
+		snowJson := gjson.Get(jsonResponseString, "list."+ias+".snow")
 
 		wf.Date = date
 		wf.City = cityJson.String()
@@ -202,11 +202,4 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 	}
 
 	return wfs
-}
-
-func PopulateIPLocation(jsonResponseString string) structs.IPLocation {
-	var ipl structs.IPLocation
-	cityJson := gjson.Get(jsonResponseString, "city")
-	ipl.City = cityJson.String()
-	return ipl
 }

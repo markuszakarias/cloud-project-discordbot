@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"projectGroup23/firebase"
 	"projectGroup23/handlers"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -15,7 +16,6 @@ import (
 func main() {
 
 	firebase.InitFirebase()
-
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
 
 	var s, err = discordgo.New("Bot " + token)
@@ -24,6 +24,7 @@ func main() {
 		panic(err)
 	}
 
+	go firebase.WebhookRoutine(s)
 	s.AddHandler(messageCreate)
 	s.Identify.Intents = discordgo.IntentsGuildMessages
 
@@ -38,7 +39,6 @@ func main() {
 
 	// Cleanly close down the Discord session.
 	s.Close()
-
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -53,20 +53,52 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		wf := handlers.GetWeatherForecast(1)
 
 		for _, day := range wf.Forecasts {
-			s.ChannelMessageSend(m.ChannelID, ":calendar: " + day.Date)
-			s.ChannelMessageSend(m.ChannelID, ":map: " + day.City)
-			s.ChannelMessageSend(m.ChannelID, day.Main + " - " + day.Desc)
-			s.ChannelMessageSend(m.ChannelID, ":cloud: " + fmt.Sprint(day.Clouds) + "%")
-			s.ChannelMessageSend(m.ChannelID, ":dash: " + fmt.Sprint(day.Wind) + " m/s")
-			s.ChannelMessageSend(m.ChannelID, "Probability of precipitation: " + fmt.Sprint(day.POP))
-			s.ChannelMessageSend(m.ChannelID, ":cloud_rain: " + fmt.Sprint(day.Rain) + " m/s")
-			s.ChannelMessageSend(m.ChannelID, ":cloud_snow: " + fmt.Sprint(day.Snow) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, ":calendar: "+day.Date)
+			s.ChannelMessageSend(m.ChannelID, ":map: "+day.City)
+			s.ChannelMessageSend(m.ChannelID, day.Main+" - "+day.Desc)
+			s.ChannelMessageSend(m.ChannelID, ":cloud: "+fmt.Sprint(day.Clouds)+"%")
+			s.ChannelMessageSend(m.ChannelID, ":dash: "+fmt.Sprint(day.Wind)+" m/s")
+			s.ChannelMessageSend(m.ChannelID, "Probability of precipitation: "+fmt.Sprint(day.POP))
+			s.ChannelMessageSend(m.ChannelID, ":cloud_rain: "+fmt.Sprint(day.Rain)+" m/s")
+			s.ChannelMessageSend(m.ChannelID, ":cloud_snow: "+fmt.Sprint(day.Snow)+" m/s")
 			s.ChannelMessageSend(m.ChannelID, "Temperature:")
-			s.ChannelMessageSend(m.ChannelID, ":city_sunrise: " + fmt.Sprint(day.Morning) + " Celsius")
-			s.ChannelMessageSend(m.ChannelID, ":cityscape: " + fmt.Sprint(day.Day) + " Celsius")
-			s.ChannelMessageSend(m.ChannelID, ":city_dusk: " + fmt.Sprint(day.Eve) + " Celsius")
-			s.ChannelMessageSend(m.ChannelID, ":night_with_stars: " + fmt.Sprint(day.Night) + " Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":city_sunrise: "+fmt.Sprint(day.Morning)+" Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":cityscape: "+fmt.Sprint(day.Day)+" Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":city_dusk: "+fmt.Sprint(day.Eve)+" Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":night_with_stars: "+fmt.Sprint(day.Night)+" Celsius")
 		}
+	}
+
+	if m.Content == "!notifyweather remove" {
+		err := firebase.DeleteWebhook(m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "notification removed!")
+			return
+		}
+	}
+
+	if m.Content[:21] == "!notifyweather cloud " {
+		percent, err := strconv.Atoi(m.Content[21:])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to be a number")
+			return
+		}
+		if percent < 0 || 100 < percent {
+			s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to beetween 0 and 100")
+			return
+		}
+
+		err = firebase.CreateWeatherWebhook(m.Author.ID, int64(percent))
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+		} else {
+
+			//asd := s.UserChannelCreate(recipientID string)
+			//asd, _ := s.UserChannelCreate(m.Author.ID)
+
+			s.ChannelMessageSend(m.ChannelID, "Notification created/updated! You will get notified when the next day has a cloud percentage less than "+fmt.Sprint(percent)+" percent")
+		}
+
 	}
 
 	if m.Content == "!newsletter" {

@@ -34,27 +34,32 @@ type MealPlan struct {
 }
 
 type IPLocation struct {
-	City	string `json:"city"`
+	City string `json:"city"`
 }
 
 type WeatherForecast struct {
-	Date string `json:"date"`
-	City string `json:"city"`
-	Main string `json:"main"`
-	Desc string `json:"description"`
+	Date    string  `json:"date"`
+	City    string  `json:"city"`
+	Main    string  `json:"main"`
+	Desc    string  `json:"description"`
 	Morning float64 `json:"morning"`
-	Day float64 `json:"day"`
-	Eve float64 `json:"eve"`
-	Night float64 `json:"night"`
-	Clouds float64 `json:"clouds"`
-	Wind float64 `json:"wind"`
-	POP float64 `json:"pop"`
-	Rain float64 `json:"rain"`
-	Snow float64 `json:"snow"`
-
-
+	Day     float64 `json:"day"`
+	Eve     float64 `json:"eve"`
+	Night   float64 `json:"night"`
+	Clouds  float64 `json:"clouds"`
+	Wind    float64 `json:"wind"`
+	POP     float64 `json:"pop"`
+	Rain    float64 `json:"rain"`
+	Snow    float64 `json:"snow"`
 }
 
 type WeatherForecasts struct {
 	Forecasts []WeatherForecast `json:"forecasts"`
+}
+
+type CloudWebhook struct {
+	Id                   string `json:"id"`
+	UserId               string `json:"userid"`
+	CloudPercentages     int64  `json:"cloudpercentages"`
+	HasBeenNotifiedToday bool   `json:"hasbeennotifiedtoday"`
 }
