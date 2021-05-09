@@ -7,5 +7,6 @@ require (
 	github.com/denisenkom/go-mssqldb v0.10.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/kr/pretty v0.2.1
+	github.com/tidwall/gjson v1.7.5
 	googlemaps.github.io/maps v1.3.2 // indirect
 )
