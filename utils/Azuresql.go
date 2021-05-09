@@ -108,13 +108,15 @@ func CreateTodoObject(todoObject structs.Todo_struct) error {
 	return nil
 }
 
-func GetTodoAll() error {
+func GetTodoAll() ([]structs.Todo_struct, error) {
+	var allTodos []structs.Todo_struct
+
 	ctx := context.Background()
 
 	// Check database connection
 	err := Db.PingContext(ctx)
 	if err != nil {
-		return err
+		return allTodos, err
 	}
 
 	// The sql query to be executed
@@ -123,7 +125,7 @@ func GetTodoAll() error {
 	// Execute query
 	rows, err := Db.QueryContext(ctx, tsql)
 	if err != nil {
-		return err
+		return allTodos, err
 	}
 
 	// Wait until function ends before
@@ -139,13 +141,23 @@ func GetTodoAll() error {
 		// Get values from row.
 		err := rows.Scan(&id, &userid, &title, &category, &state)
 		if err != nil {
-			return err
+			return allTodos, err
 		}
+
+		todoItem := structs.Todo_struct{
+			Id:       id,
+			Userid:   userid,
+			Title:    title,
+			Category: category,
+			State:    state,
+		}
+
+		allTodos = append(allTodos, todoItem)
 
 		fmt.Printf("Id:%d Userid:%s Title: %s, Category: %s, State: %s\n", id, userid, title, category, state)
 	}
 
-	return nil
+	return allTodos, nil
 }
 
 func GetTodoObject(todoObject structs.Todo_struct) error {
