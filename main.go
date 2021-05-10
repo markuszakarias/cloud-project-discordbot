@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"projectGroup23/handlers"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -61,46 +63,19 @@ func main() {
 
 	// Cleanly close down the Discord session.
 	s.Close()
+}
 
-	/*=======================================================================*/
-
-	// Use this stuct to create/display/delete/update one todo object
-	var todoObject structs.Todo_struct
-	todoObject.Userid = "002"
-	todoObject.Title = "Second Task"
-	todoObject.Category = "Second Category"
-	todoObject.State = "active"
-
-	// Read all todo
-	/* utils.Err = utils.GetTodoAll()
-	if utils.Err != nil {
-		log.Fatal("Error reading all todo objects: ", utils.Err.Error()) */
-
-	// Read one todo
-	/* err = getTodoObject("abcdefgh12345678")
+func convertIndexToId(i int, userid string) (int, error) {
+	resp, err := utils.GetTodoObject(userid)
 	if err != nil {
-		log.Fatal("Error reading todo object: ", err.Error())
-	} */
+		return 0, err
+	}
+	if len(resp) <= i {
+		return 0, errors.New("id does not exist")
+	}
+	deleteId := resp[i].Id
 
-	// Create todo object
-	/*err = createTodoObject(todoObject)
-	if err != nil {
-		log.Fatal("Error creating todo object: ", err.Error())
-	} */
-
-	// Delete todo object
-	/* 	err = deleteTodoObject("abcdefgh12345678")
-	   	if err != nil {
-	   		log.Fatal("Error reading all todo objects: ", err.Error())
-	   	} */
-
-	// Update todo object
-	/* 	err = updateTodoObject(todoObject)
-	   	if err != nil {
-	   		log.Fatal("Error updating todo object: ", err.Error())
-	   	} */
-
-	/*=======================================================================*/
+	return deleteId, nil
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -110,13 +85,120 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "!todolist" {
+	if m.Content == "!todo" {
 		allTodos, err := utils.GetTodoAll()
 		if err != nil {
 			log.Fatal("Error reading all todo objects: ", err.Error())
 		}
-		s.ChannelMessageSend(m.ChannelID, allTodos[1].Title)
+		s.ChannelMessageSend(m.ChannelID, allTodos[1].Description)
 	}
+
+	if m.Content[:12] == "!todo create" {
+		var todoTask string = m.Content[12:]
+		fmt.Println(todoTask)
+		if len(todoTask) < 2 {
+			s.ChannelMessageSend(m.ChannelID, "Missing description for todo task!")
+			return
+		}
+
+		todoTask = todoTask[1:]
+
+		var todoObject structs.Todo_struct
+		todoObject.Userid = m.Author.ID
+		todoObject.Description = todoTask
+		todoObject.State = "active"
+
+		err := utils.CreateTodoObject(todoObject)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Something went wrong while creating todo object")
+			fmt.Println(err)
+		}
+	}
+
+	if m.Content == "!todo mylist" {
+		allTodos, err := utils.GetTodoObject(m.Author.ID)
+		if err != nil {
+			log.Fatal("Error reading all todo objects: ", err.Error())
+		}
+		fmt.Println(allTodos)
+		//s.ChannelMessageSend(m.ChannelID, allTodos[1].Description)
+
+		for i, todo := range allTodos {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprint(i+1)+": "+todo.Description+" -- status: "+todo.State)
+		}
+	}
+
+	if m.Content[:12] == "!todo delete" {
+		var todoId string = m.Content[12:]
+		fmt.Println(todoId)
+		if len(todoId) < 2 {
+			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
+			return
+		}
+		conv, err := strconv.Atoi(todoId[1:])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+			return
+		}
+
+		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+		err = utils.DeleteTodoObject(res)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+	}
+
+	if m.Content[:12] == "!todo update" {
+		var argString string = m.Content[12:]
+		fmt.Println(argString)
+		if len(argString) < 2 {
+			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
+			return
+		}
+
+		args := strings.Fields(argString)
+
+		if len(args) < 2 {
+			s.ChannelMessageSend(m.ChannelID, "Wrong format!")
+			return
+		}
+
+		fmt.Println(args)
+
+		conv, err := strconv.Atoi(args[0])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+			return
+		}
+
+		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+		fmt.Println(res)
+
+		var updateTodo string
+
+		for i, word := range args[1:] {
+			updateTodo += word
+			if i != len(args[1:])-1 {
+				updateTodo += " "
+			}
+		}
+
+		err = utils.UpdateTodoObject(res, updateTodo)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+	}
+
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "!weather" {
 		wf := handlers.GetWeatherForecast(1)
@@ -210,7 +292,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, m.Author.ID)
 	}
 
-	if m.Content == "!steamdeals" || len(m.Content) == 13 {
+	if m.Content == "!steamdeals" {
 		deals := handlers.GetSteamDeals(m.Content)
 		s.ChannelMessageSend(m.ChannelID, "Here are your steam deal(s): ")
 		for _, deal := range deals.Deals {

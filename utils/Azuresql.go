@@ -12,7 +12,7 @@ var Db *sql.DB
 
 var Err error
 
-func UpdateTodoObject(todoObject structs.Todo_struct) error {
+func UpdateTodoObject(sqlId int, description string) error {
 	ctx := context.Background()
 
 	if Db == nil {
@@ -25,23 +25,21 @@ func UpdateTodoObject(todoObject structs.Todo_struct) error {
 		return Err
 	}
 
-	tsql := "UPDATE [dbo].[todo] SET Category = @Category WHERE Userid = @Userid;"
+	tsql := "UPDATE [dbo].[todo] SET Description = @Description WHERE Id = @Id;"
 
 	// Execute non-query with named parameters
-	res, err := Db.ExecContext(ctx, tsql,
-		sql.Named("Userid", todoObject.Userid),
-		sql.Named("Category", todoObject.Category))
+	_, err := Db.ExecContext(ctx, tsql,
+		sql.Named("Id", sqlId),
+		sql.Named("Description", description))
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(res)
-
 	return nil
 }
 
-func DeleteTodoObject(todoObject structs.Todo_struct) error {
+func DeleteTodoObject(sqlId int) error {
 	ctx := context.Background()
 
 	if Db == nil {
@@ -54,11 +52,11 @@ func DeleteTodoObject(todoObject structs.Todo_struct) error {
 		return Err
 	}
 
-	tsql := "DELETE FROM [dbo].[todo] WHERE Userid = @Userid;"
+	tsql := "DELETE FROM [dbo].[todo] WHERE Id = @Id;"
 
 	// Execute non-query with named parameters
 	res, err := Db.ExecContext(ctx, tsql,
-		sql.Named("Userid", todoObject.Userid))
+		sql.Named("Id", sqlId))
 
 	if err != nil {
 		return err
@@ -82,7 +80,7 @@ func CreateTodoObject(todoObject structs.Todo_struct) error {
 		return Err
 	}
 
-	tsql := `INSERT INTO [dbo].[todo] (Userid, Title, Category, State) VALUES (@Userid, @Title, @Category, @State);
+	tsql := `INSERT INTO [dbo].[todo] (Userid, Description, State) VALUES (@Userid, @Description, @State);
 			select isNull(SCOPE_IDENTITY(), -1);`
 
 	stmt, err := Db.Prepare(tsql)
@@ -94,8 +92,7 @@ func CreateTodoObject(todoObject structs.Todo_struct) error {
 
 	row := stmt.QueryRowContext(ctx,
 		sql.Named("Userid", todoObject.Userid),
-		sql.Named("Title", todoObject.Title),
-		sql.Named("Category", todoObject.Category),
+		sql.Named("Description", todoObject.Description),
 		sql.Named("State", todoObject.State))
 
 	err = row.Scan(&todoObject.Id)
@@ -120,7 +117,7 @@ func GetTodoAll() ([]structs.Todo_struct, error) {
 	}
 
 	// The sql query to be executed
-	tsql := "SELECT Id, Userid, Title, Category, State FROM [dbo].[todo];"
+	tsql := "SELECT Id, Userid, Description, State FROM [dbo].[todo];"
 
 	// Execute query
 	rows, err := Db.QueryContext(ctx, tsql)
@@ -135,71 +132,73 @@ func GetTodoAll() ([]structs.Todo_struct, error) {
 
 	// Iterate through the result set.
 	for rows.Next() {
-		var title, userid, category, state string
+		var userid, description, state string
 		var id int
 
 		// Get values from row.
-		err := rows.Scan(&id, &userid, &title, &category, &state)
+		err := rows.Scan(&id, &userid, &description, &state)
 		if err != nil {
 			return allTodos, err
 		}
 
 		todoItem := structs.Todo_struct{
-			Id:       id,
-			Userid:   userid,
-			Title:    title,
-			Category: category,
-			State:    state,
+			Id:          id,
+			Userid:      userid,
+			Description: description,
+			State:       state,
 		}
 
 		allTodos = append(allTodos, todoItem)
 
-		fmt.Printf("Id:%d Userid:%s Title: %s, Category: %s, State: %s\n", id, userid, title, category, state)
+		fmt.Printf("Id:%d Userid:%s Description: %s, State: %s\n", id, userid, description, state)
 	}
 
 	return allTodos, nil
 }
 
-func GetTodoObject(todoObject structs.Todo_struct) error {
+func GetTodoObject(userid string) ([]structs.Todo_struct, error) {
+	var allTodos []structs.Todo_struct
+
 	ctx := context.Background()
 
 	// Check database connection
 	err := Db.PingContext(ctx)
 	if err != nil {
-		return err
+		return allTodos, err
 	}
 
 	// The sql query to be executed
-	tsql := "SELECT Id, Userid, Title, Category, State FROM [dbo].[todo] WHERE Userid = @Userid;"
+	tsql := "SELECT Id, Userid, Description, State FROM [dbo].[todo] WHERE Userid = @Userid;"
 
 	// Execute query
-	rows, err := Db.QueryContext(ctx, tsql, sql.Named("UserId", todoObject.Userid))
+	rows, err := Db.QueryContext(ctx, tsql, sql.Named("Userid", userid))
 	if err != nil {
-		return err
+		return allTodos, err
 	}
 
 	// Wait until function ends before
 	defer rows.Close()
 
-	fmt.Println("Print one todo object:")
-
 	// Iterate through the result set.
 	for rows.Next() {
+		var userid, description, state string
+		var id int
 
 		// Get values from row.
-		err := rows.Scan(&todoObject.Id,
-			&todoObject.Userid,
-			&todoObject.Title,
-			&todoObject.Category,
-			&todoObject.State)
-
+		err := rows.Scan(&id, &userid, &description, &state)
 		if err != nil {
-			return err
+			return allTodos, err
 		}
 
-		fmt.Printf("Id:%d Userid:%s Title: %s, Category: %s, State: %s\n",
-			todoObject.Id, todoObject.Userid, todoObject.Title, todoObject.Category, todoObject.State)
+		todoItem := structs.Todo_struct{
+			Id:          id,
+			Userid:      userid,
+			Description: description,
+			State:       state,
+		}
+
+		allTodos = append(allTodos, todoItem)
 	}
 
-	return nil
+	return allTodos, nil
 }

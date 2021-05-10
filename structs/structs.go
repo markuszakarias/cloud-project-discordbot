@@ -77,9 +77,8 @@ type Deals struct {
 
 // Struct todo_struct - struct for a todo object
 type Todo_struct struct {
-	Id       int
-	Userid   string
-	Title    string
-	Category string
-	State    string
+	Id          int
+	Userid      string
+	Description string
+	State       string
 }
