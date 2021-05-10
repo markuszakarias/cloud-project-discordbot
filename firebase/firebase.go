@@ -6,6 +6,7 @@ import (
 	"log"
 	"projectGroup23/handlers"
 	"projectGroup23/structs"
+	"projectGroup23/utilities"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -93,10 +94,10 @@ func getAllWebhooks() ([]structs.CloudWebhook, error) {
 		}
 		//joke := doc.Data()["text"]
 		webhookPlaceholder := structs.CloudWebhook{
-			Id:                   doc.Ref.ID,
-			UserId:               doc.Data()["UserId"].(string),
-			CloudPercentages:     doc.Data()["CloudPercentages"].(int64),
-			HasBeenNotifiedToday: doc.Data()["HasBeenNotifiedToday"].(bool),
+			Id:               doc.Ref.ID,
+			UserId:           doc.Data()["UserId"].(string),
+			CloudPercentages: doc.Data()["CloudPercentages"].(int64),
+			LastDateNotified: doc.Data()["LastDateNotified"].(time.Time),
 		}
 		allWebhooks = append(allWebhooks, webhookPlaceholder)
 	}
@@ -111,10 +112,10 @@ func DeleteWebhook(userId string) error {
 // if user already has a weather webhook, it will be updated!
 func CreateWeatherWebhook(userId string, cloudPercentages int64) error {
 	_, err := client.Collection("cloudwebhook").Doc(userId).Set(ctx, map[string]interface{}{
-		"Id":                   "",
-		"UserId":               userId,
-		"CloudPercentages":     cloudPercentages,
-		"HasBeenNotifiedToday": false,
+		"Id":               "",
+		"UserId":           userId,
+		"CloudPercentages": cloudPercentages,
+		"LastDateNotified": time.Now().AddDate(0, 0, -1), // sets the dat before since it has not been notified today yet.
 	}, firestore.MergeAll)
 	return err
 }
@@ -124,6 +125,7 @@ func updateWeatherWebhook(userId string, webhookData map[string]interface{}) err
 	return err
 }
 
+// runs every 15 minutes
 func WebhookRoutine(s *discordgo.Session) {
 	webhooks, err := getAllWebhooks()
 	if err != nil {
@@ -132,12 +134,12 @@ func WebhookRoutine(s *discordgo.Session) {
 	for i := 0; i < len(webhooks); i++ {
 		wf := handlers.GetWeatherForecast(1)
 		currentCloud := wf.Forecasts[0].Clouds
-		if float64(webhooks[i].CloudPercentages) >= currentCloud && !webhooks[i].HasBeenNotifiedToday { // if less cloud than notification setting and has not been notified today
+		if float64(webhooks[i].CloudPercentages) >= currentCloud && !utilities.CheckIfSameDate(time.Now(), webhooks[i].LastDateNotified) { // if less cloud than notification setting and has not been notified today
 			userChannel, _ := s.UserChannelCreate(webhooks[i].UserId)
 			message := "tomorrow it will be " + fmt.Sprintf("%.f", currentCloud) + " percent cloud!"
 			s.ChannelMessageSend(userChannel.ID, message)
 			webhookData := map[string]interface{}{
-				"HasBeenNotifiedToday": true,
+				"LastDateNotified": time.Now(),
 			}
 			err := updateWeatherWebhook(webhooks[i].UserId, webhookData) // updates the webbook so it can't notify again today
 			if err != nil {
@@ -145,5 +147,5 @@ func WebhookRoutine(s *discordgo.Session) {
 			}
 		}
 	}
-	time.Sleep(time.Duration(900) * time.Second) // runs every 15 minuts
+	time.Sleep(time.Duration(900) * time.Second) // waits 15 minutes
 }

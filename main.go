@@ -72,9 +72,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "!notifyweather remove" {
 		err := firebase.DeleteWebhook(m.Author.ID)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "notification removed!")
 			return
 		}
+		s.ChannelMessageSend(m.ChannelID, "cloud notification removed!")
 	}
 
 	if m.Content[:21] == "!notifyweather cloud " {

@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 // NewsLetter contains the information for one single news headline from newsapi.
 type NewsLetter struct {
 	Author         string `json:"author"`
@@ -58,8 +60,8 @@ type WeatherForecasts struct {
 }
 
 type CloudWebhook struct {
-	Id                   string `json:"id"`
-	UserId               string `json:"userid"`
-	CloudPercentages     int64  `json:"cloudpercentages"`
-	HasBeenNotifiedToday bool   `json:"hasbeennotifiedtoday"`
+	Id               string    `json:"id"`
+	UserId           string    `json:"userid"`
+	CloudPercentages int64     `json:"cloudpercentages"`
+	LastDateNotified time.Time `json:"lastdatenotified"`
 }
