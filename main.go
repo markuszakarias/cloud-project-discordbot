@@ -33,7 +33,6 @@ func main() {
 		server, user, password, port, database)
 
 	firebase.InitFirebase()
-
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
 
 	var s, err = discordgo.New("Bot " + token)
@@ -42,6 +41,7 @@ func main() {
 		panic(err)
 	}
 
+	go firebase.WebhookRoutine(s)
 	s.AddHandler(messageCreate)
 	s.Identify.Intents = discordgo.IntentsGuildMessages
 
@@ -218,6 +218,38 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, ":city_dusk: "+fmt.Sprint(day.Eve)+" Celsius")
 			s.ChannelMessageSend(m.ChannelID, ":night_with_stars: "+fmt.Sprint(day.Night)+" Celsius")
 		}
+	}
+
+	if m.Content == "!notifyweather remove" {
+		err := firebase.DeleteWebhook(m.Author.ID)
+		if err != nil {
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, "cloud notification removed!")
+	}
+
+	if m.Content[:21] == "!notifyweather cloud " {
+		percent, err := strconv.Atoi(m.Content[21:])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to be a number")
+			return
+		}
+		if percent < 0 || 100 < percent {
+			s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to beetween 0 and 100")
+			return
+		}
+
+		err = firebase.CreateWeatherWebhook(m.Author.ID, int64(percent))
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+		} else {
+
+			//asd := s.UserChannelCreate(recipientID string)
+			//asd, _ := s.UserChannelCreate(m.Author.ID)
+
+			s.ChannelMessageSend(m.ChannelID, "Notification created/updated! You will get notified when the next day has a cloud percentage less than "+fmt.Sprint(percent)+" percent")
+		}
+
 	}
 
 	if m.Content == "!newsletter" {
