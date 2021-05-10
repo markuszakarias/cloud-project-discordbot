@@ -59,7 +59,6 @@ type WeatherForecasts struct {
 	Forecasts []WeatherForecast `json:"forecasts"`
 }
 
-<<<<<<< HEAD
 // Deal contains the information for what we have chosen to define as a deal.
 type Deal struct {
 	Title              string `json:"title"`
@@ -85,11 +84,11 @@ type Todo_struct struct {
 	Title    string
 	Category string
 	State    string
-=======
+}
+
 type CloudWebhook struct {
 	Id               string    `json:"id"`
 	UserId           string    `json:"userid"`
 	CloudPercentages int64     `json:"cloudpercentages"`
 	LastDateNotified time.Time `json:"lastdatenotified"`
->>>>>>> jorgen-branch2
 }
