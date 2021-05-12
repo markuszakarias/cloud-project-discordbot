@@ -11,7 +11,6 @@ import (
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"syscall"
-	"time"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
@@ -87,7 +86,38 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "!newsletter" {
+	/* if m.Content == "!mealplan" {
+		mealplan := caching.MealPlannerTest()
+		s.ChannelMessageSend(m.ChannelID, "meal message: "+mealplan.MealMessage)
+		for _, meal := range mealplan.Meals {
+			s.ChannelMessageSend(m.ChannelID, "title: "+meal.Title)
+			s.ChannelMessageSend(m.ChannelID, "ready in minuts: "+meal.ReadyInMinutes)
+			s.ChannelMessageSend(m.ChannelID, "url: "+meal.Url)
+		}
+		s.ChannelMessageSend(m.ChannelID, "Calories: "+fmt.Sprint(mealplan.Nutrients.Calories))
+		s.ChannelMessageSend(m.ChannelID, "Protein: "+fmt.Sprint(mealplan.Nutrients.Protein))
+		s.ChannelMessageSend(m.ChannelID, "Fat: "+fmt.Sprint(mealplan.Nutrients.Fat))
+		s.ChannelMessageSend(m.ChannelID, "CarboHydrates: "+fmt.Sprint(mealplan.Nutrients.CarboHydrates))
+
+	} */
+
+	/* if m.Content == "!steamdeals" {
+		deals := caching.SteamdealsTest(m.Content)
+		s.ChannelMessageSend(m.ChannelID, "Here are your steam deal(s): ")
+		for _, deal := range deals.Deals {
+			s.ChannelMessageSend(m.ChannelID, "title: "+deal.Title)
+			s.ChannelMessageSend(m.ChannelID, "DealID: "+deal.DealID)
+			s.ChannelMessageSend(m.ChannelID, "NormalPrice: "+deal.NormalPrice)
+			s.ChannelMessageSend(m.ChannelID, "SalePrice: "+deal.SalePrice)
+			s.ChannelMessageSend(m.ChannelID, "Savings: "+deal.Savings)
+			s.ChannelMessageSend(m.ChannelID, "MetacriticScore: "+deal.MetacriticScore)
+			s.ChannelMessageSend(m.ChannelID, "SteamRatingText: "+deal.SteamRatingText)
+			s.ChannelMessageSend(m.ChannelID, "SteamRatingPercent: "+deal.SteamRatingPercent)
+			s.ChannelMessageSend(m.ChannelID, "SteamRatingCount: "+deal.SteamRatingCount)
+		}
+	} */
+
+	/* if m.Content == "!newsletter" {
 		caching.AddCacheModule("news")
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheNews(dur)
@@ -100,7 +130,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Url: "+article.Url_to_story)
 			s.ChannelMessageSend(m.ChannelID, " ")
 		}
-	}
+	} */
 
 	/* if m.Content == "!todo" {
 		allTodos, err := database.GetTodoAll()
