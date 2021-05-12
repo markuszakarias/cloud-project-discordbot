@@ -62,6 +62,7 @@ func getNewsletters() structs.NewsLetters {
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
 func NewsletterTest() structs.NewsLetters {
+	fmt.Println("NewsletterTest() was run!")
 	// use function to retrieve cached newsletter
 	nws := getCachedNewsLetter()
 
