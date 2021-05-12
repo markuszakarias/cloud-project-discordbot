@@ -33,6 +33,7 @@ func main() {
 	caching.GetCachedNewsLetterFromFirestore()
 	caching.GetCachedMealPlannerFromFirestore()
 	caching.GetCachedWeatherForecastFromFirestore()
+	caching.GetSteamdealsFromFirestore()
 
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
 
