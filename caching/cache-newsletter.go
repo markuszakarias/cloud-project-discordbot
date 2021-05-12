@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"projectGroup23/firebase"
+	"projectGroup23/database"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
@@ -106,7 +106,7 @@ func cacheNewsLetter(resp NewsLetter) {
 
 // saveNewsLetterToFirestore - saves an object to firestore
 func saveNewsLetterToFirestore(c_save *CachedNewsLetter) {
-	doc, _, err := firebase.Client.Collection("cached_resp").Add(firebase.Ctx, *c_save)
+	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *c_save)
 	c_save.firestoreID = doc.ID     // storing firestore ID for later use
 	fmt.Println(c_save.firestoreID) // confirming the storage of document ID
 	if err != nil {
@@ -117,7 +117,7 @@ func saveNewsLetterToFirestore(c_save *CachedNewsLetter) {
 // GetCachedNewsLetterFromFirestore - global function that runs at startup
 // gets all the cached data from firestore
 func GetCachedNewsLetterFromFirestore() {
-	iter := firebase.Client.Collection("cached_resp").Documents(firebase.Ctx)
+	iter := database.Client.Collection("cached_resp").Documents(database.Ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -151,7 +151,7 @@ func getCachedNewsLetter() interface{} {
 
 // deleteNewsLetterFromFirestore - deletes an object in firestore based on firestore ID
 func deleteNewsLetterFromFirestore(firestoreID string) {
-	_, err := firebase.Client.Collection("cached_resp").Doc(firestoreID).Delete(firebase.Ctx)
+	_, err := database.Client.Collection("cached_resp").Doc(firestoreID).Delete(database.Ctx)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -159,7 +159,7 @@ func deleteNewsLetterFromFirestore(firestoreID string) {
 
 // updateCachedTimeOnNewsLetterFirestore - updates the object in firestore
 func updateCachedTimeOnNewsLetterFirestore(firestoreID string, cachedTime time.Time, cachedRefresh float64) {
-	_, err := firebase.Client.Collection("cached_resp").Doc(firestoreID).Update(firebase.Ctx, []firestore.Update{
+	_, err := database.Client.Collection("cached_resp").Doc(firestoreID).Update(database.Ctx, []firestore.Update{
 		{
 			Path:  "CachedTime", // matching specific field in firestore object
 			Value: cachedTime,

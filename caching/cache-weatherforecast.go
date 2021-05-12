@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"projectGroup23/firebase"
+	"projectGroup23/database"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
@@ -118,7 +118,7 @@ func cacheWeatherForecastAndIP(resp interface{}, iploc IPLocation) {
 // saveNewsLetterToFirestore - saves an object to firestore
 func saveWeatherForecastToFirestore(c_save *CachedWeatherForecast) {
 	fmt.Println("Savetofirestore!")
-	doc, _, err := firebase.Client.Collection("cached_resp").Add(firebase.Ctx, *c_save)
+	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *c_save)
 	c_save.firestoreID = doc.ID     // storing firestore ID for later use
 	fmt.Println(c_save.firestoreID) // confirming the storage of document ID
 	if err != nil {
@@ -129,7 +129,7 @@ func saveWeatherForecastToFirestore(c_save *CachedWeatherForecast) {
 // GetCachedNewsLetterFromFirestore - global function that runs at startup
 // gets all the cached data from firestore
 func GetCachedWeatherForecastFromFirestore() {
-	iter := firebase.Client.Collection("cached_resp").Documents(firebase.Ctx)
+	iter := database.Client.Collection("cached_resp").Documents(database.Ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -163,7 +163,7 @@ func getCachedWeatherForecast() interface{} {
 
 // deleteNewsLetterFromFirestore - deletes an object in firestore based on firestore ID
 func deleteWeatherForecastFromFirestore(firestoreID string) {
-	_, err := firebase.Client.Collection("cached_resp").Doc(firestoreID).Delete(firebase.Ctx)
+	_, err := database.Client.Collection("cached_resp").Doc(firestoreID).Delete(database.Ctx)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -171,7 +171,7 @@ func deleteWeatherForecastFromFirestore(firestoreID string) {
 
 // updateCachedTimeOnNewsLetterFirestore - updates the object in firestore
 func updateCachedTimeOnWeatherForecastFirestore(firestoreID string, cachedTime time.Time, cachedRefresh float64) {
-	_, err := firebase.Client.Collection("cached_resp").Doc(firestoreID).Update(firebase.Ctx, []firestore.Update{
+	_, err := database.Client.Collection("cached_resp").Doc(firestoreID).Update(database.Ctx, []firestore.Update{
 		{
 			Path:  "CachedTime", // matching specific field in firestore object
 			Value: cachedTime,
