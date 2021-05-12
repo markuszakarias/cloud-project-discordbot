@@ -5,17 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
+	_ "github.com/denisenkom/go-mssqldb"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
 	"os/signal"
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"syscall"
-
-	_ "github.com/denisenkom/go-mssqldb"
-	_ "github.com/go-sql-driver/mysql"
-
-	"github.com/bwmarrin/discordgo"
+	"time"
 )
 
 var server = "vmdata.database.windows.net"
@@ -87,25 +86,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	/* if m.Content == "!mealplan" {
-		mealplan := caching.MealPlannerTest()
-		s.ChannelMessageSend(m.ChannelID, "meal message: "+mealplan.MealMessage)
-		for _, meal := range mealplan.Meals {
-			s.ChannelMessageSend(m.ChannelID, "title: "+meal.Title)
-			s.ChannelMessageSend(m.ChannelID, "ready in minuts: "+meal.ReadyInMinutes)
-			s.ChannelMessageSend(m.ChannelID, "url: "+meal.Url)
-		}
-		s.ChannelMessageSend(m.ChannelID, "Calories: "+fmt.Sprint(mealplan.Nutrients.Calories))
-		s.ChannelMessageSend(m.ChannelID, "Protein: "+fmt.Sprint(mealplan.Nutrients.Protein))
-		s.ChannelMessageSend(m.ChannelID, "Fat: "+fmt.Sprint(mealplan.Nutrients.Fat))
-		s.ChannelMessageSend(m.ChannelID, "CarboHydrates: "+fmt.Sprint(mealplan.Nutrients.CarboHydrates))
+	if m.Content == "!steamdeals" {
+		caching.AddCacheModule("deals")
+		dur, _ := time.ParseDuration("10m")
+		caching.CacheDeals(m.Content, dur)
 
-	} */
-
-	/* if m.Content == "!steamdeals" {
-		deals := caching.SteamdealsTest(m.Content)
 		s.ChannelMessageSend(m.ChannelID, "Here are your steam deal(s): ")
-		for _, deal := range deals.Deals {
+		for _, deal := range caching.DealsCache.Deals {
 			s.ChannelMessageSend(m.ChannelID, "title: "+deal.Title)
 			s.ChannelMessageSend(m.ChannelID, "DealID: "+deal.DealID)
 			s.ChannelMessageSend(m.ChannelID, "NormalPrice: "+deal.NormalPrice)
@@ -116,9 +103,48 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "SteamRatingPercent: "+deal.SteamRatingPercent)
 			s.ChannelMessageSend(m.ChannelID, "SteamRatingCount: "+deal.SteamRatingCount)
 		}
-	} */
+	}
 
-	/* if m.Content == "!newsletter" {
+	if m.Content == "!weather" {
+		caching.AddCacheModule("forecasts")
+		dur, _ := time.ParseDuration("10m")
+		caching.CacheForecasts(dur)
+
+		for _, day := range caching.ForecastsCache.Forecasts {
+			s.ChannelMessageSend(m.ChannelID, ":calendar: " + day.Date)
+			s.ChannelMessageSend(m.ChannelID, ":map: " + day.City)
+			s.ChannelMessageSend(m.ChannelID, day.Main + " - " + day.Desc)
+			s.ChannelMessageSend(m.ChannelID, ":cloud: " + fmt.Sprint(day.Clouds) + "%")
+			s.ChannelMessageSend(m.ChannelID, ":dash: " + fmt.Sprint(day.Wind) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, "Probability of precipitation: " + fmt.Sprint(day.POP))
+			s.ChannelMessageSend(m.ChannelID, ":cloud_rain: " + fmt.Sprint(day.Rain) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, ":cloud_snow: " + fmt.Sprint(day.Snow) + " m/s")
+			s.ChannelMessageSend(m.ChannelID, "Temperature:")
+			s.ChannelMessageSend(m.ChannelID, ":city_sunrise: " + fmt.Sprint(day.Morning) + " Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":cityscape: " + fmt.Sprint(day.Day) + " Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":city_dusk: " + fmt.Sprint(day.Eve) + " Celsius")
+			s.ChannelMessageSend(m.ChannelID, ":night_with_stars: " + fmt.Sprint(day.Night) + " Celsius")
+		}
+	}
+
+	if m.Content == "!mealplan" {
+		caching.AddCacheModule("meals")
+		dur, _ := time.ParseDuration("10m")
+		caching.CacheMeals(dur)
+
+		s.ChannelMessageSend(m.ChannelID, "meal message: "+caching.MealsCache.MealMessage)
+		for _, meal := range caching.MealsCache.Meals {
+			s.ChannelMessageSend(m.ChannelID, "title: "+meal.Title)
+			s.ChannelMessageSend(m.ChannelID, "ready in minuts: "+meal.ReadyInMinutes)
+			s.ChannelMessageSend(m.ChannelID, "url: "+meal.Url)
+		}
+		s.ChannelMessageSend(m.ChannelID, "Calories: "+fmt.Sprint(caching.MealsCache.Nutrients.Calories))
+		s.ChannelMessageSend(m.ChannelID, "Protein: "+fmt.Sprint(caching.MealsCache.Nutrients.Protein))
+		s.ChannelMessageSend(m.ChannelID, "Fat: "+fmt.Sprint(caching.MealsCache.Nutrients.Fat))
+		s.ChannelMessageSend(m.ChannelID, "CarboHydrates: "+fmt.Sprint(caching.MealsCache.Nutrients.CarboHydrates))
+	}
+
+	if m.Content == "!newsletter" {
 		caching.AddCacheModule("news")
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheNews(dur)
@@ -131,7 +157,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Url: "+article.Url_to_story)
 			s.ChannelMessageSend(m.ChannelID, " ")
 		}
-	} */
+	}
 
 	/* if m.Content == "!todo" {
 		allTodos, err := database.GetTodoAll()
@@ -327,20 +353,5 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "!userid" {
 		s.ChannelMessageSend(m.ChannelID, m.Author.ID)
 	}
-
-	if m.Content == "!steamdeals" {
-		deals := handlers.GetSteamDeals(m.Content)
-		s.ChannelMessageSend(m.ChannelID, "Here are your steam deal(s): ")
-		for _, deal := range deals.Deals {
-			s.ChannelMessageSend(m.ChannelID, "title: "+deal.Title)
-			s.ChannelMessageSend(m.ChannelID, "DealID: "+deal.DealID)
-			s.ChannelMessageSend(m.ChannelID, "NormalPrice: "+deal.NormalPrice)
-			s.ChannelMessageSend(m.ChannelID, "SalePrice: "+deal.SalePrice)
-			s.ChannelMessageSend(m.ChannelID, "Savings: "+deal.Savings)
-			s.ChannelMessageSend(m.ChannelID, "MetacriticScore: "+deal.MetacriticScore)
-			s.ChannelMessageSend(m.ChannelID, "SteamRatingText: "+deal.SteamRatingText)
-			s.ChannelMessageSend(m.ChannelID, "SteamRatingPercent: "+deal.SteamRatingPercent)
-			s.ChannelMessageSend(m.ChannelID, "SteamRatingCount: "+deal.SteamRatingCount)
-		}
-	} */
+	 */
 }

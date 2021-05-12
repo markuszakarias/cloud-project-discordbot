@@ -9,8 +9,12 @@ import (
 )
 
 var cm = gocacheable.NewCacheableManager("manager_id")
+var DealsCache structs.Deals
+var ForecastsCache structs.WeatherForecasts
+var MealsCache structs.MealPlan
 var NewsCache structs.NewsLetters
-var MealPlanCache structs.MealPlan
+
+
 
 func AddCacheModule(name string) {
 	cm.AddModule(name, &bigcache.BigCacheProvider{
@@ -18,23 +22,45 @@ func AddCacheModule(name string) {
 	})
 }
 
-func CacheNews(dur time.Duration) {
+func CacheDeals(command string, dur time.Duration) {
 	// Caching the result of the GetWeatherForecast function
-	err := cm.Cacheable("news", "newsletter", func() (interface{}, error) {
-		res := NewsletterTest()
+	err := cm.Cacheable("deals", "deals", func() (interface{}, error) {
+		res := SteamdealsTest(command)
 		return res, nil
-	}, &NewsCache, dur)
+	}, &DealsCache, dur)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func CacheMealplan(dur time.Duration) {
+func CacheForecasts(dur time.Duration) {
 	// Caching the result of the GetWeatherForecast function
-	err := cm.Cacheable("meals", "mealplan", func() (interface{}, error) {
+	err := cm.Cacheable("forecasts", "forecasts", func() (interface{}, error) {
+		res := WeatherForecastTest()
+		return res, nil
+	}, &ForecastsCache, dur)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func CacheMeals(dur time.Duration) {
+	// Caching the result of the GetWeatherForecast function
+	err := cm.Cacheable("meals", "meals", func() (interface{}, error) {
 		res := MealPlannerTest()
 		return res, nil
-	}, &MealPlanCache, dur)
+	}, &MealsCache, dur)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func CacheNews(dur time.Duration) {
+	// Caching the result of the GetWeatherForecast function
+	err := cm.Cacheable("news", "news", func() (interface{}, error) {
+		res := NewsletterTest()
+		return res, nil
+	}, &NewsCache, dur)
 	if err != nil {
 		panic(err)
 	}
