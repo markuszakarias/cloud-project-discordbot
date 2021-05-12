@@ -24,7 +24,7 @@ func AddCacheModule(name string) {
 
 func CacheDeals(command string, dur time.Duration) {
 	// Caching the result of the GetWeatherForecast function
-	err := cm.Cacheable("deals", "deals", func() (interface{}, error) {
+	err := cm.Cacheable("cache", "deals", func() (interface{}, error) {
 		res := SteamdealsTest(command)
 		return res, nil
 	}, &DealsCache, dur)
@@ -35,7 +35,7 @@ func CacheDeals(command string, dur time.Duration) {
 
 func CacheForecasts(dur time.Duration) {
 	// Caching the result of the GetWeatherForecast function
-	err := cm.Cacheable("forecasts", "forecasts", func() (interface{}, error) {
+	err := cm.Cacheable("cache", "forecasts", func() (interface{}, error) {
 		res := WeatherForecastTest()
 		return res, nil
 	}, &ForecastsCache, dur)
@@ -46,7 +46,7 @@ func CacheForecasts(dur time.Duration) {
 
 func CacheMeals(dur time.Duration) {
 	// Caching the result of the GetWeatherForecast function
-	err := cm.Cacheable("meals", "meals", func() (interface{}, error) {
+	err := cm.Cacheable("cache", "meals", func() (interface{}, error) {
 		res := MealPlannerTest()
 		return res, nil
 	}, &MealsCache, dur)
@@ -57,7 +57,7 @@ func CacheMeals(dur time.Duration) {
 
 func CacheNews(dur time.Duration) {
 	// Caching the result of the GetWeatherForecast function
-	err := cm.Cacheable("news", "news", func() (interface{}, error) {
+	err := cm.Cacheable("cache", "news", func() (interface{}, error) {
 		res := NewsletterTest()
 		return res, nil
 	}, &NewsCache, dur)

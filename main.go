@@ -29,6 +29,8 @@ func main() {
 
 	database.InitFirebase()
 
+	caching.AddCacheModule("cache")
+
 	caching.GetCachedNewsLetterFromFirestore()
 	caching.GetCachedMealPlannerFromFirestore()
 	caching.GetCachedWeatherForecastFromFirestore()
@@ -87,7 +89,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!steamdeals" {
-		caching.AddCacheModule("deals")
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheDeals(m.Content, dur)
 
@@ -106,7 +107,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!weather" {
-		caching.AddCacheModule("forecasts")
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheForecasts(dur)
 
@@ -128,7 +128,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!mealplan" {
-		caching.AddCacheModule("meals")
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheMeals(dur)
 
@@ -145,7 +144,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!newsletter" {
-		caching.AddCacheModule("news")
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheNews(dur)
 
