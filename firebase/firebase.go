@@ -20,23 +20,23 @@ type Joke struct {
 	text string
 }
 
-var ctx context.Context
-var client *firestore.Client
+var Ctx context.Context
+var Client *firestore.Client
 
 // initialize firebase/firestore
 func InitFirebase() {
-	ctx = context.Background()
+	Ctx = context.Background()
 	opt := option.WithCredentialsFile("./firebase/firebasePrivateKey.json")
-	app, err := firebase.NewApp(ctx, nil, opt)
+	app, err := firebase.NewApp(Ctx, nil, opt)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	client, err = app.Firestore(ctx)
+	Client, err = app.Firestore(Ctx)
 }
 
 func GetAllJokes() []string {
-	iter := client.Collection("jokes").Documents(ctx)
+	iter := Client.Collection("jokes").Documents(Ctx)
 	var allJokes []string
 	for {
 		doc, err := iter.Next()
@@ -54,7 +54,7 @@ func GetAllJokes() []string {
 }
 
 func CreateJoke(userId string, jokeText string) error {
-	_, _, err := client.Collection("jokes").Add(ctx,
+	_, _, err := Client.Collection("jokes").Add(Ctx,
 		map[string]interface{}{
 			"createdBy": userId,
 			"text":      jokeText,
@@ -64,7 +64,7 @@ func CreateJoke(userId string, jokeText string) error {
 
 func GetAllJokesByUserId(userId string) []string {
 	//iter := client.Collection("jokes").Documents(ctx)
-	iter := client.Collection("jokes").Where("createdBy", "==", userId).Documents(ctx)
+	iter := Client.Collection("jokes").Where("createdBy", "==", userId).Documents(Ctx)
 	var allJokes []string
 	for {
 		doc, err := iter.Next()
@@ -82,7 +82,7 @@ func GetAllJokesByUserId(userId string) []string {
 }
 
 func getAllWebhooks() ([]structs.CloudWebhook, error) {
-	iter := client.Collection("cloudwebhook").Documents(ctx)
+	iter := Client.Collection("cloudwebhook").Documents(Ctx)
 	var allWebhooks []structs.CloudWebhook
 	for {
 		doc, err := iter.Next()
@@ -105,13 +105,13 @@ func getAllWebhooks() ([]structs.CloudWebhook, error) {
 }
 
 func DeleteWebhook(userId string) error {
-	_, err := client.Collection("cloudwebhook").Doc(userId).Delete(ctx)
+	_, err := Client.Collection("cloudwebhook").Doc(userId).Delete(Ctx)
 	return err
 }
 
 // if user already has a weather webhook, it will be updated!
 func CreateWeatherWebhook(userId string, cloudPercentages int64) error {
-	_, err := client.Collection("cloudwebhook").Doc(userId).Set(ctx, map[string]interface{}{
+	_, err := Client.Collection("cloudwebhook").Doc(userId).Set(Ctx, map[string]interface{}{
 		"Id":               "",
 		"UserId":           userId,
 		"CloudPercentages": cloudPercentages,
@@ -121,7 +121,7 @@ func CreateWeatherWebhook(userId string, cloudPercentages int64) error {
 }
 
 func updateWeatherWebhook(userId string, webhookData map[string]interface{}) error {
-	_, err := client.Collection("cloudwebhook").Doc(userId).Set(ctx, webhookData, firestore.MergeAll)
+	_, err := Client.Collection("cloudwebhook").Doc(userId).Set(Ctx, webhookData, firestore.MergeAll)
 	return err
 }
 

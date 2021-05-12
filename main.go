@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"projectGroup23/caching"
 	"projectGroup23/firebase"
 	"projectGroup23/handlers"
 	"projectGroup23/structs"
@@ -33,6 +34,11 @@ func main() {
 		server, user, password, port, database)
 
 	firebase.InitFirebase()
+
+	caching.GetCachedNewsLetterFromFirestore()
+	caching.GetCachedMealPlannerFromFirestore()
+	caching.GetCachedWeatherForecastFromFirestore()
+
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
 
 	var s, err = discordgo.New("Bot " + token)
