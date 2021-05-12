@@ -29,6 +29,8 @@ func GetNewsApiData() string {
 
 	jsonResponseAsString := string(output)
 
+	fmt.Println(jsonResponseAsString)
+
 	return jsonResponseAsString
 }
 
@@ -116,29 +118,23 @@ func GetWeeklyWeatherForecastData(days int) string {
 
 // populateNewsLetters walks through the response from the newsletter api and creates a
 // newsletter json array with 5 newsletters.
-func PopulateNewsLetters(paramStruct structs.NewsLetters, jsonResponseString string) structs.NewsLetters {
-	for i := 0; i < 5; i++ {
+func PopulateNewsLetters(count int, jsonResponseString string) structs.NewsLetters {
+
+	var nws structs.NewsLetter
+	var returnNews structs.NewsLetters
+
+	for i := 0; i < count; i++ {
 		indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
 
-		authorJson := gjson.Get(jsonResponseString, "articles."+indexAsString+".author")
-		publishedAtJson := gjson.Get(jsonResponseString, "articles."+indexAsString+".publishedAt")
-		titleJson := gjson.Get(jsonResponseString, "articles."+indexAsString+".title")
-		descriptionJson := gjson.Get(jsonResponseString, "articles."+indexAsString+".description")
-		urlJson := gjson.Get(jsonResponseString, "articles."+indexAsString+".url")
+		nws.Author = gjson.Get(jsonResponseString, "articles."+indexAsString+".author").String()
+		nws.Title = gjson.Get(jsonResponseString, "articles."+indexAsString+".title").String()
+		nws.Description = gjson.Get(jsonResponseString, "articles."+indexAsString+".description").String()
+		nws.Date_published = gjson.Get(jsonResponseString, "articles."+indexAsString+".publishedAt").String()
+		nws.Url_to_story = gjson.Get(jsonResponseString, "articles."+indexAsString+".url").String()
 
-		author := authorJson.String()
-		publishedAt := publishedAtJson.String()
-		title := titleJson.String()
-		description := descriptionJson.String()
-		url := urlJson.String()
-
-		paramStruct.Newsletters[i].Author = author
-		paramStruct.Newsletters[i].Date_published = publishedAt
-		paramStruct.Newsletters[i].Title = title
-		paramStruct.Newsletters[i].Description = description
-		paramStruct.Newsletters[i].Url_to_story = url
+		returnNews.Newsletters = append(returnNews.Newsletters, nws)
 	}
-	return paramStruct
+	return returnNews
 }
 
 // PopulateMealPlan populates a mealPlan struct appropriately.

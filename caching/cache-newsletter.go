@@ -1,13 +1,15 @@
 package caching
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
 	"projectGroup23/database"
+	"projectGroup23/structs"
+	"projectGroup23/utils"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
@@ -16,35 +18,19 @@ import (
 // struct used for the cached data
 var c_news CachedNewsLetter
 
-// struct used to retrieved data from api
-var news NewsLetter
+var store_news structs.NewsLetters
+
+var s_newsletter string
 
 // const for cache duration
-const c_newsletter_dur = 25
+const c_newsletter_dur = 100
 
 // CachedNewsLetter - struct for a cached newsletter
 type CachedNewsLetter struct {
-	NewsLetter    NewsLetter
+	NewsLetters   structs.NewsLetters
 	CachedTime    time.Time
 	CachedRefresh float64
 	firestoreID   string
-}
-
-// Atricle - struct for the data of an article
-type Article struct {
-	Source      interface{} `json:"source"`
-	Author      string      `json:"author"`
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	Url         string      `json:"url"`
-	UrlToImage  string      `json:"urlToImage"`
-	PublishedAt string      `json:"publishedAt"`
-	Content     string      `json:"content"`
-}
-
-// NewsLetter - struct to hold the slice of articles
-type NewsLetter struct {
-	Articles []Article `json:"articles"`
 }
 
 // getNewsletters - gets all the newsletters from the api
@@ -52,51 +38,49 @@ type NewsLetter struct {
 // and when a cached object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getNewsletters() interface{} {
+func getNewsletters() structs.NewsLetters {
 	fmt.Println("API call made!") // for debugging
 	resp, err := http.Get("https://newsapi.org/v2/top-headlines?country=no&apiKey=03b8fc7d5add4ac98eb2330004fbb45c")
 
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = json.NewDecoder(resp.Body).Decode(&news)
+	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err)
 	}
-	// cache the data retrieved from API
-	cacheNewsLetter(news)
+	s_newsletter = string(output)
 
-	// return the populated object
-	return news
+	store_news = utils.PopulateNewsLetters(3, s_newsletter)
+
+	// cache the data retrieved from API
+	cacheNewsLetter(store_news)
+
+	return store_news
 }
 
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
-func NewsletterTest(w http.ResponseWriter, r *http.Request) {
+func NewsletterTest() structs.NewsLetters {
 	// use function to retrieve cached newsletter
 	nws := getCachedNewsLetter()
 
 	// check if the interface is null
-	if nws == nil {
+	if nws.Newsletters == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
 		nws = getNewsletters()
 	}
-	err := json.NewEncoder(w).Encode(nws)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
+	return nws
 }
 
 // cacheNewsLetter - caches a NewsLetter object to a cache object
 // will be stored in firestore
-func cacheNewsLetter(resp NewsLetter) {
+func cacheNewsLetter(resp structs.NewsLetters) {
 	// populate struct with data to be cached
 	c_news = CachedNewsLetter{
-		NewsLetter:    resp,
+		NewsLetters:   resp,
 		CachedTime:    time.Now(),
 		CachedRefresh: c_newsletter_dur,
 	}
@@ -134,9 +118,9 @@ func GetCachedNewsLetterFromFirestore() {
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
 // will also update the object when timeout has passed
 // it also update the fields on the object with data from timeout functionality
-func getCachedNewsLetter() interface{} {
-	if c_news.NewsLetter.Articles == nil {
-		return nil
+func getCachedNewsLetter() structs.NewsLetters {
+	if c_news.NewsLetters.Newsletters == nil {
+		return structs.NewsLetters{}
 	}
 	c_news.CachedRefresh -= time.Since(c_news.CachedTime).Seconds()
 	c_news.CachedTime = time.Now()
@@ -144,9 +128,9 @@ func getCachedNewsLetter() interface{} {
 	fmt.Println(c_news.CachedRefresh)
 	if c_news.CachedRefresh <= 0 {
 		deleteNewsLetterFromFirestore(c_news.firestoreID)
-		return nil
+		return structs.NewsLetters{}
 	}
-	return c_news.NewsLetter
+	return c_news.NewsLetters
 }
 
 // deleteNewsLetterFromFirestore - deletes an object in firestore based on firestore ID

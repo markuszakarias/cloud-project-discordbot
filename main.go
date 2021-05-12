@@ -10,10 +10,6 @@ import (
 	"os/signal"
 	"projectGroup23/caching"
 	"projectGroup23/database"
-	"projectGroup23/handlers"
-	"projectGroup23/structs"
-	"strconv"
-	"strings"
 	"syscall"
 
 	_ "github.com/denisenkom/go-mssqldb"
@@ -90,7 +86,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "!todo" {
+	if m.Content == "!newsletter" {
+		data := caching.NewsletterTest()
+		for _, article := range data.Newsletters {
+			s.ChannelMessageSend(m.ChannelID, "Author: "+article.Author)
+			s.ChannelMessageSend(m.ChannelID, "Date: "+article.Date_published)
+			s.ChannelMessageSend(m.ChannelID, "Title: "+article.Title)
+			s.ChannelMessageSend(m.ChannelID, "Description: "+article.Description)
+			s.ChannelMessageSend(m.ChannelID, "Url: "+article.Url_to_story)
+			s.ChannelMessageSend(m.ChannelID, " ")
+		}
+	}
+
+	/* if m.Content == "!todo" {
 		allTodos, err := database.GetTodoAll()
 		if err != nil {
 			log.Fatal("Error reading all todo objects: ", err.Error())
@@ -257,19 +265,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 
-	if m.Content == "!newsletter" {
-		data := handlers.GetDailyNewsLetter()
-		for _, article := range data.Newsletters {
-			s.ChannelMessageSend(m.ChannelID, "Author: "+article.Author)
-			s.ChannelMessageSend(m.ChannelID, "Date: "+article.Date_published)
-			s.ChannelMessageSend(m.ChannelID, "Title: "+article.Title)
-			s.ChannelMessageSend(m.ChannelID, "Description: "+article.Description)
-			s.ChannelMessageSend(m.ChannelID, "Url: "+article.Url_to_story)
-			s.ChannelMessageSend(m.ChannelID, " ")
-
-		}
-	}
-
 	if m.Content == "!mealplan" {
 		mealplan := handlers.GetDailyMealPlan()
 		s.ChannelMessageSend(m.ChannelID, "meal message: "+mealplan.MealMessage)
@@ -343,5 +338,5 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "SteamRatingPercent: "+deal.SteamRatingPercent)
 			s.ChannelMessageSend(m.ChannelID, "SteamRatingCount: "+deal.SteamRatingCount)
 		}
-	}
+	} */
 }

@@ -13,7 +13,7 @@ type NewsLetter struct {
 
 // NewsLetters prepares a array with 5 newsletters.
 type NewsLetters struct {
-	Newsletters [5]NewsLetter `json:"newsletters"`
+	Newsletters []NewsLetter `json:"newsletters"`
 }
 
 // Meal holds information of one meal from the external spoonacular api.

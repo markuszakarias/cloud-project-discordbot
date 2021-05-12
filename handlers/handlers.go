@@ -7,8 +7,7 @@ import (
 
 func GetDailyNewsLetter() structs.NewsLetters {
 	jsonResponseAsString := utils.GetNewsApiData()
-	var newsLetter structs.NewsLetters
-	articleStruct := utils.PopulateNewsLetters(newsLetter, jsonResponseAsString)
+	articleStruct := utils.PopulateNewsLetters(3, jsonResponseAsString)
 	return articleStruct
 }
 

@@ -26,7 +26,7 @@ var Client *firestore.Client
 // initialize firebase/firestore
 func InitFirebase() {
 	Ctx = context.Background()
-	opt := option.WithCredentialsFile("./firebase/firebasePrivateKey.json")
+	opt := option.WithCredentialsFile("./database/firebasePrivateKey.json")
 	app, err := firebase.NewApp(Ctx, nil, opt)
 	if err != nil {
 		log.Fatalln(err)
