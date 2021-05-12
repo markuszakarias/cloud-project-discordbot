@@ -3,11 +3,14 @@ package caching
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
 	"projectGroup23/database"
+	"projectGroup23/structs"
+	"projectGroup23/utils"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
@@ -17,27 +20,25 @@ import (
 var c_weather CachedWeatherForecast
 
 // struct used to retrieved data from api
-var weather interface{}
+var weather structs.WeatherForecasts
+
+var s_weather string
 
 // struct used to retrieved IP location from api
-var ipAdress IPLocation
+var ipAdress structs.IPLocation
 
 // const for cache duration
 const c_weatherforecast_dur = 100
 
 type CachedWeatherForecast struct {
-	WeatherForecasts interface{}
-	IPLocation       IPLocation
+	WeatherForecasts structs.WeatherForecasts
+	IPLocation       structs.IPLocation
 	CachedTime       time.Time
 	CachedRefresh    float64
 	firestoreID      string
 }
 
-type IPLocation struct {
-	City string `json:"city"`
-}
-
-func getIPLocation() IPLocation {
+func getIPLocation() structs.IPLocation {
 	resp, err := http.Get("https://ipwhois.app/json/")
 	if err != nil {
 		fmt.Errorf("Error in response: ", err.Error())
@@ -58,7 +59,7 @@ func getIPLocation() IPLocation {
 // and when a cached object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getWeatherForecastAndIP() interface{} {
+func getWeatherForecastAndIP() structs.WeatherForecasts {
 	fmt.Println("API call made!") // for debugging
 
 	ipAdress = getIPLocation()
@@ -68,10 +69,15 @@ func getWeatherForecastAndIP() interface{} {
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = json.NewDecoder(wf.Body).Decode(&weather)
+	output, err := ioutil.ReadAll(wf.Body)
 	if err != nil {
 		fmt.Println(err)
 	}
+	s_weather = string(output)
+
+	weather = utils.PopulateWeatherForecast(s_weather, 1)
+
+	// return the populated object
 	// cache the data retrieved from API
 	cacheWeatherForecastAndIP(weather, ipAdress)
 
@@ -81,29 +87,23 @@ func getWeatherForecastAndIP() interface{} {
 
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
-func WeatherForecastTest(w http.ResponseWriter, r *http.Request) {
+func WeatherForecastTest() structs.WeatherForecasts {
 	// use function to retrieve cached newsletter
 	wf := getCachedWeatherForecast()
 
 	// check if the interface is null
-	if wf == nil {
+	if wf.Forecasts == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
 		wf = getWeatherForecastAndIP()
 	}
-	err := json.NewEncoder(w).Encode(wf)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
+	return wf
 }
 
 // cacheNewsLetter - caches a NewsLetter object to a cache object
 // will be stored in firestore
-func cacheWeatherForecastAndIP(resp interface{}, iploc IPLocation) {
-	fmt.Println("caching!")
+func cacheWeatherForecastAndIP(resp structs.WeatherForecasts, iploc structs.IPLocation) {
 	// populate struct with data to be cached
 	c_weather = CachedWeatherForecast{
 		WeatherForecasts: resp,
@@ -117,7 +117,6 @@ func cacheWeatherForecastAndIP(resp interface{}, iploc IPLocation) {
 
 // saveNewsLetterToFirestore - saves an object to firestore
 func saveWeatherForecastToFirestore(c_save *CachedWeatherForecast) {
-	fmt.Println("Savetofirestore!")
 	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *c_save)
 	c_save.firestoreID = doc.ID     // storing firestore ID for later use
 	fmt.Println(c_save.firestoreID) // confirming the storage of document ID
@@ -146,9 +145,9 @@ func GetCachedWeatherForecastFromFirestore() {
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
 // will also update the object when timeout has passed
 // it also update the fields on the object with data from timeout functionality
-func getCachedWeatherForecast() interface{} {
-	if c_weather.WeatherForecasts == nil {
-		return nil
+func getCachedWeatherForecast() structs.WeatherForecasts {
+	if c_weather.WeatherForecasts.Forecasts == nil {
+		return structs.WeatherForecasts{}
 	}
 	c_weather.CachedRefresh -= time.Since(c_weather.CachedTime).Seconds()
 	c_weather.CachedTime = time.Now()
@@ -156,7 +155,7 @@ func getCachedWeatherForecast() interface{} {
 	fmt.Println(c_weather.CachedRefresh)
 	if c_weather.CachedRefresh <= 0 {
 		deleteWeatherForecastFromFirestore(c_weather.firestoreID)
-		return nil
+		return structs.WeatherForecasts{}
 	}
 	return c_weather.WeatherForecasts
 }

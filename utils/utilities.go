@@ -138,42 +138,27 @@ func PopulateNewsLetters(count int, jsonResponseString string) structs.NewsLette
 }
 
 // PopulateMealPlan populates a mealPlan struct appropriately.
-func PopulateMealPlan(paramStruct structs.MealPlan, jsonResponseString string) structs.MealPlan {
+func PopulateMealPlan(count int, jsonResponseString string) structs.MealPlan {
 	currentYearMonthDay := time.Now().Format("2006-01-02")
-	mealMessage := "Here you go! This is your personal meal plan for today (" + currentYearMonthDay + ")"
 
 	var mealPlanData structs.MealPlan
-	mealPlanData.MealMessage = mealMessage
+	var meals structs.Meal
 
-	caloriesJson := gjson.Get(jsonResponseString, "nutrients.calories")
-	proteinJson := gjson.Get(jsonResponseString, "nutrients.protein")
-	fatJson := gjson.Get(jsonResponseString, "nutrients.fat")
-	carboHydratesJson := gjson.Get(jsonResponseString, "nutrients.carbohydrates")
+	mealPlanData.MealMessage = "Here you go! This is your personal meal plan for today (" + currentYearMonthDay + ")"
 
-	calories := caloriesJson.Float()
-	protein := proteinJson.Float()
-	fat := fatJson.Float()
-	carboHydrates := carboHydratesJson.Float()
+	mealPlanData.Nutrients.Calories = gjson.Get(jsonResponseString, "nutrients.calories").Float()
+	mealPlanData.Nutrients.Protein = gjson.Get(jsonResponseString, "nutrients.protein").Float()
+	mealPlanData.Nutrients.Fat = gjson.Get(jsonResponseString, "nutrients.fat").Float()
+	mealPlanData.Nutrients.CarboHydrates = gjson.Get(jsonResponseString, "nutrients.carbohydrates").Float()
 
-	mealPlanData.Nutrients.Calories = calories
-	mealPlanData.Nutrients.Protein = protein
-	mealPlanData.Nutrients.Fat = fat
-	mealPlanData.Nutrients.CarboHydrates = carboHydrates
-
-	for i := 0; i < 3; i++ {
+	for i := 0; i < count; i++ {
 		indexAsString := strconv.Itoa(i)
 
-		titleJson := gjson.Get(jsonResponseString, "meals."+indexAsString+".title")
-		readyInMinutesJson := gjson.Get(jsonResponseString, "meals."+indexAsString+".readyInMinutes")
-		urlJson := gjson.Get(jsonResponseString, "meals."+indexAsString+".sourceUrl")
+		meals.Title = gjson.Get(jsonResponseString, "meals."+indexAsString+".title").String()
+		meals.ReadyInMinutes = gjson.Get(jsonResponseString, "meals."+indexAsString+".readyInMinutes").String()
+		meals.Url = gjson.Get(jsonResponseString, "meals."+indexAsString+".sourceUrl").String()
 
-		title := titleJson.String()
-		readyInMinutes := readyInMinutesJson.String()
-		url := urlJson.String()
-
-		mealPlanData.Meals[i].Title = title
-		mealPlanData.Meals[i].ReadyInMinutes = readyInMinutes
-		mealPlanData.Meals[i].Url = url
+		mealPlanData.Meals = append(mealPlanData.Meals, meals)
 	}
 	return mealPlanData
 }
@@ -186,32 +171,19 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 	for i := 0; i < days; i++ {
 		ias := strconv.Itoa(i)
 
-		date := time.Now().AddDate(0, 0, i).Format("2006-01-02")
-		mainJson := gjson.Get(jsonResponseString, "list."+ias+".weather.0.main")
-		descJson := gjson.Get(jsonResponseString, "list."+ias+".weather.0.description")
-		mornJson := gjson.Get(jsonResponseString, "list."+ias+".temp.morn")
-		dayJson := gjson.Get(jsonResponseString, "list."+ias+".temp.day")
-		eveJson := gjson.Get(jsonResponseString, "list."+ias+".temp.eve")
-		nightJson := gjson.Get(jsonResponseString, "list."+ias+".temp.night")
-		cloudsJson := gjson.Get(jsonResponseString, "list."+ias+".clouds")
-		windJson := gjson.Get(jsonResponseString, "list."+ias+".speed")
-		popJson := gjson.Get(jsonResponseString, "list."+ias+".pop")
-		rainJson := gjson.Get(jsonResponseString, "list."+ias+".rain")
-		snowJson := gjson.Get(jsonResponseString, "list."+ias+".snow")
-
-		wf.Date = date
+		wf.Date = time.Now().AddDate(0, 0, i).Format("2006-01-02")
 		wf.City = cityJson.String()
-		wf.Main = mainJson.String()
-		wf.Desc = descJson.String()
-		wf.Morning = mornJson.Float()
-		wf.Day = dayJson.Float()
-		wf.Eve = eveJson.Float()
-		wf.Night = nightJson.Float()
-		wf.Clouds = cloudsJson.Float()
-		wf.Wind = windJson.Float()
-		wf.POP = popJson.Float()
-		wf.Rain = rainJson.Float()
-		wf.Snow = snowJson.Float()
+		wf.Main = gjson.Get(jsonResponseString, "list."+ias+".weather.0.main").String()
+		wf.Desc = gjson.Get(jsonResponseString, "list."+ias+".weather.0.description").String()
+		wf.Morning = gjson.Get(jsonResponseString, "list."+ias+".temp.morn").Float()
+		wf.Day = gjson.Get(jsonResponseString, "list."+ias+".temp.day").Float()
+		wf.Eve = gjson.Get(jsonResponseString, "list."+ias+".temp.eve").Float()
+		wf.Night = gjson.Get(jsonResponseString, "list."+ias+".temp.night").Float()
+		wf.Clouds = gjson.Get(jsonResponseString, "list."+ias+".clouds").Float()
+		wf.Wind = gjson.Get(jsonResponseString, "list."+ias+".speed").Float()
+		wf.POP = gjson.Get(jsonResponseString, "list."+ias+".pop").Float()
+		wf.Rain = gjson.Get(jsonResponseString, "list."+ias+".rain").Float()
+		wf.Snow = gjson.Get(jsonResponseString, "list."+ias+".snow").Float()
 
 		wfs.Forecasts = append(wfs.Forecasts, wf)
 	}
@@ -219,43 +191,23 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 }
 
 // GetDeals fills the deal struct with information about steam deals ready to present with the discord bot.
-func GetDeals(jsonResponseString string, command string) structs.Deals {
+func PopulateSteamDeals(jsonResponseString string, command string, count int) structs.Deals {
 	var deal structs.Deal
 	var deals structs.Deals
 
 	if len(command) == 11 {
-		for i := 0; i < 3; i++ {
+		for i := 0; i < count; i++ {
 			indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
 
-			titleJson := gjson.Get(jsonResponseString, indexAsString+".title")
-			dealIDJson := gjson.Get(jsonResponseString, indexAsString+".dealID")
-			normalPriceJson := gjson.Get(jsonResponseString, indexAsString+".normalPrice")
-			salePriceJson := gjson.Get(jsonResponseString, indexAsString+".salePrice")
-			savingsJson := gjson.Get(jsonResponseString, indexAsString+".savings")
-			MetacriticScoreJson := gjson.Get(jsonResponseString, indexAsString+".metacriticScore")
-			SteamRatingTextJson := gjson.Get(jsonResponseString, indexAsString+".steamRatingText")
-			SteamRatingPercentJson := gjson.Get(jsonResponseString, indexAsString+".steamRatingPercent")
-			SteamRatingCountJson := gjson.Get(jsonResponseString, indexAsString+".steamRatingCount")
-
-			title := titleJson.String()
-			dealID := dealIDJson.String()
-			normalPrice := normalPriceJson.String()
-			salePrice := salePriceJson.String()
-			savings := savingsJson.String()
-			metacriticScore := MetacriticScoreJson.String()
-			steamRatingText := SteamRatingTextJson.String()
-			steamRatingPercent := SteamRatingPercentJson.String()
-			steamRatingCount := SteamRatingCountJson.String()
-
-			deal.Title = title
-			deal.DealID = dealID
-			deal.NormalPrice = normalPrice
-			deal.SalePrice = salePrice
-			deal.Savings = savings
-			deal.MetacriticScore = metacriticScore
-			deal.SteamRatingText = steamRatingText
-			deal.SteamRatingPercent = steamRatingPercent
-			deal.SteamRatingCount = steamRatingCount
+			deal.Title = gjson.Get(jsonResponseString, indexAsString+".title").String()
+			deal.DealID = gjson.Get(jsonResponseString, indexAsString+".dealID").String()
+			deal.NormalPrice = gjson.Get(jsonResponseString, indexAsString+".normalPrice").String()
+			deal.SalePrice = gjson.Get(jsonResponseString, indexAsString+".salePrice").String()
+			deal.Savings = gjson.Get(jsonResponseString, indexAsString+".savings").String()
+			deal.MetacriticScore = gjson.Get(jsonResponseString, indexAsString+".metacriticScore").String()
+			deal.SteamRatingText = gjson.Get(jsonResponseString, indexAsString+".steamRatingText").String()
+			deal.SteamRatingPercent = gjson.Get(jsonResponseString, indexAsString+".steamRatingPercent").String()
+			deal.SteamRatingCount = gjson.Get(jsonResponseString, indexAsString+".steamRatingCount").String()
 
 			if deal.MetacriticScore == "0" {
 				deal.MetacriticScore = "could not fetch metacritic score"
@@ -279,35 +231,15 @@ func GetDeals(jsonResponseString string, command string) structs.Deals {
 		for i := 0; i < numberOfIteration; i++ {
 			indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
 
-			titleJson := gjson.Get(jsonResponseString, indexAsString+".title")
-			dealIDJson := gjson.Get(jsonResponseString, indexAsString+".dealID")
-			normalPriceJson := gjson.Get(jsonResponseString, indexAsString+".normalPrice")
-			salePriceJson := gjson.Get(jsonResponseString, indexAsString+".salePrice")
-			savingsJson := gjson.Get(jsonResponseString, indexAsString+".savings")
-			MetacriticScoreJson := gjson.Get(jsonResponseString, indexAsString+".metacriticScore")
-			SteamRatingTextJson := gjson.Get(jsonResponseString, indexAsString+".steamRatingText")
-			SteamRatingPercentJson := gjson.Get(jsonResponseString, indexAsString+".steamRatingPercent")
-			SteamRatingCountJson := gjson.Get(jsonResponseString, indexAsString+".steamRatingCount")
-
-			title := titleJson.String()
-			dealID := dealIDJson.String()
-			normalPrice := normalPriceJson.String()
-			salePrice := salePriceJson.String()
-			savings := savingsJson.String()
-			metacriticScore := MetacriticScoreJson.String()
-			steamRatingText := SteamRatingTextJson.String()
-			steamRatingPercent := SteamRatingPercentJson.String()
-			steamRatingCount := SteamRatingCountJson.String()
-
-			deal.Title = title
-			deal.DealID = dealID
-			deal.NormalPrice = normalPrice
-			deal.SalePrice = salePrice
-			deal.Savings = savings
-			deal.MetacriticScore = metacriticScore
-			deal.SteamRatingText = steamRatingText
-			deal.SteamRatingPercent = steamRatingPercent
-			deal.SteamRatingCount = steamRatingCount
+			deal.Title = gjson.Get(jsonResponseString, indexAsString+".title").String()
+			deal.DealID = gjson.Get(jsonResponseString, indexAsString+".dealID").String()
+			deal.NormalPrice = gjson.Get(jsonResponseString, indexAsString+".normalPrice").String()
+			deal.SalePrice = gjson.Get(jsonResponseString, indexAsString+".salePrice").String()
+			deal.Savings = gjson.Get(jsonResponseString, indexAsString+".savings").String()
+			deal.MetacriticScore = gjson.Get(jsonResponseString, indexAsString+".metacriticScore").String()
+			deal.SteamRatingText = gjson.Get(jsonResponseString, indexAsString+".steamRatingText").String()
+			deal.SteamRatingPercent = gjson.Get(jsonResponseString, indexAsString+".steamRatingPercent").String()
+			deal.SteamRatingCount = gjson.Get(jsonResponseString, indexAsString+".steamRatingCount").String()
 
 			if deal.MetacriticScore == "0" {
 				deal.MetacriticScore = "Unavailable to fetch metacritic score"

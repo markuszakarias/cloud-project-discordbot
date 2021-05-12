@@ -25,8 +25,8 @@ type Meal struct {
 
 // mealPlan is the plan that is given through the discord bot to the user when asked for a meal plan.
 type MealPlan struct {
-	MealMessage string  `json:"mealMessage"`
-	Meals       [3]Meal `json:"meals"`
+	MealMessage string `json:"mealMessage"`
+	Meals       []Meal `json:"meals"`
 	Nutrients   struct {
 		Calories      float64 `json:"calories"`
 		Protein       float64 `json:"protein"` // should be floating point numbers!
