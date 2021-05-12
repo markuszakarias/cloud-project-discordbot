@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
-
 	"projectGroup23/firebase"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"

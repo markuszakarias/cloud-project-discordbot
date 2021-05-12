@@ -9,10 +9,9 @@ import (
 	"os"
 	"os/signal"
 	"projectGroup23/caching"
-	"projectGroup23/firebase"
+	"projectGroup23/database"
 	"projectGroup23/handlers"
 	"projectGroup23/structs"
-	"projectGroup23/utils"
 	"strconv"
 	"strings"
 	"syscall"
@@ -27,13 +26,13 @@ var server = "vmdata.database.windows.net"
 var port = 1433
 var user = "eriksen"
 var password = "Tanzania1994!"
-var database = "VM_Data"
+var db = "VM_Data"
 
 func main() {
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
-		server, user, password, port, database)
+		server, user, password, port, db)
 
-	firebase.InitFirebase()
+	database.InitFirebase()
 
 	caching.GetCachedNewsLetterFromFirestore()
 	caching.GetCachedMealPlannerFromFirestore()
@@ -47,19 +46,19 @@ func main() {
 		panic(err)
 	}
 
-	go firebase.WebhookRoutine(s)
+	go database.WebhookRoutine(s)
 	s.AddHandler(messageCreate)
 	s.Identify.Intents = discordgo.IntentsGuildMessages
 
 	// Create connection pool
-	utils.Db, utils.Err = sql.Open("sqlserver", connString)
-	if utils.Err != nil {
-		log.Fatal("Error creating connection pool: ", utils.Err.Error())
+	database.Db, database.Err = sql.Open("sqlserver", connString)
+	if database.Err != nil {
+		log.Fatal("Error creating connection pool: ", database.Err.Error())
 	}
 	ctx := context.Background()
-	utils.Err = utils.Db.PingContext(ctx)
-	if utils.Err != nil {
-		log.Fatal(utils.Err.Error())
+	database.Err = database.Db.PingContext(ctx)
+	if database.Err != nil {
+		log.Fatal(database.Err.Error())
 	}
 
 	fmt.Println("Bot is now running. Press CTRL-C to exit...")
@@ -72,7 +71,7 @@ func main() {
 }
 
 func convertIndexToId(i int, userid string) (int, error) {
-	resp, err := utils.GetTodoObject(userid)
+	resp, err := database.GetTodoObject(userid)
 	if err != nil {
 		return 0, err
 	}
@@ -92,7 +91,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!todo" {
-		allTodos, err := utils.GetTodoAll()
+		allTodos, err := database.GetTodoAll()
 		if err != nil {
 			log.Fatal("Error reading all todo objects: ", err.Error())
 		}
@@ -114,7 +113,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		todoObject.Description = todoTask
 		todoObject.State = "active"
 
-		err := utils.CreateTodoObject(todoObject)
+		err := database.CreateTodoObject(todoObject)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Something went wrong while creating todo object")
 			fmt.Println(err)
@@ -122,7 +121,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!todo mylist" {
-		allTodos, err := utils.GetTodoObject(m.Author.ID)
+		allTodos, err := database.GetTodoObject(m.Author.ID)
 		if err != nil {
 			log.Fatal("Error reading all todo objects: ", err.Error())
 		}
@@ -152,7 +151,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
 		}
-		err = utils.DeleteTodoObject(res)
+		err = database.DeleteTodoObject(res)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
@@ -198,7 +197,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 
-		err = utils.UpdateTodoObject(res, updateTodo)
+		err = database.UpdateTodoObject(res, updateTodo)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -227,7 +226,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!notifyweather remove" {
-		err := firebase.DeleteWebhook(m.Author.ID)
+		err := database.DeleteWebhook(m.Author.ID)
 		if err != nil {
 			return
 		}
@@ -245,7 +244,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		err = firebase.CreateWeatherWebhook(m.Author.ID, int64(percent))
+		err = database.CreateWeatherWebhook(m.Author.ID, int64(percent))
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 		} else {
@@ -295,14 +294,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!alljokes" {
-		jokes := firebase.GetAllJokes()
+		jokes := database.GetAllJokes()
 		for _, a := range jokes {
 			s.ChannelMessageSend(m.ChannelID, a)
 		}
 	}
 
 	if m.Content == "!myjokes" {
-		jokes := firebase.GetAllJokesByUserId(m.Author.ID)
+		jokes := database.GetAllJokesByUserId(m.Author.ID)
 		if len(jokes) == 0 {
 			s.ChannelMessageSend(m.ChannelID, "You have no jokes yet. Create one with the !createjoke command")
 		}
@@ -313,7 +312,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "!createjoke ") {
 		joke := m.Content[12:]
-		err := firebase.CreateJoke(m.Author.ID, joke)
+		err := database.CreateJoke(m.Author.ID, joke)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 		} else {

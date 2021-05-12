@@ -330,3 +330,9 @@ func GetDeals(jsonResponseString string, command string) structs.Deals {
 	}
 	return deals
 }
+
+func CheckIfSameDate(date, date2 time.Time) bool {
+	y, m, d := date.Date()
+	y2, m2, d2 := date2.Date()
+	return y == y2 && m == m2 && d == d2
+}

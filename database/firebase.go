@@ -6,7 +6,7 @@ import (
 	"log"
 	"projectGroup23/handlers"
 	"projectGroup23/structs"
-	"projectGroup23/utilities"
+	"projectGroup23/utils"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -134,7 +134,7 @@ func WebhookRoutine(s *discordgo.Session) {
 	for i := 0; i < len(webhooks); i++ {
 		wf := handlers.GetWeatherForecast(1)
 		currentCloud := wf.Forecasts[0].Clouds
-		if float64(webhooks[i].CloudPercentages) >= currentCloud && !utilities.CheckIfSameDate(time.Now(), webhooks[i].LastDateNotified) { // if less cloud than notification setting and has not been notified today
+		if float64(webhooks[i].CloudPercentages) >= currentCloud && !utils.CheckIfSameDate(time.Now(), webhooks[i].LastDateNotified) { // if less cloud than notification setting and has not been notified today
 			userChannel, _ := s.UserChannelCreate(webhooks[i].UserId)
 			message := "tomorrow it will be " + fmt.Sprintf("%.f", currentCloud) + " percent cloud!"
 			s.ChannelMessageSend(userChannel.ID, message)
