@@ -11,6 +11,7 @@ import (
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"syscall"
+	"time"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
@@ -87,8 +88,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!newsletter" {
-		data := caching.NewsletterTest()
-		for _, article := range data.Newsletters {
+		caching.AddCacheModule("news")
+		dur, _ := time.ParseDuration("10m")
+		caching.CacheNews(dur)
+
+		for _, article := range caching.NewsCache.Newsletters {
 			s.ChannelMessageSend(m.ChannelID, "Author: "+article.Author)
 			s.ChannelMessageSend(m.ChannelID, "Date: "+article.Date_published)
 			s.ChannelMessageSend(m.ChannelID, "Title: "+article.Title)
