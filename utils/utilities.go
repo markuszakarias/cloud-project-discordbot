@@ -1,12 +1,35 @@
 package utils
 
 import (
+	"encoding/json"
+	"net/http"
 	"projectGroup23/structs"
 	"strconv"
 	"time"
 
 	"github.com/tidwall/gjson"
 )
+
+// struct used to retrieved IP location from api
+var ipAddress structs.IPLocation
+
+func GetIPLocation() (string, error) {
+	resp, err := http.Get("https://ipwhois.app/json/")
+	if err != nil {
+		return "", err
+		//fmt.Errorf("Error in response: ", err.Error())
+	}
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&ipAddress)
+	if err != nil {
+		return "", err
+		//fmt.Errorf("Error in JSON decoding: ", err.Error())
+	}
+
+	return ipAddress.City, nil
+}
 
 // PopulateNewsLetters walks through the response from the newsletter api and creates a
 // newsletter json array with 5 newsletters.

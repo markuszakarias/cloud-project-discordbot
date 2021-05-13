@@ -20,8 +20,6 @@ const newsLetterDur = 100
 // getNewsletters - gets all the newsletters from the api
 // this call is only done when no cached data exists at startup
 // and when a cached object is deleted after timeout
-// TODO - security on API key
-// TODO - better error handling
 func getNewsletters() (structs.NewsLetters, error) {
 	fmt.Println("API call made!") // for debugging
 	apikey := os.Getenv("NEWS_KEY")
@@ -44,8 +42,7 @@ func getNewsletters() (structs.NewsLetters, error) {
 	return newsLetter, err
 }
 
-// TestEndpoint - just for development, testing that the functionality works correctly
-// TODO - remove when not needed anymore
+// NewsLetterMainHandler
 func NewsLetterMainHandler() (structs.NewsLetters, error) {
 	var err error
 	fmt.Println("NewsletterTest() was run!")
@@ -75,9 +72,7 @@ func storeNewsLetter(resp structs.NewsLetters) error {
 	return err
 }
 
-// getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
-// will also update the object when timeout has passed
-// it also update the fields on the object with data from timeout functionality
+// getStoredNewsLetter
 func getStoredNewsLetter() structs.NewsLetters {
 	if database.StoredNewsLetter.NewsLetters.Newsletters == nil {
 		return structs.NewsLetters{}

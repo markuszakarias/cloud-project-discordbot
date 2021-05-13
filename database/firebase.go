@@ -156,7 +156,7 @@ func GetStoredFromFirestore() {
 			StoredNewsLetter.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
 		}
 
-		if doc.Data()["Steamdeals"] != nil {
+		if doc.Data()["SteamDeals"] != nil {
 			doc.DataTo(&StoredSteamDeals)
 			StoredSteamDeals.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
 		}

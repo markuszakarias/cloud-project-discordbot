@@ -16,11 +16,7 @@ var steamDeals structs.Deals
 // const for cache duration
 const steamDealsDur = 100
 
-// getNewsletters - gets all the newsletters from the api
-// this call is only done when no cached data exists at startup
-// and when a cached object is deleted after timeout
-// TODO - security on API key
-// TODO - better error handling
+// getSteamdeals
 func getSteamdeals(command string) (structs.Deals, error) {
 	fmt.Println("API call made!") // for debugging
 	resp, err := http.Get("https://www.cheapshark.com/api/1.0/deals")
@@ -42,8 +38,7 @@ func getSteamdeals(command string) (structs.Deals, error) {
 	return steamDeals, err
 }
 
-// TestEndpoint - just for development, testing that the functionality works correctly
-// TODO - remove when not needed anymore
+// SteamDealsMainHandler
 func SteamDealsMainHandler(command string) (structs.Deals, error) {
 	var err error
 	// use function to retrieve cached newsletter
@@ -59,8 +54,7 @@ func SteamDealsMainHandler(command string) (structs.Deals, error) {
 	return nws, err
 }
 
-// cacheNewsLetter - caches a NewsLetter object to a cache object
-// will be stored in firestore
+// storeSteamDeals
 func storeSteamDeals(resp structs.Deals) error {
 	// populate struct with data to be cached
 	database.StoredSteamDeals = structs.StoredSteamDeals{
@@ -73,19 +67,7 @@ func storeSteamDeals(resp structs.Deals) error {
 	return err
 }
 
-// saveNewsLetterToFirestore - saves an object to firestore
-/*
-func saveSteamDealsToFirestore(stored *structs.StoredSteamDeals) error {
-	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *stored)
-	stored.FirestoreID = doc.ID     // storing firestore ID for later use
-	fmt.Println(stored.FirestoreID) // confirming the storage of document ID
-	return err
-}
-*/
-
-// getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
-// will also update the object when timeout has passed
-// it also update the fields on the object with data from timeout functionality
+// getStoredSteamDeals
 func getStoredSteamDeals() structs.Deals {
 	if database.StoredSteamDeals.SteamDeals.Deals == nil {
 		return structs.Deals{}

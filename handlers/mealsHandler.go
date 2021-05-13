@@ -20,8 +20,6 @@ const mealPlanDur = 100
 // getMealPlan - Gets all the meal plans from the api
 // this call is only done when no stored data exists at startup
 // and when a stored object is deleted after timeout
-// TODO - security on API key
-// TODO - better error handling
 func getMealPlan() (structs.MealPlan, error) {
 	fmt.Println("API call made!") // for debugging
 	apikey := os.Getenv("MEALS_KEY")
@@ -48,7 +46,7 @@ func getMealPlan() (structs.MealPlan, error) {
 func MealPlanMainHandler() (structs.MealPlan, error) {
 	var err error
 	// use function to retrieve stored newsletter
-	mealPlan = getCachedMealPlanner()
+	mealPlan = getStoredMealPlanner()
 
 	// check if the interface is null
 	if mealPlan.Meals == nil {
@@ -73,10 +71,8 @@ func storeMealPlan(resp structs.MealPlan) error {
 	return err
 }
 
-// getCachedMealPlanner - used on endpoint to retrieve the stored MealPlan
-// will also update the object when timeout has passed
-// it also update the fields on the object with data from timeout functionality
-func getCachedMealPlanner() structs.MealPlan {
+// getStoredMealPlanner
+func getStoredMealPlanner() structs.MealPlan {
 	if database.StoredMealPlan.MealPlan.Meals == nil {
 		return structs.MealPlan{}
 	}

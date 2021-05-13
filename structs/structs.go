@@ -117,8 +117,8 @@ type StoredSteamDeals struct {
 
 type StoredWeatherForecast struct {
 	WeatherForecasts WeatherForecasts
-	IPLocation       IPLocation
-	StoreTime       time.Time
-	StoreRefresh    float64
+	IPLocation       string
+	StoreTime        time.Time
+	StoreRefresh     float64
 	FirestoreID      string
 }

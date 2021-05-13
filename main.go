@@ -101,12 +101,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 		}
 		discordutils.SendSteamMessage(s, m)
-	case m.Content == "!weather":
-		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheForecasts(dur)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		}
+	case m.Content[:8] == "!weather":
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
