@@ -103,21 +103,21 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendSteamMessage(s, m)
 	case m.Content == "!weather":
 		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheForecasts(os.Getenv("WEATHER_KEY"), dur)
+		err := caching.CacheForecasts(dur)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 		}
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheMeals(os.Getenv("MEALS_KEY"), dur)
+		err := caching.CacheMeals(dur)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 		}
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheNews(os.Getenv("NEWS_KEY"), dur)
+		err := caching.CacheNews(dur)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 		}

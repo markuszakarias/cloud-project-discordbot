@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
@@ -21,8 +22,9 @@ const mealPlanDur = 100
 // and when a stored object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getMealPlan(apikey string) (structs.MealPlan, error) {
+func getMealPlan() (structs.MealPlan, error) {
 	fmt.Println("API call made!") // for debugging
+	apikey := os.Getenv("MEALS_KEY")
 	resp, err := http.Get("https://api.spoonacular.com/mealplanner/generate?timeFrame=day&apiKey=" + apikey)
 
 	if err != nil {
@@ -43,7 +45,7 @@ func getMealPlan(apikey string) (structs.MealPlan, error) {
 }
 
 // MealPlanMainHandler - Main handler for the !mealplan command
-func MealPlanMainHandler(apikey string) (structs.MealPlan, error) {
+func MealPlanMainHandler() (structs.MealPlan, error) {
 	var err error
 	// use function to retrieve stored newsletter
 	mealPlan = getCachedMealPlanner()
@@ -52,7 +54,7 @@ func MealPlanMainHandler(apikey string) (structs.MealPlan, error) {
 	if mealPlan.Meals == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		mealPlan, err = getMealPlan(apikey)
+		mealPlan, err = getMealPlan()
 	}
 
 	return mealPlan, err
