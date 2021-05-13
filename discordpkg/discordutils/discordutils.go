@@ -1,9 +1,15 @@
 package discordutils
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"projectGroup23/caching"
+	"projectGroup23/database"
 	"projectGroup23/discordpkg/constants"
+	"projectGroup23/structs"
+	"strconv"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -59,4 +65,142 @@ func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s%s\n%s%s\n%s%s\n%s%s\n", stringToPrint[4], fmt.Sprint(caching.MealsCache.Nutrients.Calories),
 		stringToPrint[5], fmt.Sprint(caching.MealsCache.Nutrients.Protein), stringToPrint[6], fmt.Sprint(caching.MealsCache.Nutrients.Fat),
 		stringToPrint[7], fmt.Sprint(caching.MealsCache.Nutrients.CarboHydrates)))
+}
+
+func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	var createTodo string
+	var updateTodo string
+
+	var todoObject structs.Todo_struct
+	todoObject.Userid = m.Author.ID
+	todoObject.State = "active"
+
+	str := strings.Fields(m.Content)
+	fmt.Println(str)
+
+	if len(str) < 2 {
+		s.ChannelMessageSend(m.ChannelID, "Command missing for !todo. ")
+		return
+	}
+
+	if str[1] == "mylist" {
+		allTodos, err := database.GetTodoObject(m.Author.ID)
+		if err != nil {
+			log.Fatal("Error reading all todo objects: ", err.Error())
+		}
+		for i, todo := range allTodos {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprint(i+1)+": "+todo.Description+" -- status: "+todo.State)
+		}
+	}
+
+	if str[1] == "create" {
+		createTodo = strings.Join(str[2:], " ")
+
+		if createTodo == "" {
+			s.ChannelMessageSend(m.ChannelID, "Missing description for todo task!")
+			return
+		}
+
+		todoObject.Description = createTodo
+
+		err := database.CreateTodoObject(todoObject)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Something went wrong while creating todo object")
+			fmt.Println(err)
+		}
+		s.ChannelMessageSend(m.ChannelID, "Task was created.")
+	}
+
+	if str[1] == "delete" {
+		if str[2] == "" {
+			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
+			return
+		}
+		conv, err := strconv.Atoi(str[2])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+			return
+		}
+		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+		err = database.DeleteTodoObject(res)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" was deleted.")
+	}
+
+	if str[1] == "update" {
+		if str[2] == "" {
+			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
+			return
+		}
+		if str[3] == "" {
+			s.ChannelMessageSend(m.ChannelID, "Missing data to update!")
+			return
+		}
+
+		conv, err := strconv.Atoi(str[2])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+			return
+		}
+
+		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+
+		updateTodo = strings.Join(str[3:], " ")
+
+		err = database.UpdateTodoObject(res, updateTodo)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" was updated.")
+	}
+
+	if str[1] == "finished" || str[1] == "inactive" || str[1] == "active" {
+		if str[2] == "" {
+			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
+			return
+		}
+		conv, err := strconv.Atoi(str[2])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+			return
+		}
+
+		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+			return
+		}
+		err = database.UpdateTodoObjectStatus(res, str[1])
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" status was updated with: "+fmt.Sprint(str[1]))
+	}
+}
+
+func convertIndexToId(i int, userid string) (int, error) {
+	resp, err := database.GetTodoObject(userid)
+	if err != nil {
+		return 0, err
+	}
+	if len(resp) <= i {
+		return 0, errors.New("id does not exist")
+	}
+	deleteId := resp[i].Id
+
+	return deleteId, nil
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -70,25 +69,14 @@ func main() {
 	s.Close()
 }
 
-func convertIndexToId(i int, userid string) (int, error) {
-	resp, err := database.GetTodoObject(userid)
-	if err != nil {
-		return 0, err
-	}
-	if len(resp) <= i {
-		return 0, errors.New("id does not exist")
-	}
-	deleteId := resp[i].Id
-
-	return deleteId, nil
-}
-
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+
+	fmt.Println(m.Content)
 
 	switch {
 	case m.Content == "!steamdeals":
@@ -107,6 +95,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		dur, _ := time.ParseDuration("10m")
 		caching.CacheNews(dur)
 		discordutils.SendNewsletterMessage(s, m)
+	case m.Content[:5] == "!todo":
+		discordutils.SendTodoMessage(s, m)
 	default:
 		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help (not implemented) if you need a reminder!")
 	}
@@ -150,13 +140,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Missing description for todo task!")
 			return
 		}
-
-		todoTask = todoTask[1:]
-
-		var todoObject structs.Todo_struct
-		todoObject.Userid = m.Author.ID
-		todoObject.Description = todoTask
-		todoObject.State = "active"
 
 		err := database.CreateTodoObject(todoObject)
 		if err != nil {

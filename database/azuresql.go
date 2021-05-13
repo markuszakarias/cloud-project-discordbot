@@ -39,6 +39,33 @@ func UpdateTodoObject(sqlId int, description string) error {
 	return nil
 }
 
+func UpdateTodoObjectStatus(sqlId int, status string) error {
+	ctx := context.Background()
+
+	if Db == nil {
+		Err = errors.New("create todo object: db is null")
+	}
+
+	// Check db connection
+	Err = Db.PingContext(ctx)
+	if Err != nil {
+		return Err
+	}
+
+	tsql := "UPDATE [dbo].[todo] SET State = @State WHERE Id = @Id;"
+
+	// Execute non-query with named parameters
+	_, err := Db.ExecContext(ctx, tsql,
+		sql.Named("Id", sqlId),
+		sql.Named("State", status))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func DeleteTodoObject(sqlId int) error {
 	ctx := context.Background()
 
