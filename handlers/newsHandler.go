@@ -3,26 +3,18 @@ package handlers
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
-
-	"google.golang.org/api/iterator"
 )
-
-// struct used for the cached data
-var storedNewsLetter structs.StoredNewsLetter
 
 var newsLetter structs.NewsLetters
 
 // const for cache duration
 const newsLetterDur = 100
-
-
 
 // getNewsletters - gets all the newsletters from the api
 // this call is only done when no cached data exists at startup
@@ -70,13 +62,13 @@ func NewsLetterMainHandler() structs.NewsLetters {
 // storeNewsLetter - stores a NewsLetter object to Firestore
 func storeNewsLetter(resp structs.NewsLetters) {
 	// populate struct with data to be store
-	storedNewsLetter = structs.StoredNewsLetter{
-		NewsLetters:   resp,
+	database.StoredNewsLetter = structs.StoredNewsLetter{
+		NewsLetters:  resp,
 		StoreTime:    time.Now(),
 		StoreRefresh: newsLetterDur,
 	}
 	// save the object to firestore
-	saveNewsLetterToFirestore(&storedNewsLetter)
+	saveNewsLetterToFirestore(&database.StoredNewsLetter)
 }
 
 // saveNewsLetterToFirestore - saves an object to firestore
@@ -89,37 +81,20 @@ func saveNewsLetterToFirestore(stored *structs.StoredNewsLetter) {
 	}
 }
 
-// GetCachedNewsLetterFromFirestore - global function that runs at startup
-// gets all the cached data from firestore
-func GetStoredNewsLetterFromFirestore() {
-	iter := database.Client.Collection("cached_resp").Documents(database.Ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		doc.DataTo(&storedNewsLetter)
-		storedNewsLetter.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
-	}
-}
-
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
 // will also update the object when timeout has passed
 // it also update the fields on the object with data from timeout functionality
 func getStoredNewsLetter() structs.NewsLetters {
-	if storedNewsLetter.NewsLetters.Newsletters == nil {
+	if database.StoredNewsLetter.NewsLetters.Newsletters == nil {
 		return structs.NewsLetters{}
 	}
-	storedNewsLetter.StoreRefresh -= time.Since(storedNewsLetter.StoreTime).Seconds()
-	storedNewsLetter.StoreTime = time.Now()
-	database.UpdateTimeFirestore(storedNewsLetter.FirestoreID, storedNewsLetter.StoreTime, storedNewsLetter.StoreRefresh)
-	fmt.Println(storedNewsLetter.StoreRefresh)
-	if storedNewsLetter.StoreRefresh <= 0 {
-		database.DeleteObjectFromFirestore(storedNewsLetter.FirestoreID)
+	database.StoredNewsLetter.StoreRefresh -= time.Since(database.StoredNewsLetter.StoreTime).Seconds()
+	database.StoredNewsLetter.StoreTime = time.Now()
+	database.UpdateTimeFirestore(database.StoredNewsLetter.FirestoreID, database.StoredNewsLetter.StoreTime, database.StoredNewsLetter.StoreRefresh)
+	fmt.Println(database.StoredNewsLetter.StoreRefresh)
+	if database.StoredNewsLetter.StoreRefresh <= 0 {
+		database.DeleteObjectFromFirestore(database.StoredNewsLetter.FirestoreID)
 		return structs.NewsLetters{}
 	}
-	return storedNewsLetter.NewsLetters
+	return database.StoredNewsLetter.NewsLetters
 }

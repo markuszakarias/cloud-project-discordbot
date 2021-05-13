@@ -2,10 +2,10 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"projectGroup23/structs"
 	"time"
-	"fmt"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
@@ -19,6 +19,18 @@ type Joke struct {
 
 var Ctx context.Context
 var Client *firestore.Client
+
+// struct used for the stored data
+var StoredMealPlan structs.StoredMealPlan
+
+// struct used for the cached data
+var StoredWeatherForecast structs.StoredWeatherForecast
+
+// struct used for the cached data
+var StoredSteamDeals structs.StoredSteamDeals
+
+// struct used for the cached data
+var StoredNewsLetter structs.StoredNewsLetter
 
 // initialize firebase/firestore
 func InitFirebase() {
@@ -122,6 +134,40 @@ func updateWeatherWebhook(userId string, webhookData map[string]interface{}) err
 	return err
 }
 
+// GetCachedNewsLetterFromFirestore - global function that runs at startup
+// gets all the cached data from firestore
+func GetStoredFromFirestore() {
+	iter := Client.Collection("cached_resp").Documents(Ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if doc.Data()["WeatherForecasts"] != nil {
+			doc.DataTo(&StoredWeatherForecast)
+			StoredWeatherForecast.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
+		}
+
+		if doc.Data()["NewsLetters"] != nil {
+			doc.DataTo(&StoredNewsLetter)
+			StoredNewsLetter.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
+		}
+
+		if doc.Data()["Steamdeals"] != nil {
+			doc.DataTo(&StoredSteamDeals)
+			StoredSteamDeals.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
+		}
+
+		if doc.Data()["MealPlan"] != nil {
+			doc.DataTo(&StoredMealPlan)
+			StoredMealPlan.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
+		}
+	}
+}
+
 // DeleteObjectFromFirestore - deletes an object in firestore based on firestore ID
 func DeleteObjectFromFirestore(firestoreID string) {
 	_, err := Client.Collection("cached_resp").Doc(firestoreID).Delete(Ctx)
@@ -131,15 +177,15 @@ func DeleteObjectFromFirestore(firestoreID string) {
 }
 
 // UpdateTimeFirestore - updates the object in firestore
-func UpdateTimeFirestore(firestoreID string, cachedTime time.Time, cachedRefresh float64) {
+func UpdateTimeFirestore(firestoreID string, storeTime time.Time, storeRefresh float64) {
 	_, err := Client.Collection("cached_resp").Doc(firestoreID).Update(Ctx, []firestore.Update{
 		{
-			Path:  "CachedTime", // matching specific field in firestore object
-			Value: cachedTime,
+			Path:  "StoreTime", // matching specific field in firestore object
+			Value: storeTime,
 		},
 		{
-			Path:  "CachedRefresh", // matching specific field in firestore object
-			Value: cachedRefresh,
+			Path:  "StoreRefresh", // matching specific field in firestore object
+			Value: storeRefresh,
 		},
 	})
 	if err != nil {

@@ -3,26 +3,18 @@ package handlers
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
-
-	"google.golang.org/api/iterator"
 )
-
-// struct used for the cached data
-var storedSteamDeals structs.StoredSteamDeals
 
 var steamDeals structs.Deals
 
 // const for cache duration
 const steamDealsDur = 100
-
-
 
 // getNewsletters - gets all the newsletters from the api
 // this call is only done when no cached data exists at startup
@@ -70,13 +62,13 @@ func SteamDealsMainHandler(command string) structs.Deals {
 // will be stored in firestore
 func storeSteamDeals(resp structs.Deals) {
 	// populate struct with data to be cached
-	storedSteamDeals = structs.StoredSteamDeals {
-		SteamDeals:    resp,
+	database.StoredSteamDeals = structs.StoredSteamDeals{
+		SteamDeals:   resp,
 		StoreTime:    time.Now(),
 		StoreRefresh: steamDealsDur,
 	}
 	// save the object on firestore
-	saveSteamDealsToFirestore(&storedSteamDeals)
+	saveSteamDealsToFirestore(&database.StoredSteamDeals)
 }
 
 // saveNewsLetterToFirestore - saves an object to firestore
@@ -89,37 +81,20 @@ func saveSteamDealsToFirestore(stored *structs.StoredSteamDeals) {
 	}
 }
 
-// GetCachedNewsLetterFromFirestore - global function that runs at startup
-// gets all the cached data from firestore
-func GetStoredSteamDealsFromFirestore() {
-	iter := database.Client.Collection("cached_resp").Documents(database.Ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		doc.DataTo(&storedSteamDeals)
-		storedSteamDeals.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
-	}
-}
-
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
 // will also update the object when timeout has passed
 // it also update the fields on the object with data from timeout functionality
 func getStoredSteamDeals() structs.Deals {
-	if storedSteamDeals.SteamDeals.Deals == nil {
+	if database.StoredSteamDeals.SteamDeals.Deals == nil {
 		return structs.Deals{}
 	}
-	storedSteamDeals.StoreRefresh -= time.Since(storedSteamDeals.StoreTime).Seconds()
-	storedSteamDeals.StoreTime = time.Now()
-	database.UpdateTimeFirestore(storedSteamDeals.FirestoreID, storedSteamDeals.StoreTime, storedSteamDeals.StoreRefresh)
-	fmt.Println(storedNewsLetter.StoreRefresh)
-	if storedSteamDeals.StoreRefresh <= 0 {
-		database.DeleteObjectFromFirestore(storedSteamDeals.FirestoreID)
+	database.StoredSteamDeals.StoreRefresh -= time.Since(database.StoredSteamDeals.StoreTime).Seconds()
+	database.StoredSteamDeals.StoreTime = time.Now()
+	database.UpdateTimeFirestore(database.StoredSteamDeals.FirestoreID, database.StoredSteamDeals.StoreTime, database.StoredSteamDeals.StoreRefresh)
+	fmt.Println(database.StoredNewsLetter.StoreRefresh)
+	if database.StoredSteamDeals.StoreRefresh <= 0 {
+		database.DeleteObjectFromFirestore(database.StoredSteamDeals.FirestoreID)
 		return structs.Deals{}
 	}
-	return storedSteamDeals.SteamDeals
+	return database.StoredSteamDeals.SteamDeals
 }

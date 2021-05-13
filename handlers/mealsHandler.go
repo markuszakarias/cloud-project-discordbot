@@ -3,26 +3,18 @@ package handlers
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
 	"time"
-
-	"google.golang.org/api/iterator"
 )
-
-// struct used for the stored data
-var storedMealPlan structs.StoredMealPlan
 
 // struct used to retrieve data from api
 var mealPlan structs.MealPlan
 
 // const for cache duration
-const mealPlanDur = 50
-
-
+const mealPlanDur = 100
 
 // getMealPlan - Gets all the meal plans from the api
 // this call is only done when no stored data exists at startup
@@ -68,13 +60,13 @@ func MealPlanMainHandler() structs.MealPlan {
 // storeMealPlan - Stores a MealPlan object in the database
 func storeMealPlan(resp structs.MealPlan) {
 	// populate struct with data to be stored
-	storedMealPlan = structs.StoredMealPlan{
-		MealPlan:      resp,
+	database.StoredMealPlan = structs.StoredMealPlan{
+		MealPlan:     resp,
 		StoreTime:    time.Now(),
 		StoreRefresh: mealPlanDur,
 	}
 	// Store the object to Firestore
-	saveMealPlannerToFirestore(&storedMealPlan)
+	saveMealPlannerToFirestore(&database.StoredMealPlan)
 }
 
 // saveNewsLetterToFirestore - saves an object to firestore
@@ -87,41 +79,20 @@ func saveMealPlannerToFirestore(stored *structs.StoredMealPlan) {
 	}
 }
 
-// GetCachedNewsLetterFromFirestore - global function that runs at startup
-// gets all the cached data from firestore
-func GetStoredMealPlannerFromFirestore() {
-	iter := database.Client.Collection("cached_resp").Documents(database.Ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		doc.DataTo(&storedMealPlan)
-		storedMealPlan.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
-	}
-}
-
 // getCachedMealPlanner - used on endpoint to retrieve the stored MealPlan
 // will also update the object when timeout has passed
 // it also update the fields on the object with data from timeout functionality
 func getCachedMealPlanner() structs.MealPlan {
-	if storedMealPlan.MealPlan.Meals == nil {
+	if database.StoredMealPlan.MealPlan.Meals == nil {
 		return structs.MealPlan{}
 	}
-	storedMealPlan.StoreRefresh -= time.Since(storedMealPlan.StoreTime).Seconds()
-	storedMealPlan.StoreTime = time.Now()
-	database.UpdateTimeFirestore(storedMealPlan.FirestoreID, storedMealPlan.StoreTime, storedMealPlan.StoreRefresh)
-	fmt.Println(storedMealPlan.StoreRefresh)
-	if storedMealPlan.StoreRefresh <= 0 {
-		database.DeleteObjectFromFirestore(storedMealPlan.FirestoreID)
+	database.StoredMealPlan.StoreRefresh -= time.Since(database.StoredMealPlan.StoreTime).Seconds()
+	database.StoredMealPlan.StoreTime = time.Now()
+	database.UpdateTimeFirestore(database.StoredMealPlan.FirestoreID, database.StoredMealPlan.StoreTime, database.StoredMealPlan.StoreRefresh)
+	fmt.Println(database.StoredMealPlan.StoreRefresh)
+	if database.StoredMealPlan.StoreRefresh <= 0 {
+		database.DeleteObjectFromFirestore(database.StoredMealPlan.FirestoreID)
 		return structs.MealPlan{}
 	}
-	return storedMealPlan.MealPlan
+	return database.StoredMealPlan.MealPlan
 }
-
-
-
-

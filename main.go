@@ -10,7 +10,6 @@ import (
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"projectGroup23/discordpkg/discordutils"
-	"projectGroup23/handlers"
 	"syscall"
 	"time"
 
@@ -33,10 +32,7 @@ func main() {
 
 	caching.AddCacheModule("cache")
 
-	handlers.GetStoredNewsLetterFromFirestore()
-	handlers.GetStoredMealPlannerFromFirestore()
-	handlers.GetStoredWeatherForecastFromFirestore()
-	handlers.GetStoredSteamDealsFromFirestore()
+	database.GetStoredFromFirestore()
 
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
 
@@ -81,19 +77,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	switch {
 	case m.Content == "!steamdeals":
-		dur, _ := time.ParseDuration("10m")
+		dur, _ := time.ParseDuration("20s")
 		caching.CacheDeals(m.Content, dur)
 		discordutils.SendSteamMessage(s, m)
 	case m.Content == "!weather":
-		dur, _ := time.ParseDuration("10m")
+		dur, _ := time.ParseDuration("20s")
 		caching.CacheForecasts(dur)
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
-		dur, _ := time.ParseDuration("10m")
+		dur, _ := time.ParseDuration("20s")
 		caching.CacheMeals(dur)
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
-		dur, _ := time.ParseDuration("10m")
+		dur, _ := time.ParseDuration("20s")
 		caching.CacheNews(dur)
 		discordutils.SendNewsletterMessage(s, m)
 	case m.Content[:5] == "!todo":

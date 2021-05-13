@@ -4,19 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
-
-	"google.golang.org/api/iterator"
 )
-
-// struct used for the cached data
-var storedWeatherForecast structs.StoredWeatherForecast
 
 // struct used to retrieved data from api
 var weatherForecast structs.WeatherForecasts
@@ -96,14 +90,14 @@ func WeatherForecastMainHandler() structs.WeatherForecasts {
 // will be stored in firestore
 func storeWeatherForecastAndIP(resp structs.WeatherForecasts, ipLoc structs.IPLocation) {
 	// populate struct with data to be cached
-	storedWeatherForecast = structs.StoredWeatherForecast {
+	database.StoredWeatherForecast = structs.StoredWeatherForecast{
 		WeatherForecasts: resp,
 		IPLocation:       ipLoc,
-		StoreTime:       time.Now(),
-		StoreRefresh:    weatherForecastDur,
+		StoreTime:        time.Now(),
+		StoreRefresh:     weatherForecastDur,
 	}
 	// save the object on firestore
-	saveWeatherForecastToFirestore(&storedWeatherForecast)
+	saveWeatherForecastToFirestore(&database.StoredWeatherForecast)
 }
 
 // saveNewsLetterToFirestore - saves an object to firestore
@@ -116,37 +110,20 @@ func saveWeatherForecastToFirestore(stored *structs.StoredWeatherForecast) {
 	}
 }
 
-// GetCachedNewsLetterFromFirestore - global function that runs at startup
-// gets all the cached data from firestore
-func GetStoredWeatherForecastFromFirestore() {
-	iter := database.Client.Collection("cached_resp").Documents(database.Ctx)
-	for {
-		doc, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			log.Fatal(err)
-		}
-		doc.DataTo(&storedWeatherForecast)
-		storedWeatherForecast.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
-	}
-}
-
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
 // will also update the object when timeout has passed
 // it also update the fields on the object with data from timeout functionality
 func getStoredWeatherForecast() structs.WeatherForecasts {
-	if storedWeatherForecast.WeatherForecasts.Forecasts == nil {
+	if database.StoredWeatherForecast.WeatherForecasts.Forecasts == nil {
 		return structs.WeatherForecasts{}
 	}
-	storedWeatherForecast.StoreRefresh -= time.Since(storedWeatherForecast.StoreTime).Seconds()
-	storedWeatherForecast.StoreTime = time.Now()
-	database.UpdateTimeFirestore(storedWeatherForecast.FirestoreID, storedWeatherForecast.StoreTime, storedWeatherForecast.StoreRefresh)
-	fmt.Println(storedWeatherForecast.StoreRefresh)
-	if storedWeatherForecast.StoreRefresh <= 0 {
-		database.DeleteObjectFromFirestore(storedWeatherForecast.FirestoreID)
+	database.StoredWeatherForecast.StoreRefresh -= time.Since(database.StoredWeatherForecast.StoreTime).Seconds()
+	database.StoredWeatherForecast.StoreTime = time.Now()
+	database.UpdateTimeFirestore(database.StoredWeatherForecast.FirestoreID, database.StoredWeatherForecast.StoreTime, database.StoredWeatherForecast.StoreRefresh)
+	fmt.Println(database.StoredWeatherForecast.StoreRefresh)
+	if database.StoredWeatherForecast.StoreRefresh <= 0 {
+		database.DeleteObjectFromFirestore(database.StoredWeatherForecast.FirestoreID)
 		return structs.WeatherForecasts{}
 	}
-	return storedWeatherForecast.WeatherForecasts
+	return database.StoredWeatherForecast.WeatherForecasts
 }
