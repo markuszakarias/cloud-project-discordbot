@@ -192,6 +192,69 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	str := strings.Fields(m.Content)
+	fmt.Println(str)
+
+	if len(str) < 2 {
+		stringToPrint := constants.GetHelpMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n%s\n%s\n%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n",
+			stringToPrint[0], stringToPrint[1], stringToPrint[2],
+			stringToPrint[3], stringToPrint[4], stringToPrint[5],
+			stringToPrint[6], stringToPrint[7], stringToPrint[8],
+			stringToPrint[9]))
+		return
+	}
+
+	if str[1] == "todo" {
+		stringToPrint := constants.GetHelpTodoMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n%s\n%s",
+			stringToPrint[0], stringToPrint[1], stringToPrint[2],
+			stringToPrint[3], stringToPrint[4], stringToPrint[5],
+			stringToPrint[6], stringToPrint[7], stringToPrint[8],
+			stringToPrint[9], stringToPrint[10], stringToPrint[11],
+			stringToPrint[12], stringToPrint[13], stringToPrint[14],
+			stringToPrint[15]))
+		return
+	}
+	if str[1] == "weather" {
+		stringToPrint := constants.GetHelpWeatherMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n",
+			stringToPrint[0]))
+		return
+
+	}
+	if str[1] == "newsletter" {
+		stringToPrint := constants.GetHelpNewsletterMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n",
+			stringToPrint[0]))
+		return
+
+	}
+	if str[1] == "steamdeals" {
+		stringToPrint := constants.GetHelpSteamdealsMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n",
+			stringToPrint[0]))
+		return
+
+	}
+	if str[1] == "mealplan" {
+		stringToPrint := constants.GetHelpMealplanMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n",
+			stringToPrint[0]))
+		return
+
+	}
+
+}
+
 func convertIndexToId(i int, userid string) (int, error) {
 	resp, err := database.GetTodoObject(userid)
 	if err != nil {
