@@ -18,7 +18,6 @@ var ForecastsCache structs.WeatherForecasts
 var MealsCache structs.MealPlan
 var NewsCache structs.NewsLetters
 
-
 // AddCacheModule - Initializes a cache module with BigCache and HardMaxCacheSize: 8192 MB
 func AddCacheModule(name string) error {
 	// We use BigCache since reads are lock-free and its best for read-only functionality
@@ -35,50 +34,38 @@ func AddCacheModule(name string) error {
 func CacheDeals(command string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "deals", func() (interface{}, error) {
-		res := handlers.SteamDealsMainHandler(command)
-		return res, nil
+		res, err := handlers.SteamDealsMainHandler(command)
+		return res, err
 	}, &DealsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
 // CacheForecasts - Caches the function return value and sets a timer for when the cache is dirty
-func CacheForecasts(apikey string, dur time.Duration) error {
+func CacheForecasts(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "forecasts", func() (interface{}, error) {
-		res := handlers.WeatherForecastMainHandler(apikey)
-		return res, nil
+		res, err := handlers.WeatherForecastMainHandler()
+		return res, err
 	}, &ForecastsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
 // CacheMeals - Caches the function return value and sets a timer for when the cache is dirty
-func CacheMeals(apikey string, dur time.Duration) error {
+func CacheMeals(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "meals", func() (interface{}, error) {
-		res := handlers.MealPlanMainHandler(apikey)
-		return res, nil
+		res, err := handlers.MealPlanMainHandler()
+		return res, err
 	}, &MealsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
 // CacheNews - Caches the function return value and sets a timer for when the cache is dirty
-func CacheNews(apikey string, dur time.Duration) error {
+func CacheNews(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "news", func() (interface{}, error) {
-		res := handlers.NewsLetterMainHandler(apikey)
-		return res, nil
+		res, err := handlers.NewsLetterMainHandler()
+		return res, err
 	}, &NewsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }

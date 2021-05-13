@@ -34,14 +34,18 @@ func main() {
 	database.InitFirebase()
 
 	// Initializes BigCache cache
-	caching.AddCacheModule("cache")
+	err := caching.AddCacheModule("cache")
+	if err != nil {
+		fmt.Println("Error with initialize cache: " + err.Error())
+	}
 
 	// Gets stored API response from last session
 	database.GetStoredFromFirestore()
 
 	// Initializes Discord bot with token
 	token := envVar("DISCORD_TOKEN")
-	var s, err = discordgo.New("Bot " + token)
+	s, err := discordgo.New("Bot " + token)
+
 	if err = s.Open(); err != nil {
 		panic(err)
 	}
@@ -92,19 +96,31 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendHelpMessage(s, m)
 	case m.Content == "!steamdeals":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheDeals(m.Content, dur)
+		err := caching.CacheDeals(m.Content, dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendSteamMessage(s, m)
 	case m.Content == "!weather":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheForecasts(os.Getenv("WEATHER_KEY"), dur)
+		err := caching.CacheForecasts(dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheMeals(os.Getenv("MEALS_KEY"), dur)
+		err := caching.CacheMeals(dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheNews(os.Getenv("NEWS_KEY"), dur)
+		err := caching.CacheNews(dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendNewsletterMessage(s, m)
 	case m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)

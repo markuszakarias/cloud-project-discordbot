@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
@@ -21,29 +22,31 @@ const mealPlanDur = 100
 // and when a stored object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getMealPlan(apikey string) structs.MealPlan {
+func getMealPlan() (structs.MealPlan, error) {
 	fmt.Println("API call made!") // for debugging
+	apikey := os.Getenv("MEALS_KEY")
 	resp, err := http.Get("https://api.spoonacular.com/mealplanner/generate?timeFrame=day&apiKey=" + apikey)
 
 	if err != nil {
-		fmt.Println(err)
+		return mealPlan, err
 	}
 	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		return mealPlan, err
 	}
 	jsonRes := string(output)
 
 	mealPlan = utils.PopulateMealPlan(3, jsonRes)
 	// store the data retrieved from API
-	storeMealPlan(mealPlan)
+	err = storeMealPlan(mealPlan)
 
 	// return the populated object
-	return mealPlan
+	return mealPlan, err
 }
 
 // MealPlanMainHandler - Main handler for the !mealplan command
-func MealPlanMainHandler(apikey string) structs.MealPlan {
+func MealPlanMainHandler() (structs.MealPlan, error) {
+	var err error
 	// use function to retrieve stored newsletter
 	mealPlan = getCachedMealPlanner()
 
@@ -51,14 +54,14 @@ func MealPlanMainHandler(apikey string) structs.MealPlan {
 	if mealPlan.Meals == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		mealPlan = getMealPlan(apikey)
+		mealPlan, err = getMealPlan()
 	}
 
-	return mealPlan
+	return mealPlan, err
 }
 
 // storeMealPlan - Stores a MealPlan object in the database
-func storeMealPlan(resp structs.MealPlan) {
+func storeMealPlan(resp structs.MealPlan) error {
 	// populate struct with data to be stored
 	database.StoredMealPlan = structs.StoredMealPlan{
 		MealPlan:     resp,
@@ -66,17 +69,8 @@ func storeMealPlan(resp structs.MealPlan) {
 		StoreRefresh: mealPlanDur,
 	}
 	// Store the object to Firestore
-	saveMealPlannerToFirestore(&database.StoredMealPlan)
-}
-
-// saveNewsLetterToFirestore - saves an object to firestore
-func saveMealPlannerToFirestore(stored *structs.StoredMealPlan) {
-	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *stored)
-	stored.FirestoreID = doc.ID     // storing firestore ID for later use
-	fmt.Println(stored.FirestoreID) // confirming the storage of document ID
-	if err != nil {
-		fmt.Println(err)
-	}
+	err := database.SaveMealPlannerToFirestore(&database.StoredMealPlan)
+	return err
 }
 
 // getCachedMealPlanner - used on endpoint to retrieve the stored MealPlan
@@ -92,7 +86,6 @@ func getCachedMealPlanner() structs.MealPlan {
 	fmt.Println(database.StoredMealPlan.StoreRefresh)
 	if database.StoredMealPlan.StoreRefresh <= 0 {
 		database.DeleteObjectFromFirestore(database.StoredMealPlan.FirestoreID)
-		return structs.MealPlan{}
 	}
 	return database.StoredMealPlan.MealPlan
 }
