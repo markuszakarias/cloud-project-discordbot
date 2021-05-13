@@ -1,6 +1,7 @@
 package caching
 
 import (
+	"projectGroup23/handlers"
 	"projectGroup23/structs"
 	"time"
 
@@ -34,7 +35,7 @@ func AddCacheModule(name string) error {
 func CacheDeals(command string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "deals", func() (interface{}, error) {
-		res := SteamdealsTest(command)
+		res := handlers.SteamDealsMainHandler(command)
 		return res, nil
 	}, &DealsCache, dur)
 	if err != nil {
@@ -47,7 +48,7 @@ func CacheDeals(command string, dur time.Duration) error {
 func CacheForecasts(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "forecasts", func() (interface{}, error) {
-		res := WeatherForecastTest()
+		res := handlers.WeatherForecastMainHandler()
 		return res, nil
 	}, &ForecastsCache, dur)
 	if err != nil {
@@ -60,7 +61,7 @@ func CacheForecasts(dur time.Duration) error {
 func CacheMeals(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "meals", func() (interface{}, error) {
-		res := MealPlannerTest()
+		res := handlers.MealPlanMainHandler()
 		return res, nil
 	}, &MealsCache, dur)
 	if err != nil {
@@ -73,7 +74,7 @@ func CacheMeals(dur time.Duration) error {
 func CacheNews(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "news", func() (interface{}, error) {
-		res := NewsletterTest()
+		res := handlers.NewsLetterMainHandler()
 		return res, nil
 	}, &NewsCache, dur)
 	if err != nil {

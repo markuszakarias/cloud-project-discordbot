@@ -2,16 +2,13 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"projectGroup23/handlers"
 	"projectGroup23/structs"
-	"projectGroup23/utils"
 	"time"
+	"fmt"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
-	"github.com/bwmarrin/discordgo"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
@@ -125,7 +122,33 @@ func updateWeatherWebhook(userId string, webhookData map[string]interface{}) err
 	return err
 }
 
+// DeleteObjectFromFirestore - deletes an object in firestore based on firestore ID
+func DeleteObjectFromFirestore(firestoreID string) {
+	_, err := Client.Collection("cached_resp").Doc(firestoreID).Delete(Ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// UpdateTimeFirestore - updates the object in firestore
+func UpdateTimeFirestore(firestoreID string, cachedTime time.Time, cachedRefresh float64) {
+	_, err := Client.Collection("cached_resp").Doc(firestoreID).Update(Ctx, []firestore.Update{
+		{
+			Path:  "CachedTime", // matching specific field in firestore object
+			Value: cachedTime,
+		},
+		{
+			Path:  "CachedRefresh", // matching specific field in firestore object
+			Value: cachedRefresh,
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 // runs every 15 minutes
+/*
 func WebhookRoutine(s *discordgo.Session) {
 	webhooks, err := getAllWebhooks()
 	if err != nil {
@@ -149,3 +172,4 @@ func WebhookRoutine(s *discordgo.Session) {
 	}
 	time.Sleep(time.Duration(900) * time.Second) // waits 15 minutes
 }
+*/

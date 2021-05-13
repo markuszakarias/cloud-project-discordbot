@@ -11,6 +11,7 @@ import (
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"projectGroup23/discordpkg/discordutils"
+	"projectGroup23/handlers"
 	"syscall"
 	"time"
 
@@ -33,10 +34,10 @@ func main() {
 
 	caching.AddCacheModule("cache")
 
-	caching.GetCachedNewsLetterFromFirestore()
-	caching.GetCachedMealPlannerFromFirestore()
-	caching.GetCachedWeatherForecastFromFirestore()
-	caching.GetSteamdealsFromFirestore()
+	handlers.GetStoredNewsLetterFromFirestore()
+	handlers.GetStoredMealPlannerFromFirestore()
+	handlers.GetStoredWeatherForecastFromFirestore()
+	handlers.GetStoredSteamDealsFromFirestore()
 
 	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
 
@@ -46,7 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	go database.WebhookRoutine(s)
+	//go database.WebhookRoutine(s)
 	s.AddHandler(messageCreate)
 	s.Identify.Intents = discordgo.IntentsGuildMessages
 
