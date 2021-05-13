@@ -21,30 +21,31 @@ const steamDealsDur = 100
 // and when a cached object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getSteamdeals(command string) structs.Deals {
+func getSteamdeals(command string) (structs.Deals, error) {
 	fmt.Println("API call made!") // for debugging
 	resp, err := http.Get("https://www.cheapshark.com/api/1.0/deals")
 
 	if err != nil {
-		fmt.Println(err)
+		return steamDeals, err
 	}
 	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		return steamDeals, err
 	}
 	jsonRes := string(output)
 
 	steamDeals = utils.PopulateSteamDeals(jsonRes, command, 3)
 
 	// cache the data retrieved from API
-	storeSteamDeals(steamDeals)
+	err = storeSteamDeals(steamDeals)
 
-	return steamDeals
+	return steamDeals, err
 }
 
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
-func SteamDealsMainHandler(command string) structs.Deals {
+func SteamDealsMainHandler(command string) (structs.Deals, error) {
+	var err error
 	// use function to retrieve cached newsletter
 	nws := getStoredSteamDeals()
 
@@ -52,15 +53,15 @@ func SteamDealsMainHandler(command string) structs.Deals {
 	if nws.Deals == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		nws = getSteamdeals(command)
+		nws, err = getSteamdeals(command)
 	}
 
-	return nws
+	return nws, err
 }
 
 // cacheNewsLetter - caches a NewsLetter object to a cache object
 // will be stored in firestore
-func storeSteamDeals(resp structs.Deals) {
+func storeSteamDeals(resp structs.Deals) error {
 	// populate struct with data to be cached
 	database.StoredSteamDeals = structs.StoredSteamDeals{
 		SteamDeals:   resp,
@@ -68,18 +69,19 @@ func storeSteamDeals(resp structs.Deals) {
 		StoreRefresh: steamDealsDur,
 	}
 	// save the object on firestore
-	saveSteamDealsToFirestore(&database.StoredSteamDeals)
+	err := database.SaveSteamDealsToFirestore(&database.StoredSteamDeals)
+	return err
 }
 
 // saveNewsLetterToFirestore - saves an object to firestore
-func saveSteamDealsToFirestore(stored *structs.StoredSteamDeals) {
+/*
+func saveSteamDealsToFirestore(stored *structs.StoredSteamDeals) error {
 	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *stored)
 	stored.FirestoreID = doc.ID     // storing firestore ID for later use
 	fmt.Println(stored.FirestoreID) // confirming the storage of document ID
-	if err != nil {
-		fmt.Println(err)
-	}
+	return err
 }
+*/
 
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter
 // will also update the object when timeout has passed

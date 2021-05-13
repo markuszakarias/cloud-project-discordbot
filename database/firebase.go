@@ -193,6 +193,35 @@ func UpdateTimeFirestore(firestoreID string, storeTime time.Time, storeRefresh f
 	}
 }
 
+// saveNewsLetterToFirestore - saves an object to firestore
+func SaveSteamDealsToFirestore(stored *structs.StoredSteamDeals) error {
+	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
+	stored.FirestoreID = doc.ID     // storing firestore ID for later use
+	fmt.Println(stored.FirestoreID) // confirming the storage of document ID
+	return err
+}
+
+// saveNewsLetterToFirestore - saves an object to firestore
+func SaveMealPlannerToFirestore(stored *structs.StoredMealPlan) error {
+	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
+	stored.FirestoreID = doc.ID // storing firestore ID for later use
+	return err
+}
+
+// saveNewsLetterToFirestore - saves an object to firestore
+func SaveNewsLetterToFirestore(stored *structs.StoredNewsLetter) error {
+	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
+	stored.FirestoreID = doc.ID // storing firestore ID for later use
+	return err
+}
+
+// saveNewsLetterToFirestore - saves an object to firestore
+func SaveWeatherForecastToFirestore(stored *structs.StoredWeatherForecast) error {
+	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
+	stored.FirestoreID = doc.ID // storing firestore ID for later use
+	return err
+}
+
 // runs every 15 minutes
 /*
 func WebhookRoutine(s *discordgo.Session) {

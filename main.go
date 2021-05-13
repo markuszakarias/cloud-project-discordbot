@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"os/signal"
@@ -13,6 +12,8 @@ import (
 	"projectGroup23/discordpkg/discordutils"
 	"syscall"
 	"time"
+
+	"github.com/joho/godotenv"
 
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/denisenkom/go-mssqldb"
@@ -33,14 +34,18 @@ func main() {
 	database.InitFirebase()
 
 	// Initializes BigCache cache
-	caching.AddCacheModule("cache")
+	err := caching.AddCacheModule("cache")
+	if err != nil {
+		fmt.Println("Error with initialize cache: " + err.Error())
+	}
 
 	// Gets stored API response from last session
 	database.GetStoredFromFirestore()
 
 	// Initializes Discord bot with token
 	token := envVar("DISCORD_TOKEN")
-	var s, err = discordgo.New("Bot " + token)
+	s, err := discordgo.New("Bot " + token)
+
 	if err = s.Open(); err != nil {
 		panic(err)
 	}
@@ -91,19 +96,31 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	switch {
 	case m.Content == "!steamdeals":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheDeals(m.Content, dur)
+		err := caching.CacheDeals(m.Content, dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendSteamMessage(s, m)
 	case m.Content == "!weather":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheForecasts(os.Getenv("WEATHER_KEY"), dur)
+		err := caching.CacheForecasts(os.Getenv("WEATHER_KEY"), dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheMeals(os.Getenv("MEALS_KEY"), dur)
+		err := caching.CacheMeals(os.Getenv("MEALS_KEY"), dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheNews(os.Getenv("NEWS_KEY"), dur)
+		err := caching.CacheNews(os.Getenv("NEWS_KEY"), dur)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 		discordutils.SendNewsletterMessage(s, m)
 	case m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)
@@ -113,79 +130,79 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// TODO Incorporate notifications into switch
 	/*
-	if m.Content == "!notifyweather remove" {
-		err := database.DeleteWebhook(m.Author.ID)
-		if err != nil {
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, "cloud notification removed!")
-	}
-
-	if m.Content[:21] == "!notifyweather cloud " {
-		percent, err := strconv.Atoi(m.Content[21:])
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to be a number")
-			return
-		}
-		if percent < 0 || 100 < percent {
-			s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to beetween 0 and 100")
-			return
+		if m.Content == "!notifyweather remove" {
+			err := database.DeleteWebhook(m.Author.ID)
+			if err != nil {
+				return
+			}
+			s.ChannelMessageSend(m.ChannelID, "cloud notification removed!")
 		}
 
-		err = database.CreateWeatherWebhook(m.Author.ID, int64(percent))
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-		} else {
+		if m.Content[:21] == "!notifyweather cloud " {
+			percent, err := strconv.Atoi(m.Content[21:])
+			if err != nil {
+				s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to be a number")
+				return
+			}
+			if percent < 0 || 100 < percent {
+				s.ChannelMessageSend(m.ChannelID, "cloud percentage needs to beetween 0 and 100")
+				return
+			}
 
-			//asd := s.UserChannelCreate(recipientID string)
-			//asd, _ := s.UserChannelCreate(m.Author.ID)
+			err = database.CreateWeatherWebhook(m.Author.ID, int64(percent))
+			if err != nil {
+				s.ChannelMessageSend(m.ChannelID, err.Error())
+			} else {
 
-			s.ChannelMessageSend(m.ChannelID, "Notification created/updated! You will get notified when the next day has a cloud percentage less than "+fmt.Sprint(percent)+" percent")
+				//asd := s.UserChannelCreate(recipientID string)
+				//asd, _ := s.UserChannelCreate(m.Author.ID)
+
+				s.ChannelMessageSend(m.ChannelID, "Notification created/updated! You will get notified when the next day has a cloud percentage less than "+fmt.Sprint(percent)+" percent")
+			}
 		}
-	}
 
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "drit!")
-	}
-
-	if m.Content == "!notify" {
-		s.ChannelMessageSend(m.ChannelID, "@"+m.Author.ID+" Hey! Remember to wash your hands")
-	}
-
-	if m.Content == "!alljokes" {
-		jokes := database.GetAllJokes()
-		for _, a := range jokes {
-			s.ChannelMessageSend(m.ChannelID, a)
+		if m.Content == "ping" {
+			s.ChannelMessageSend(m.ChannelID, "drit!")
 		}
-	}
 
-	if m.Content == "!myjokes" {
-		jokes := database.GetAllJokesByUserId(m.Author.ID)
-		if len(jokes) == 0 {
-			s.ChannelMessageSend(m.ChannelID, "You have no jokes yet. Create one with the !createjoke command")
+		if m.Content == "!notify" {
+			s.ChannelMessageSend(m.ChannelID, "@"+m.Author.ID+" Hey! Remember to wash your hands")
 		}
-		for _, a := range jokes {
-			s.ChannelMessageSend(m.ChannelID, a)
+
+		if m.Content == "!alljokes" {
+			jokes := database.GetAllJokes()
+			for _, a := range jokes {
+				s.ChannelMessageSend(m.ChannelID, a)
+			}
 		}
-	}
 
-	if strings.HasPrefix(m.Content, "!createjoke ") {
-		joke := m.Content[12:]
-		err := database.CreateJoke(m.Author.ID, joke)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-		} else {
-			s.ChannelMessageSend(m.ChannelID, "Joke created")
+		if m.Content == "!myjokes" {
+			jokes := database.GetAllJokesByUserId(m.Author.ID)
+			if len(jokes) == 0 {
+				s.ChannelMessageSend(m.ChannelID, "You have no jokes yet. Create one with the !createjoke command")
+			}
+			for _, a := range jokes {
+				s.ChannelMessageSend(m.ChannelID, a)
+			}
 		}
-	}
 
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
+		if strings.HasPrefix(m.Content, "!createjoke ") {
+			joke := m.Content[12:]
+			err := database.CreateJoke(m.Author.ID, joke)
+			if err != nil {
+				s.ChannelMessageSend(m.ChannelID, err.Error())
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "Joke created")
+			}
+		}
 
-	if m.Content == "!userid" {
-		s.ChannelMessageSend(m.ChannelID, m.Author.ID)
-	}
+		// If the message is "pong" reply with "Ping!"
+		if m.Content == "pong" {
+			s.ChannelMessageSend(m.ChannelID, "Ping!")
+		}
+
+		if m.Content == "!userid" {
+			s.ChannelMessageSend(m.ChannelID, m.Author.ID)
+		}
 	*/
 }

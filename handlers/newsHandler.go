@@ -21,30 +21,31 @@ const newsLetterDur = 100
 // and when a cached object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getNewsletters(apikey string) structs.NewsLetters {
+func getNewsletters(apikey string) (structs.NewsLetters, error) {
 	fmt.Println("API call made!") // for debugging
 	resp, err := http.Get("https://newsapi.org/v2/top-headlines?country=no&apiKey=" + apikey)
 
 	if err != nil {
-		fmt.Println(err)
+		return newsLetter, err
 	}
 	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		return newsLetter, err
 	}
 	jsonRes := string(output)
 
 	newsLetter = utils.PopulateNewsLetters(3, jsonRes)
 
 	// cache the data retrieved from API
-	storeNewsLetter(newsLetter)
+	err = storeNewsLetter(newsLetter)
 
-	return newsLetter
+	return newsLetter, err
 }
 
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
-func NewsLetterMainHandler(apikey string) structs.NewsLetters {
+func NewsLetterMainHandler(apikey string) (structs.NewsLetters, error) {
+	var err error
 	fmt.Println("NewsletterTest() was run!")
 	// use function to retrieve cached newsletter
 	nws := getStoredNewsLetter()
@@ -53,14 +54,14 @@ func NewsLetterMainHandler(apikey string) structs.NewsLetters {
 	if nws.Newsletters == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		nws = getNewsletters(apikey)
+		nws, err = getNewsletters(apikey)
 	}
 
-	return nws
+	return nws, err
 }
 
 // storeNewsLetter - stores a NewsLetter object to Firestore
-func storeNewsLetter(resp structs.NewsLetters) {
+func storeNewsLetter(resp structs.NewsLetters) error {
 	// populate struct with data to be store
 	database.StoredNewsLetter = structs.StoredNewsLetter{
 		NewsLetters:  resp,
@@ -68,17 +69,8 @@ func storeNewsLetter(resp structs.NewsLetters) {
 		StoreRefresh: newsLetterDur,
 	}
 	// save the object to firestore
-	saveNewsLetterToFirestore(&database.StoredNewsLetter)
-}
-
-// saveNewsLetterToFirestore - saves an object to firestore
-func saveNewsLetterToFirestore(stored *structs.StoredNewsLetter) {
-	doc, _, err := database.Client.Collection("cached_resp").Add(database.Ctx, *stored)
-	stored.FirestoreID = doc.ID     // storing firestore ID for later use
-	fmt.Println(stored.FirestoreID) // confirming the storage of document ID
-	if err != nil {
-		fmt.Println(err)
-	}
+	err := database.SaveNewsLetterToFirestore(&database.StoredNewsLetter)
+	return err
 }
 
 // getCachedNewsLetter - used on endpoint to retrieve the cached newsletter

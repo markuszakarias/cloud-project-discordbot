@@ -18,7 +18,6 @@ var ForecastsCache structs.WeatherForecasts
 var MealsCache structs.MealPlan
 var NewsCache structs.NewsLetters
 
-
 // AddCacheModule - Initializes a cache module with BigCache and HardMaxCacheSize: 8192 MB
 func AddCacheModule(name string) error {
 	// We use BigCache since reads are lock-free and its best for read-only functionality
@@ -35,12 +34,9 @@ func AddCacheModule(name string) error {
 func CacheDeals(command string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "deals", func() (interface{}, error) {
-		res := handlers.SteamDealsMainHandler(command)
-		return res, nil
+		res, err := handlers.SteamDealsMainHandler(command)
+		return res, err
 	}, &DealsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
@@ -48,12 +44,9 @@ func CacheDeals(command string, dur time.Duration) error {
 func CacheForecasts(apikey string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "forecasts", func() (interface{}, error) {
-		res := handlers.WeatherForecastMainHandler(apikey)
-		return res, nil
+		res, err := handlers.WeatherForecastMainHandler(apikey)
+		return res, err
 	}, &ForecastsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
@@ -61,12 +54,9 @@ func CacheForecasts(apikey string, dur time.Duration) error {
 func CacheMeals(apikey string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "meals", func() (interface{}, error) {
-		res := handlers.MealPlanMainHandler(apikey)
-		return res, nil
+		res, err := handlers.MealPlanMainHandler(apikey)
+		return res, err
 	}, &MealsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
@@ -74,11 +64,8 @@ func CacheMeals(apikey string, dur time.Duration) error {
 func CacheNews(apikey string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "news", func() (interface{}, error) {
-		res := handlers.NewsLetterMainHandler(apikey)
-		return res, nil
+		res, err := handlers.NewsLetterMainHandler(apikey)
+		return res, err
 	}, &NewsCache, dur)
-	if err != nil {
-		return err
-	}
 	return err
 }
