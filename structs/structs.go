@@ -91,3 +91,34 @@ type CloudWebhook struct {
 	CloudPercentages int64     `json:"cloudpercentages"`
 	LastDateNotified time.Time `json:"lastdatenotified"`
 }
+
+type StoredMealPlan struct {
+	MealPlan     MealPlan
+	StoreTime    time.Time
+	StoreRefresh float64
+	FirestoreID  string
+}
+
+// StoredNewsLetter - struct for a stored newsletter
+type StoredNewsLetter struct {
+	NewsLetters  NewsLetters
+	StoreTime    time.Time
+	StoreRefresh float64
+	FirestoreID  string
+}
+
+// CachedNewsLetter - struct for a cached newsletter
+type StoredSteamDeals struct {
+	SteamDeals   Deals
+	StoreTime    time.Time
+	StoreRefresh float64
+	FirestoreID  string
+}
+
+type StoredWeatherForecast struct {
+	WeatherForecasts WeatherForecasts
+	IPLocation       IPLocation
+	StoreTime       time.Time
+	StoreRefresh    float64
+	FirestoreID      string
+}
