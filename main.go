@@ -101,7 +101,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("10m")
-		caching.CacheForecasts(dur)
+		caching.CacheMeals(dur)
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("10m")
