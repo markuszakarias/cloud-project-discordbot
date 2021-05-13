@@ -14,8 +14,6 @@ var ForecastsCache structs.WeatherForecasts
 var MealsCache structs.MealPlan
 var NewsCache structs.NewsLetters
 
-
-
 func AddCacheModule(name string) {
 	cm.AddModule(name, &bigcache.BigCacheProvider{
 		Lifetime: 100,
