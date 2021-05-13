@@ -95,15 +95,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendSteamMessage(s, m)
 	case m.Content == "!weather":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheForecasts(os.Getenv("WEATHER_KEY"), dur)
+		caching.CacheForecasts(dur)
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheMeals(os.Getenv("MEALS_KEY"), dur)
+		caching.CacheMeals(dur)
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheNews(os.Getenv("NEWS_KEY"), dur)
+		caching.CacheNews(dur)
 		discordutils.SendNewsletterMessage(s, m)
 	case m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)

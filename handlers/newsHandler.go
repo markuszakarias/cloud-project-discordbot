@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"projectGroup23/database"
@@ -21,8 +22,9 @@ const newsLetterDur = 100
 // and when a cached object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getNewsletters(apikey string) structs.NewsLetters {
+func getNewsletters() structs.NewsLetters {
 	fmt.Println("API call made!") // for debugging
+	apikey := os.Getenv("NEWS_KEY")
 	resp, err := http.Get("https://newsapi.org/v2/top-headlines?country=no&apiKey=" + apikey)
 
 	if err != nil {
@@ -44,7 +46,7 @@ func getNewsletters(apikey string) structs.NewsLetters {
 
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
-func NewsLetterMainHandler(apikey string) structs.NewsLetters {
+func NewsLetterMainHandler() structs.NewsLetters {
 	fmt.Println("NewsletterTest() was run!")
 	// use function to retrieve cached newsletter
 	nws := getStoredNewsLetter()
@@ -53,7 +55,7 @@ func NewsLetterMainHandler(apikey string) structs.NewsLetters {
 	if nws.Newsletters == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		nws = getNewsletters(apikey)
+		nws = getNewsletters()
 	}
 
 	return nws

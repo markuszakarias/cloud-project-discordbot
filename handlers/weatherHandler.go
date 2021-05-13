@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"projectGroup23/database"
@@ -42,10 +43,11 @@ func getIPLocation() structs.IPLocation {
 // and when a cached object is deleted after timeout
 // TODO - security on API key
 // TODO - better error handling
-func getWeatherForecastAndIP(apikey string) structs.WeatherForecasts {
+func getWeatherForecastAndIP() structs.WeatherForecasts {
 	fmt.Println("API call made!") // for debugging
 
 	ipAddress = getIPLocation()
+	apikey := os.Getenv("WEATHER_KEY")
 
 	wf, err := http.Get("https://api.openweathermap.org/data/2.5/forecast/daily?q=Oslo&units=metric&cnt=1&appid="+apikey)
 
@@ -70,7 +72,7 @@ func getWeatherForecastAndIP(apikey string) structs.WeatherForecasts {
 
 // TestEndpoint - just for development, testing that the functionality works correctly
 // TODO - remove when not needed anymore
-func WeatherForecastMainHandler(apikey string) structs.WeatherForecasts {
+func WeatherForecastMainHandler() structs.WeatherForecasts {
 	// use function to retrieve cached newsletter
 	wf := getStoredWeatherForecast()
 
@@ -78,7 +80,7 @@ func WeatherForecastMainHandler(apikey string) structs.WeatherForecasts {
 	if wf.Forecasts == nil {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		wf = getWeatherForecastAndIP(apikey)
+		wf = getWeatherForecastAndIP()
 	}
 
 	return wf

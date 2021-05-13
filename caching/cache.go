@@ -45,10 +45,10 @@ func CacheDeals(command string, dur time.Duration) error {
 }
 
 // CacheForecasts - Caches the function return value and sets a timer for when the cache is dirty
-func CacheForecasts(apikey string, dur time.Duration) error {
+func CacheForecasts(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "forecasts", func() (interface{}, error) {
-		res := handlers.WeatherForecastMainHandler(apikey)
+		res := handlers.WeatherForecastMainHandler()
 		return res, nil
 	}, &ForecastsCache, dur)
 	if err != nil {
@@ -58,10 +58,10 @@ func CacheForecasts(apikey string, dur time.Duration) error {
 }
 
 // CacheMeals - Caches the function return value and sets a timer for when the cache is dirty
-func CacheMeals(apikey string, dur time.Duration) error {
+func CacheMeals(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "meals", func() (interface{}, error) {
-		res := handlers.MealPlanMainHandler(apikey)
+		res := handlers.MealPlanMainHandler()
 		return res, nil
 	}, &MealsCache, dur)
 	if err != nil {
@@ -71,10 +71,10 @@ func CacheMeals(apikey string, dur time.Duration) error {
 }
 
 // CacheNews - Caches the function return value and sets a timer for when the cache is dirty
-func CacheNews(apikey string, dur time.Duration) error {
+func CacheNews(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "news", func() (interface{}, error) {
-		res := handlers.NewsLetterMainHandler(apikey)
+		res := handlers.NewsLetterMainHandler()
 		return res, nil
 	}, &NewsCache, dur)
 	if err != nil {
