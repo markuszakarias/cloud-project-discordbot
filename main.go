@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"os/signal"
@@ -18,26 +19,28 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var server = "vmdata.database.windows.net"
-var port = 1433
-var user = "eriksen"
-var password = "Tanzania1994!"
-var db = "VM_Data"
+var server = envVar("SERVER")
+var port = envVar("PORT")
+var user = envVar("USER")
+var password = envVar("PASSWORD")
+var db = envVar("DB")
 
 func main() {
-	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
 		server, user, password, port, db)
 
+	// Initializes Firebase database
 	database.InitFirebase()
 
+	// Initializes BigCache cache
 	caching.AddCacheModule("cache")
 
+	// Gets stored API response from last session
 	database.GetStoredFromFirestore()
 
-	token := "ODM2OTgzNjUyMjUxMzM2Nzc1.YIl7xQ.cuxQXG5lW9Sqmylm6rx4INNiLpc"
-
+	// Initializes Discord bot with token
+	token := envVar("DISCORD_TOKEN")
 	var s, err = discordgo.New("Bot " + token)
-
 	if err = s.Open(); err != nil {
 		panic(err)
 	}
@@ -66,6 +69,16 @@ func main() {
 	s.Close()
 }
 
+// envVar reads from .env file, sets environment variables and returns value based on key
+func envVar(key string) string {
+	// Load .env file
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println(err)
+	}
+	return os.Getenv(key)
+}
+
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
@@ -82,15 +95,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendSteamMessage(s, m)
 	case m.Content == "!weather":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheForecasts(dur)
+		caching.CacheForecasts(os.Getenv("WEATHER_KEY"), dur)
 		discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheMeals(dur)
+		caching.CacheMeals(os.Getenv("MEALS_KEY"), dur)
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("20s")
-		caching.CacheNews(dur)
+		caching.CacheNews(os.Getenv("NEWS_KEY"), dur)
 		discordutils.SendNewsletterMessage(s, m)
 	case m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)
@@ -98,140 +111,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help (not implemented) if you need a reminder!")
 	}
 
-	/* 	if m.Content == "!steamdeals" {
-	   		dur, _ := time.ParseDuration("10m")
-	   		caching.CacheDeals(m.Content, dur)
-	   		discordutils.SendSteamMessage(s, m)
-	   	}
-
-	   	if m.Content == "!weather" {
-	   		dur, _ := time.ParseDuration("10m")
-	   		caching.CacheForecasts(dur)
-	   		discordutils.SendWeatherMessage(s, m)
-	   	}
-
-	   	if m.Content == "!mealplan" {
-	   		dur, _ := time.ParseDuration("10m")
-	   		caching.CacheMeals(dur)
-	   		discordutils.SendMealplanMessage(s, m)
-	   	}
-
-	   	if m.Content == "!newsletter" {
-	   		dur, _ := time.ParseDuration("10m")
-	   		caching.CacheNews(dur)
-	   		discordutils.SendNewsletterMessage(s, m)
-	   	} */
-
-	/* if m.Content == "!todo" {
-		allTodos, err := database.GetTodoAll()
-		if err != nil {
-			log.Fatal("Error reading all todo objects: ", err.Error())
-		}
-		s.ChannelMessageSend(m.ChannelID, allTodos[1].Description)
-	}
-
-	if m.Content[:12] == "!todo create" {
-		var todoTask string = m.Content[12:]
-		fmt.Println(todoTask)
-		if len(todoTask) < 2 {
-			s.ChannelMessageSend(m.ChannelID, "Missing description for todo task!")
-			return
-		}
-
-		err := database.CreateTodoObject(todoObject)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Something went wrong while creating todo object")
-			fmt.Println(err)
-		}
-	}
-
-	if m.Content == "!todo mylist" {
-		allTodos, err := database.GetTodoObject(m.Author.ID)
-		if err != nil {
-			log.Fatal("Error reading all todo objects: ", err.Error())
-		}
-		fmt.Println(allTodos)
-		//s.ChannelMessageSend(m.ChannelID, allTodos[1].Description)
-
-		for i, todo := range allTodos {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprint(i+1)+": "+todo.Description+" -- status: "+todo.State)
-		}
-	}
-
-	if m.Content[:12] == "!todo delete" {
-		var todoId string = m.Content[12:]
-		fmt.Println(todoId)
-		if len(todoId) < 2 {
-			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
-			return
-		}
-		conv, err := strconv.Atoi(todoId[1:])
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
-			return
-		}
-
-		res, err := convertIndexToId((conv - 1), m.Author.ID)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
-		}
-		err = database.DeleteTodoObject(res)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
-		}
-	}
-
-	if m.Content[:12] == "!todo update" {
-		var argString string = m.Content[12:]
-		fmt.Println(argString)
-		if len(argString) < 2 {
-			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
-			return
-		}
-
-		args := strings.Fields(argString)
-
-		if len(args) < 2 {
-			s.ChannelMessageSend(m.ChannelID, "Wrong format!")
-			return
-		}
-
-		fmt.Println(args)
-
-		conv, err := strconv.Atoi(args[0])
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
-			return
-		}
-
-		res, err := convertIndexToId((conv - 1), m.Author.ID)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
-		}
-		fmt.Println(res)
-
-		var updateTodo string
-
-		for i, word := range args[1:] {
-			updateTodo += word
-			if i != len(args[1:])-1 {
-				updateTodo += " "
-			}
-		}
-
-		err = database.UpdateTodoObject(res, updateTodo)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-	}
-
-	// If the message is "ping" reply with "Pong!"
-
-
+	// TODO Incorporate notifications into switch
+	/*
 	if m.Content == "!notifyweather remove" {
 		err := database.DeleteWebhook(m.Author.ID)
 		if err != nil {
@@ -261,10 +142,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 			s.ChannelMessageSend(m.ChannelID, "Notification created/updated! You will get notified when the next day has a cloud percentage less than "+fmt.Sprint(percent)+" percent")
 		}
-
 	}
-
-
 
 	if m.Content == "ping" {
 		s.ChannelMessageSend(m.ChannelID, "drit!")
