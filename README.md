@@ -102,17 +102,17 @@ Firestore and azuresql..
 
 ## Project technologies (unsure about title)
 
-- [_] -> Azure Deployment
+- [x] -> Azure Deployment
 
-- [_] -> Docker
+- [x] -> Docker
 
-- [_] -> Firebase storage
+- [x] -> Firebase storage
 
-- [_] -> Azure SQL storage
+- [x] -> Azure SQL storage
 
-- [_] -> Webhook functionality
+- [x] -> Webhook functionality
 
-- [_] -> Caching system
+- [x] -> Caching system
 
 ## Discord bot features
 
