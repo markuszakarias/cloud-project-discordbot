@@ -100,6 +100,12 @@ Something about the thought process in the project.
 
 Firestore and azuresql..
 
+## External dependencies
+
+* https://github.com/josemiguelmelo/gocacheable
+
+* https://github.com/tidwall/gjson
+
 ## Project technologies (unsure about title)
 
 - [x] -> Azure Deployment
