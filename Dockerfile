@@ -1,5 +1,5 @@
 # Start from golang base image
-FROM golang:latest
+FROM golang:latest as builder
 
 ENV WEATHER_KEY=f6a8e67b1a5f1d5be2bffe4d461cc155
 ENV NEWS_KEY=03b8fc7d5add4ac98eb2330004fbb45c
@@ -23,11 +23,19 @@ RUN go mod download
 
 # Copying the source code
 COPY . .
+COPY .env .
+COPY ./database/firebasePrivateKey.json .
 
 # Build the application
-RUN go build -o ./main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o main .
 
-# Run the executable
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+COPY --from=builder /build/main .
+COPY --from=builder /build/ .
+
 CMD ["./main"]
-
-
