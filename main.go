@@ -20,10 +20,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var server = envVar("SERVER")
-var port = envVar("PORT")
+var server = envVar("DB_SERVER")
+var port = envVar("DB_PORT")
 var user = envVar("DB_USER")
-var password = envVar("PASSWORD")
+var password = envVar("DB_PASSWORD")
 var db = envVar("DB")
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 	database.GetStoredFromFirestore()
 
 	// Initializes Discord bot with token
-	token := envVar("DISCORD_TOKEN")
+	token := envVar("DC_TOKEN")
 	s, err := discordgo.New("Bot " + token)
 
 	if err = s.Open(); err != nil {
