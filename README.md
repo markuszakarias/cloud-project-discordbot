@@ -81,3 +81,17 @@ go build .
 ```
 
 To run the executable, run `./<executable>`
+
+## Caching
+
+We use the Read-Through strategy for caching and all writes to the database happens from API's. The application in case of a hit reads from cache, otherwise it reads from database and creates a cache on the read data.
+
+![Read-Trough_Cache](https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2021-workspace/elvisa/projectgroup23/-/raw/master/assets/read_through_cache.PNG)
+
+We decided to use BigCache as our cache provider, as our application only deals with read operations from the database and it fits best with regards to scaleability. The performance comparison shows this:
+
+![Cache performance comparison](https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2021-workspace/elvisa/projectgroup23/-/raw/master/assets/cache_performance_comparison.PNG)
+
+We added a wrapper module to easily abstract the call to the existing caching system which makes it easier to handle cache when calling functions.
+
+https://github.com/josemiguelmelo/gocacheable
