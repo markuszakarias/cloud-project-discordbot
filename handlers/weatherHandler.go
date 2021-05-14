@@ -48,7 +48,8 @@ func getWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) 
 // WeatherForecastMainHandler
 func WeatherForecastMainHandler(location string) (structs.WeatherForecasts, error) {
 	var err error = nil
-	// use function to retrieve cached newsletter
+
+	fmt.Print("Handler was called!")
 
 	storedwf, err := database.CheckWeatherForecastsOnFirestore(location)
 	if err != nil {

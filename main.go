@@ -39,6 +39,12 @@ func main() {
 		fmt.Println("Error with initialize cache: " + err.Error())
 	}
 
+	// Initializes BigCache cache
+	err = caching.AddCacheModule("weather")
+	if err != nil {
+		fmt.Println("Error with initialize cache: " + err.Error())
+	}
+
 	// Gets stored API response from last session
 	database.GetStoredFromFirestore()
 

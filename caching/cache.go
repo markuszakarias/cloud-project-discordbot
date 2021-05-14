@@ -43,7 +43,7 @@ func CacheDeals(command string, dur time.Duration) error {
 // CacheForecasts - Caches the function return value and sets a timer for when the cache is dirty
 func CacheForecasts(location string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
-	err := CM.Cacheable("cache", "forecasts", func() (interface{}, error) {
+	err := CM.Cacheable("weather", location, func() (interface{}, error) {
 		res, err := handlers.WeatherForecastMainHandler(location)
 		return res, err
 	}, &ForecastsCache, dur)
