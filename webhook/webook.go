@@ -11,6 +11,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// runs at 8am every day
 func WebhookRoutine(s *discordgo.Session) {
 	webhooks, err := database.GetAllWebhooks()
 	if err != nil {
@@ -49,6 +50,16 @@ func WebhookRoutine(s *discordgo.Session) {
 		}
 
 	}
-	time.Sleep(time.Duration(9999) * time.Second) // waits 15 minutes
+
+	timeNow := time.Now()
+	var eightAm time.Time
+	if timeNow.Hour() < 8 { // if before 8am
+		eightAm = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 8, 0, 0, timeNow.Nanosecond(), timeNow.Location()) // 8am today
+	} else { // if after 8 am
+		eightAm = time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day()+1, 8, 0, 0, timeNow.Nanosecond(), timeNow.Location()) // 8am tomorrow
+	}
+
+	nextWebhookSeconds := time.Until(eightAm).Seconds()
+	time.Sleep(time.Duration(nextWebhookSeconds) * time.Second) // sleeps uintill 8am
 	go WebhookRoutine(s)
 }
