@@ -1,6 +1,8 @@
-# projectGroup23
+# Project in PROG 2005-2021, NTNU
 
-Project in cloud course
+Group 23: Self-help
+
+Members: Jørgen Eriksen, Elvis Arifagic, Markus Strømseth, Salvador Bascunan
 
 ### Clone repo and run locally
 
@@ -81,6 +83,110 @@ go build .
 ```
 
 To run the executable, run `./<executable>`
+
+## Deployment
+
+something about azure deployment
+
+## Architecture
+
+image maybe?
+
+## Introduction
+
+Something about the thought process in the project. 
+
+## Storage
+
+Firestore and azuresql..
+
+## Project technologies (unsure about title)
+
+- [_] -> Azure Deployment
+
+- [_] -> Docker
+
+- [_] -> Firebase storage
+
+- [_] -> Azure SQL storage
+
+- [_] -> Webhook functionality
+
+- [_] -> Caching system
+
+## Discord bot features
+
+- [_] -> Command `!weather` with parameters
+
+Be able to call the weather command with or without parameters. The default configuration will use the Get IP Location API to retrieve the location based on the ip address of the system that is running the application. Since this will in theory mean that the location would always be the same as the instance that is running the service. 
+
+Because of this, we decided to add parameters to the command. Here you can pick a city location to retrieve the current weather for the specified location. Example:
+
+```discord
+!weather Gjøvik
+```
+
+- [_] -> Command `!steamdeals` with parameters
+
+Be able to call to steamdeals...
+
+- [_] -> Command `!mealplan` with parameters
+
+Be able to call to mealplan...
+
+- [_] -> Command `!newsletter` with parameters
+
+Be able to call to newsletter...
+
+- [_] -> Command `!todo` with parameters
+
+Be able to view, create, update and delete todotasks. These tasks are connected to your discord ID and will be stored in a azuresql database for persistence. This means that the tasks you created with your ID will still be there if the service reboots for whatever reason. There are different different commands for the different functions:
+
+**View todo tasks**
+
+```
+!todo mylist
+```
+
+**Create todo task**
+
+```
+!todo create This is my task
+```
+
+
+**Update todo task description**
+
+```
+!todo update <taskid> This is the update
+```
+
+**Label task as finished**
+
+```
+!todo finished <taskid>
+```
+
+**Label task as inactive**
+
+```
+!todo inactive <taskid>
+```
+
+**Delete todo task**
+
+```
+!todo delete <taskid>
+```
+
+- [_] -> Command `!notifyweather` with parameters
+
+Be able to call to a webhook...
+
+- [_] -> Command `!help` with parameters
+
+Be able to call to a help message for the different commands...
+
 
 ## Caching
 
