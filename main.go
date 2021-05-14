@@ -84,7 +84,7 @@ func main() {
 // envVar reads from .env file, sets environment variables and returns value based on key
 func envVar(key string) string {
 	// Load .env file
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./.env")
 	if err != nil {
 		fmt.Println(err)
 	}
