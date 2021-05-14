@@ -16,11 +16,11 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	defaultLocation, err := utils.GetIPLocation()
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	str := strings.Fields(m.Content)
@@ -34,7 +34,7 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} */
 		res, err := handlers.WeatherForecastMainHandler(defaultLocation)
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 		fmt.Println(res)
 	} else {
@@ -45,7 +45,7 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		   		} */
 		res, err := handlers.WeatherForecastMainHandler(str[1])
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 		fmt.Println(res)
 	}
@@ -64,6 +64,7 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			stringToPrint[13], fmt.Sprint(day.Eve), stringToPrint[6],
 			stringToPrint[14], fmt.Sprint(day.Night), stringToPrint[6]))
 	}
+	return nil
 }
 
 func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -293,4 +294,30 @@ func convertIndexToId(i int, userid string) (int, error) {
 	deleteId := resp[i].Id
 
 	return deleteId, nil
+}
+
+func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
+
+	/*
+		str := strings.Fields(m.Content)
+		fmt.Println(str)
+
+		if len(str) < 2 {
+			return errors.New("Missing city name")
+		}
+
+		_, err := handlers.WeatherForecastMainHandler(str[1])
+		if err != nil {
+			return err
+		}
+
+		err = database.CreateWeatherWebhook(m.Author.ID, str[1])
+
+		if err != nil {
+			return err
+		}
+		s.ChannelMessageSend(m.ChannelID, "Notification is registred. You will be notified with the weather information at 8 am")
+	*/
+
+	return nil
 }

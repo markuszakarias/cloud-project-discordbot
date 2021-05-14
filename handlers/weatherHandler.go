@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +11,8 @@ import (
 	"projectGroup23/database"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
+
+	"github.com/tidwall/gjson"
 )
 
 // struct used to retrieved data from api
@@ -29,11 +32,23 @@ func getWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) 
 	if err != nil {
 		return weatherForecast, err
 	}
+
 	output, err := ioutil.ReadAll(wf.Body)
 	if err != nil {
 		return weatherForecast, err
 	}
+
 	jsonRes := string(output)
+
+	cod := gjson.Get(jsonRes, "cod").String()
+
+	if cod == "404" { // if input city does not exist
+		return weatherForecast, errors.New("city '" + location + "' not found")
+	}
+
+	if err != nil {
+		return weatherForecast, err
+	}
 
 	weatherForecast = utils.PopulateWeatherForecast(jsonRes, 1)
 

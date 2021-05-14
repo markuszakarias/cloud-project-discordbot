@@ -86,10 +86,8 @@ type Todo_struct struct {
 }
 
 type CloudWebhook struct {
-	Id               string    `json:"id"`
-	UserId           string    `json:"userid"`
-	CloudPercentages int64     `json:"cloudpercentages"`
-	LastDateNotified time.Time `json:"lastdatenotified"`
+	UserId string `json:"userid"`
+	City   string `json:"city"`
 }
 
 type StoredMealPlan struct {
