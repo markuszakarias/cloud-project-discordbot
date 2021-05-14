@@ -285,3 +285,29 @@ func convertIndexToId(i int, userid string) (int, error) {
 
 	return deleteId, nil
 }
+
+func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
+
+	/*
+		str := strings.Fields(m.Content)
+		fmt.Println(str)
+
+		if len(str) < 2 {
+			return errors.New("Missing city name")
+		}
+
+		_, err := handlers.WeatherForecastMainHandler(str[1])
+		if err != nil {
+			return err
+		}
+
+		err = database.CreateWeatherWebhook(m.Author.ID, str[1])
+
+		if err != nil {
+			return err
+		}
+		s.ChannelMessageSend(m.ChannelID, "Notification is registred. You will be notified with the weather information at 8 am")
+	*/
+
+	return nil
+}

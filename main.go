@@ -125,6 +125,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendNewsletterMessage(s, m)
 	case m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)
+	case m.Content[:14] == "!notifyweather":
+		err := discordutils.NotifyWeather(s, m)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		}
 	default:
 		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help (not implemented) if you need a reminder!")
 	}

@@ -1,0 +1,8 @@
+version: "2"
+services:
+  app:
+    image: golang:1.6.1-alpine
+    volumes:
+      - .:/go/src/projectGroup23
+    working_dir: /go/src/projectGroup23
+    command: go run main.go

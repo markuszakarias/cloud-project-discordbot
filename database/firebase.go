@@ -103,10 +103,8 @@ func getAllWebhooks() ([]structs.CloudWebhook, error) {
 		}
 		//joke := doc.Data()["text"]
 		webhookPlaceholder := structs.CloudWebhook{
-			Id:               doc.Ref.ID,
-			UserId:           doc.Data()["UserId"].(string),
-			CloudPercentages: doc.Data()["CloudPercentages"].(int64),
-			LastDateNotified: doc.Data()["LastDateNotified"].(time.Time),
+			UserId: doc.Data()["UserId"].(string),
+			City:   doc.Data()["City"].(string),
 		}
 		allWebhooks = append(allWebhooks, webhookPlaceholder)
 	}
@@ -119,12 +117,13 @@ func DeleteWebhook(userId string) error {
 }
 
 // if user already has a weather webhook, it will be updated!
-func CreateWeatherWebhook(userId string, cloudPercentages int64) error {
+func CreateWeatherWebhook(userId string, city string) error {
 	_, err := Client.Collection("cloudwebhook").Doc(userId).Set(Ctx, map[string]interface{}{
-		"Id":               "",
-		"UserId":           userId,
-		"CloudPercentages": cloudPercentages,
-		"LastDateNotified": time.Now().AddDate(0, 0, -1), // sets the dat before since it has not been notified today yet.
+		"Id":     "",
+		"UserId": userId,
+		"City":   city,
+		// "CloudPercentages": cloudPercentages,
+		// "LastDateNotified": time.Now().AddDate(0, 0, -1), // sets the dat before since it has not been notified today yet.
 	}, firestore.MergeAll)
 	return err
 }
@@ -238,34 +237,41 @@ func SaveNewsLetterToFirestore(stored *structs.StoredNewsLetter) error {
 
 // saveNewsLetterToFirestore - saves an object to firestore
 func SaveWeatherForecastToFirestore(stored *structs.StoredWeatherForecast) error {
-	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
-	stored.FirestoreID = doc.ID // storing firestore ID for later use
+	_, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
+	//stored.FirestoreID = doc.ID // storing firestore ID for later use
 	return err
 }
 
-// runs every 15 minutes
-/*
-func WebhookRoutine(s *discordgo.Session) {
+func WebhookRoutine() {
 	webhooks, err := getAllWebhooks()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for i := 0; i < len(webhooks); i++ {
-		wf := handlers.GetWeatherForecast(1)
-		currentCloud := wf.Forecasts[0].Clouds
-		if float64(webhooks[i].CloudPercentages) >= currentCloud && !utils.CheckIfSameDate(time.Now(), webhooks[i].LastDateNotified) { // if less cloud than notification setting and has not been notified today
-			userChannel, _ := s.UserChannelCreate(webhooks[i].UserId)
-			message := "tomorrow it will be " + fmt.Sprintf("%.f", currentCloud) + " percent cloud!"
-			s.ChannelMessageSend(userChannel.ID, message)
-			webhookData := map[string]interface{}{
-				"LastDateNotified": time.Now(),
-			}
-			err := updateWeatherWebhook(webhooks[i].UserId, webhookData) // updates the webbook so it can't notify again today
+	for _, webhook := range webhooks {
+		fmt.Println(webhook)
+		/*
+			res, err := handlers.WeatherForecastMainHandler(webhook.City)
 			if err != nil {
-				log.Fatalln("An error has occurred: %s", err)
+				log.Fatalln(err)
 			}
-		}
+		*/
+
+		/*
+			wf := handlers.GetWeatherForecast(1)
+			currentCloud := wf.Forecasts[0].Clouds
+			if float64(webhooks[i].CloudPercentages) >= currentCloud && !utils.CheckIfSameDate(time.Now(), webhooks[i].LastDateNotified) { // if less cloud than notification setting and has not been notified today
+				userChannel, _ := s.UserChannelCreate(webhooks[i].UserId)
+				message := "tomorrow it will be " + fmt.Sprintf("%.f", currentCloud) + " percent cloud!"
+				s.ChannelMessageSend(userChannel.ID, message)
+				webhookData := map[string]interface{}{
+					"LastDateNotified": time.Now(),
+				}
+				err := updateWeatherWebhook(webhooks[i].UserId, webhookData) // updates the webbook so it can't notify again today
+				if err != nil {
+					log.Fatalln("An error has occurred: %s", err)
+				}
+			}
+		*/
 	}
 	time.Sleep(time.Duration(900) * time.Second) // waits 15 minutes
 }
-*/
