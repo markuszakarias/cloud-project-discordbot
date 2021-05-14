@@ -7,11 +7,11 @@ import (
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"projectGroup23/discordpkg/constants"
+	"projectGroup23/handlers"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -27,18 +27,29 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	fmt.Println(str)
 
 	if len(str) < 2 {
-		dur, _ := time.ParseDuration("20s")
+		/* dur, _ := time.ParseDuration("20s")
 		err := caching.CacheForecasts(defaultLocation, dur)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		}
-	} else {
-		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheForecasts(str[1], dur)
+		} */
+		res, err := handlers.WeatherForecastMainHandler(defaultLocation)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+			fmt.Println(err)
 		}
+		fmt.Println(res)
+	} else {
+		/* 		dur, _ := time.ParseDuration("20s")
+		   		err := caching.CacheForecasts(str[1], dur)
+		   		if err != nil {
+		   			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
+		   		} */
+		res, err := handlers.WeatherForecastMainHandler(str[1])
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(res)
 	}
+
 	stringToPrint := constants.GetWeatherStringArray()
 	for _, day := range caching.ForecastsCache.Forecasts {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(

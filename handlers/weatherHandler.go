@@ -16,7 +16,7 @@ import (
 var weatherForecast structs.WeatherForecasts
 
 // const for cache duration
-const weatherForecastDur = 100
+const weatherForecastDur = 10
 
 // getWeatherForecastAndIP
 func getWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) {
@@ -49,13 +49,18 @@ func getWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) 
 func WeatherForecastMainHandler(location string) (structs.WeatherForecasts, error) {
 	var err error = nil
 	// use function to retrieve cached newsletter
-	wf := getStoredWeatherForecast()
+
+	wf, err := database.CheckWeatherForecastsOnFirestore(location)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	wf = getStoredWeatherForecast()
 
 	// check if the interface is null
 	if wf.Forecasts == nil || wf.Forecasts[0].City != location {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		database.DeleteObjectFromFirestore(database.StoredWeatherForecast.FirestoreID)
 		wf, err = getWeatherForecastAndIP(location)
 	}
 
