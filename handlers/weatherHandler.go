@@ -22,7 +22,7 @@ var weatherForecast structs.WeatherForecasts
 const weatherForecastDur = 100
 
 // getWeatherForecastAndIP
-func getWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) {
+func GetWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) {
 	var err error = nil
 	fmt.Println("API call made!") // for debugging
 
@@ -77,7 +77,7 @@ func WeatherForecastMainHandler(location string) (structs.WeatherForecasts, erro
 	if wf.Forecasts == nil || wf.Forecasts[0].City != location {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
-		wf, err = getWeatherForecastAndIP(location)
+		wf, err = GetWeatherForecastAndIP(location)
 	}
 
 	return wf, err

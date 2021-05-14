@@ -90,7 +90,7 @@ func GetAllJokesByUserId(userId string) []string {
 	return allJokes
 }
 
-func getAllWebhooks() ([]structs.CloudWebhook, error) {
+func GetAllWebhooks() ([]structs.CloudWebhook, error) {
 	iter := Client.Collection("cloudwebhook").Documents(Ctx)
 	var allWebhooks []structs.CloudWebhook
 	for {
@@ -240,38 +240,4 @@ func SaveWeatherForecastToFirestore(stored *structs.StoredWeatherForecast) error
 	_, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
 	//stored.FirestoreID = doc.ID // storing firestore ID for later use
 	return err
-}
-
-func WebhookRoutine() {
-	webhooks, err := getAllWebhooks()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	for _, webhook := range webhooks {
-		fmt.Println(webhook)
-		/*
-			res, err := handlers.WeatherForecastMainHandler(webhook.City)
-			if err != nil {
-				log.Fatalln(err)
-			}
-		*/
-
-		/*
-			wf := handlers.GetWeatherForecast(1)
-			currentCloud := wf.Forecasts[0].Clouds
-			if float64(webhooks[i].CloudPercentages) >= currentCloud && !utils.CheckIfSameDate(time.Now(), webhooks[i].LastDateNotified) { // if less cloud than notification setting and has not been notified today
-				userChannel, _ := s.UserChannelCreate(webhooks[i].UserId)
-				message := "tomorrow it will be " + fmt.Sprintf("%.f", currentCloud) + " percent cloud!"
-				s.ChannelMessageSend(userChannel.ID, message)
-				webhookData := map[string]interface{}{
-					"LastDateNotified": time.Now(),
-				}
-				err := updateWeatherWebhook(webhooks[i].UserId, webhookData) // updates the webbook so it can't notify again today
-				if err != nil {
-					log.Fatalln("An error has occurred: %s", err)
-				}
-			}
-		*/
-	}
-	time.Sleep(time.Duration(900) * time.Second) // waits 15 minutes
 }

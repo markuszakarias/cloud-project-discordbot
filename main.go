@@ -10,6 +10,7 @@ import (
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"projectGroup23/discordpkg/discordutils"
+	"projectGroup23/webhook"
 	"syscall"
 	"time"
 
@@ -56,7 +57,7 @@ func main() {
 		panic(err)
 	}
 
-	//go database.WebhookRoutine(s)
+	go webhook.WebhookRoutine(s)
 	s.AddHandler(messageCreate)
 	s.Identify.Intents = discordgo.IntentsGuildMessages
 
@@ -97,41 +98,39 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	if m.Content[:1] != "!" {
+		return
+	}
+	var err error
+
 	switch {
-	case m.Content[:5] == "!help":
+	case len(m.Content) >= 5 && m.Content[:5] == "!help":
 		discordutils.SendHelpMessage(s, m)
 	case m.Content == "!steamdeals":
 		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheDeals(m.Content, dur)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		}
+		err = caching.CacheDeals(m.Content, dur)
 		discordutils.SendSteamMessage(s, m)
-	case m.Content[:8] == "!weather":
-		discordutils.SendWeatherMessage(s, m)
+	case len(m.Content) >= 8 && m.Content[:8] == "!weather":
+		err = discordutils.SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
 		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheMeals(dur)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		}
+		err = caching.CacheMeals(dur)
 		discordutils.SendMealplanMessage(s, m)
 	case m.Content == "!newsletter":
 		dur, _ := time.ParseDuration("20s")
-		err := caching.CacheNews(dur)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		}
+		err = caching.CacheNews(dur)
 		discordutils.SendNewsletterMessage(s, m)
-	case m.Content[:5] == "!todo":
+	case len(m.Content) >= 5 && m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)
-	case m.Content[:14] == "!notifyweather":
-		err := discordutils.NotifyWeather(s, m)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
-		}
+	case len(m.Content) >= 14 && m.Content[:14] == "!notifyweather":
+		err = discordutils.NotifyWeather(s, m)
+
 	default:
 		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help (not implemented) if you need a reminder!")
+	}
+
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 	}
 
 	// TODO Incorporate notifications into switch
