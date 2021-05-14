@@ -134,7 +134,7 @@ func updateWeatherWebhook(userId string, webhookData map[string]interface{}) err
 	return err
 }
 
-func CheckWeatherForecastsOnFirestore(location string) (structs.WeatherForecasts, error) {
+func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherForecast, error) {
 	iter := Client.Collection("cached_resp").Documents(Ctx)
 
 	for {
@@ -148,11 +148,11 @@ func CheckWeatherForecastsOnFirestore(location string) (structs.WeatherForecasts
 		if doc.Data()["IPLocation"] == location {
 			doc.DataTo(&StoredWeatherForecast)
 			StoredWeatherForecast.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
-			return StoredWeatherForecast.WeatherForecasts, nil
+			return StoredWeatherForecast, nil
 		}
 	}
 
-	return structs.WeatherForecasts{}, nil
+	return structs.StoredWeatherForecast{}, nil
 }
 
 // GetCachedNewsLetterFromFirestore - global function that runs at startup

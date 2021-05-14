@@ -16,7 +16,7 @@ import (
 var weatherForecast structs.WeatherForecasts
 
 // const for cache duration
-const weatherForecastDur = 10
+const weatherForecastDur = 100
 
 // getWeatherForecastAndIP
 func getWeatherForecastAndIP(location string) (structs.WeatherForecasts, error) {
@@ -50,12 +50,12 @@ func WeatherForecastMainHandler(location string) (structs.WeatherForecasts, erro
 	var err error = nil
 	// use function to retrieve cached newsletter
 
-	wf, err := database.CheckWeatherForecastsOnFirestore(location)
+	storedwf, err := database.CheckWeatherForecastsOnFirestore(location)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	wf = getStoredWeatherForecast()
+	wf := getStoredWeatherForecast(storedwf)
 
 	// check if the interface is null
 	if wf.Forecasts == nil || wf.Forecasts[0].City != location {
@@ -82,17 +82,17 @@ func storeWeatherForecastAndIP(resp structs.WeatherForecasts, ipLoc string) erro
 }
 
 // getStoredWeatherForecast
-func getStoredWeatherForecast() structs.WeatherForecasts {
-	if database.StoredWeatherForecast.WeatherForecasts.Forecasts == nil {
+func getStoredWeatherForecast(storedwf structs.StoredWeatherForecast) structs.WeatherForecasts {
+	if storedwf.WeatherForecasts.Forecasts == nil {
+		return storedwf.WeatherForecasts
+	}
+	storedwf.StoreRefresh -= time.Since(storedwf.StoreTime).Seconds()
+	storedwf.StoreTime = time.Now()
+	database.UpdateTimeFirestore(storedwf.FirestoreID, storedwf.StoreTime, storedwf.StoreRefresh)
+	fmt.Println(storedwf.StoreRefresh)
+	if storedwf.StoreRefresh <= 0 {
+		database.DeleteObjectFromFirestore(storedwf.FirestoreID)
 		return structs.WeatherForecasts{}
 	}
-	database.StoredWeatherForecast.StoreRefresh -= time.Since(database.StoredWeatherForecast.StoreTime).Seconds()
-	database.StoredWeatherForecast.StoreTime = time.Now()
-	database.UpdateTimeFirestore(database.StoredWeatherForecast.FirestoreID, database.StoredWeatherForecast.StoreTime, database.StoredWeatherForecast.StoreRefresh)
-	fmt.Println(database.StoredWeatherForecast.StoreRefresh)
-	if database.StoredWeatherForecast.StoreRefresh <= 0 {
-		database.DeleteObjectFromFirestore(database.StoredWeatherForecast.FirestoreID)
-		return structs.WeatherForecasts{}
-	}
-	return database.StoredWeatherForecast.WeatherForecasts
+	return storedwf.WeatherForecasts
 }

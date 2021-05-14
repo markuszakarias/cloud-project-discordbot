@@ -43,7 +43,9 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		   		if err != nil {
 		   			s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 		   		} */
-		res, err := handlers.WeatherForecastMainHandler(str[1])
+		location := strings.Title(strings.ToLower(str[1]))
+		fmt.Println(location)
+		res, err := handlers.WeatherForecastMainHandler(location)
 		if err != nil {
 			fmt.Println(err)
 		}
