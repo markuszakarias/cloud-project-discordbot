@@ -79,15 +79,14 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 		if err != nil {
 			return err
 		}
-	} else if len(str) > 2 {
+	} else if len(str) > 1 {
 		alpha2Code, err := utils.Get2AlphaCode(str[1])
 		if err != nil {
 			return err
 		}
 
-		if len(str) > 3 {
+		if len(str) > 2 {
 			count, err = strconv.Atoi(str[2])
-			fmt.Println(count)
 			if err != nil {
 				s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
 				return err
@@ -100,28 +99,32 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 			return err
 		}
 	}
-	fmt.Println(res)
 
 	stringToPrint := constants.GetNewsletterStringArray()
 
-	fmt.Println(stringToPrint)
-	/* 	   	for i := 0; i < count; i++ {
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
-			stringToPrint[0], res.Newsletters[0].Author,
-			stringToPrint[1], res.Newsletters[0].Date_published,
-			stringToPrint[2], res.Newsletters[0].Title,
-			stringToPrint[3], res.Newsletters[0].Description,
-			stringToPrint[4], res.Newsletters[0].Url_to_story))
-	} */
-
-	for _, article := range res.Newsletters {
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
-			stringToPrint[0], article.Author, stringToPrint[1], article.Date_published,
-			stringToPrint[2], article.Title, stringToPrint[3], article.Description,
-			stringToPrint[4], article.Url_to_story))
+	if len(res.Newsletters) < count {
+		count = len(res.Newsletters)
 	}
+
+	for i := 0; i < count; i++ {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
+			stringToPrint[0], res.Newsletters[i].Author,
+			stringToPrint[1], res.Newsletters[i].Date_published,
+			stringToPrint[2], res.Newsletters[i].Title,
+			stringToPrint[3], res.Newsletters[i].Description,
+			stringToPrint[4], res.Newsletters[i].Url_to_story))
+	}
+
+	/*
+		for _, article := range res.Newsletters {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+				"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
+				stringToPrint[0], article.Author, stringToPrint[1], article.Date_published,
+				stringToPrint[2], article.Title, stringToPrint[3], article.Description,
+				stringToPrint[4], article.Url_to_story))
+		}
+	*/
 
 	return nil
 }
