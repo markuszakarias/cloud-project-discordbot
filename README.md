@@ -207,3 +207,12 @@ We decided to use BigCache as our cache provider, as our application only deals 
 We added a wrapper module to easily abstract the call to the existing caching system which makes it easier to handle cache when calling functions.
 
 https://github.com/josemiguelmelo/gocacheable
+
+
+
+## Webhook (notification)
+The webhook is used as a functionality to notify selected user with the weather details of the day, every day at 8am. When the server starts it sends a notification at once, and then calculates the time uintil 8am. So after the first notification gets send at 8am, then the webhook wil run every 24 hour after that. The webhook information is stored in Cloud Firestore, and has a collection where each document represent one webhook/user. The document has only two fiels, City (city to get weather information from) and UserId (uniqe user id in Discord). We know we could have UserId as document id, but if the project where to expand in a way that users could have multiple webhooks, then that solution would not have worked.
+
+## Deployment
+We have decided to deploy the bot on Azure. We use the Azure Container Registry which store our docker image, and we use this together with Azure App Service which runs the application. 
+
