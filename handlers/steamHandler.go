@@ -30,7 +30,7 @@ func getSteamdeals(command string) (structs.Deals, error) {
 	}
 	jsonRes := string(output)
 
-	steamDeals = utils.PopulateSteamDeals(jsonRes, command, 3)
+	steamDeals = utils.PopulateSteamDeals(jsonRes, command, 10)
 
 	// cache the data retrieved from API
 	err = storeSteamDeals(steamDeals)

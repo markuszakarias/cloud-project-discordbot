@@ -63,10 +63,10 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// default amount of newsletter articles
-	var count int = 2
+	var count = 3
 
 	// default country to retrieve newsletter
-	var country string = "no"
+	var country = "no"
 
 	var err error
 	var res structs.NewsLetters
@@ -90,6 +90,9 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 			if err != nil {
 				s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
 				return err
+			}
+			if count < 1 || count > 3 {
+				return errors.New("number of articles needs to be between 1-3")
 			}
 		}
 
@@ -115,17 +118,6 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 			stringToPrint[3], res.Newsletters[i].Description,
 			stringToPrint[4], res.Newsletters[i].Url_to_story))
 	}
-
-	/*
-		for _, article := range res.Newsletters {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-				"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
-				stringToPrint[0], article.Author, stringToPrint[1], article.Date_published,
-				stringToPrint[2], article.Title, stringToPrint[3], article.Description,
-				stringToPrint[4], article.Url_to_story))
-		}
-	*/
-
 	return nil
 }
 
