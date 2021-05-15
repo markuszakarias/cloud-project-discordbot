@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"projectGroup23/caching"
 	"projectGroup23/database"
 	"projectGroup23/handlers"
@@ -15,6 +16,36 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 )
+
+func DiagMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	// Get api key from env variable
+	apikey := os.Getenv("MEALS_KEY")
+	url := "https://api.spoonacular.com/mealplanner/generate?timeFrame=day&apiKey=" + apikey
+	statusCodeMeal := utils.CheckStatusCodeApi(url)
+
+	country := "norway"
+	apikey = os.Getenv("NEWS_KEY")
+	url = "https://newsapi.org/v2/top-headlines?country=" + country + "&apiKey=" + apikey
+	statusCodeNews := utils.CheckStatusCodeApi(url)
+
+	url = "https://www.cheapshark.com/api/1.0/deals"
+	statusCodeSteam := utils.CheckStatusCodeApi(url)
+
+	location := "lillehammer"
+	apikey = os.Getenv("WEATHER_KEY")
+	url = "https://api.openweathermap.org/data/2.5/forecast/daily?q=" + location + "&units=metric&cnt=1&appid=" + apikey
+	statusCodeWeather := utils.CheckStatusCodeApi(url)
+
+	url = "https://restcountries.eu/rest/v2/name/" + country + "?fullText=true"
+	statusCodeRestCountries := utils.CheckStatusCodeApi(url)
+
+	url = "https://ipwhois.app/json/"
+	statusCodeIp := utils.CheckStatusCodeApi(url)
+
+	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+		"Meals API status code: %s\nNews API status code: %s\nSteam deals API status code: %s\nWeather API status code: %s\nIP location API status code: %s\nRest countries API status code: %s", statusCodeMeal, statusCodeNews, statusCodeSteam, statusCodeWeather, statusCodeRestCountries, statusCodeIp))
+}
 
 // SendWeatherMessage - sends appropriate message to the bot based on command and parameters
 func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
