@@ -1,3 +1,7 @@
+// package utils contains functions that populate the structures that contain the reponses from the api.
+// It holds the functions that format the various print-outs that happend in the discord client.
+// In helper.go there are functions that are intermediary helpers to other functionality in the program.
+// Messageformat has all immutable string arrays as function that get used to format helper messages and discord output.
 package utils
 
 import (
@@ -56,7 +60,7 @@ func PopulateMealPlan(count int, jsonResponseString string) structs.MealPlan {
 	return mealPlanData
 }
 
-// PopulateWeatherForecast populates a WeatherForecasts struct with response from API
+// PopulateWeatherForecast populates a WeatherForecasts struct with response from API.
 func PopulateWeatherForecast(jsonResponseString string, days int) structs.WeatherForecasts {
 	var wf structs.WeatherForecast
 	var wfs structs.WeatherForecasts
@@ -84,75 +88,26 @@ func PopulateWeatherForecast(jsonResponseString string, days int) structs.Weathe
 	return wfs
 }
 
-// GetDeals fills the deal struct with information about steam deals ready to present with the discord bot.
+// PopulateSteamDeals fills the deal struct with information about steam deals ready to present with the discord bot.
 func PopulateSteamDeals(jsonResponseString string, command string, count int) structs.Deals {
 	var deal structs.Deal
 	var deals structs.Deals
 
-	if len(command) == 11 {
-		for i := 0; i < count; i++ {
-			indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
+	for i := 0; i < count; i++ {
+		indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
 
-			deal.Title = gjson.Get(jsonResponseString, indexAsString+".title").String()
-			deal.DealID = gjson.Get(jsonResponseString, indexAsString+".dealID").String()
-			deal.NormalPrice = gjson.Get(jsonResponseString, indexAsString+".normalPrice").String()
-			deal.SalePrice = gjson.Get(jsonResponseString, indexAsString+".salePrice").String()
-			deal.Savings = gjson.Get(jsonResponseString, indexAsString+".savings").String()
-			deal.MetacriticScore = gjson.Get(jsonResponseString, indexAsString+".metacriticScore").String()
-			deal.SteamRatingText = gjson.Get(jsonResponseString, indexAsString+".steamRatingText").String()
-			deal.SteamRatingPercent = gjson.Get(jsonResponseString, indexAsString+".steamRatingPercent").String()
-			deal.SteamRatingCount = gjson.Get(jsonResponseString, indexAsString+".steamRatingCount").String()
-
-			if deal.MetacriticScore == "0" {
-				deal.MetacriticScore = "could not fetch metacritic score"
-			}
-			if deal.SteamRatingCount == "0" {
-				deal.SteamRatingCount = "could not grab SteamRatingCount"
-			}
-			if deal.SteamRatingPercent == "0" {
-				deal.SteamRatingPercent = "could not fetch SteamRatingPercent"
-			}
-			if len(deal.SteamRatingText) == 0 {
-				deal.SteamRatingText = "could not fetch SteamRatingText"
-			}
-
-			deals.Deals = append(deals.Deals, deal)
-		}
-	} else {
-		strArr := []rune(command)
-		amountOfDealsToGet := string(strArr[12])
-		numberOfIteration, _ := strconv.Atoi(amountOfDealsToGet)
-		for i := 0; i < numberOfIteration; i++ {
-			indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
-
-			deal.Title = gjson.Get(jsonResponseString, indexAsString+".title").String()
-			deal.DealID = gjson.Get(jsonResponseString, indexAsString+".dealID").String()
-			deal.NormalPrice = gjson.Get(jsonResponseString, indexAsString+".normalPrice").String()
-			deal.SalePrice = gjson.Get(jsonResponseString, indexAsString+".salePrice").String()
-			deal.Savings = gjson.Get(jsonResponseString, indexAsString+".savings").String()
-			deal.MetacriticScore = gjson.Get(jsonResponseString, indexAsString+".metacriticScore").String()
-			deal.SteamRatingText = gjson.Get(jsonResponseString, indexAsString+".steamRatingText").String()
-			deal.SteamRatingPercent = gjson.Get(jsonResponseString, indexAsString+".steamRatingPercent").String()
-			deal.SteamRatingCount = gjson.Get(jsonResponseString, indexAsString+".steamRatingCount").String()
-
-			if deal.MetacriticScore == "0" {
-				deal.MetacriticScore = "Unavailable to fetch metacritic score"
-			}
-			if deal.SteamRatingCount == "0" {
-				deal.SteamRatingCount = "Unavailable to grab SteamRatingCount"
-			}
-			if deal.SteamRatingPercent == "0" {
-				deal.SteamRatingPercent = "Unavailable to fetch SteamRatingPercent"
-			}
-			if deal.SteamRatingText == "null" {
-				deal.SteamRatingText = "Unavailable to fetch SteamRatingText"
-			}
-			deals.Deals = append(deals.Deals, deal)
-		}
+		deal.Title = gjson.Get(jsonResponseString, indexAsString+".title").String()
+		deal.DealID = gjson.Get(jsonResponseString, indexAsString+".dealID").String()
+		deal.NormalPrice = gjson.Get(jsonResponseString, indexAsString+".normalPrice").String()
+		deal.SalePrice = gjson.Get(jsonResponseString, indexAsString+".salePrice").String()
+		deal.Savings = gjson.Get(jsonResponseString, indexAsString+".savings").String()
+		deals.Deals = append(deals.Deals, deal)
 	}
 	return deals
 }
 
+// WeatherMessageStringFormat utilizes Sprintf to format the discord messages.
+// This allows the discord message to be large message instead of multiple smaller messages.
 func WeatherMessageStringFormat(stringToPrint []string, day structs.WeatherForecast) string {
 	str := fmt.Sprintf(
 		"%s%s\n %s%s\n %s%s%s\n %s%s%s\n %s%s%s\n %s%s\n %s%s%s\n %s%s%s\n %s\n %s%s%s\n %s%s%s\n %s%s%s\n %s%s%s\n",

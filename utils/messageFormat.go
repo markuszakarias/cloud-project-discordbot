@@ -1,11 +1,13 @@
 package utils
 
+// GetWeatherStringArray returns an immutable array of the messages that make up !weather
 func GetWeatherStringArray() []string {
 	return []string{":calendar: ", ":map: ", " - ", ":cloud: ", ":dash: ",
 		" m/s", " Celsius", "Probability of precipitation: ", ":cloud_rain: ", ":cloud_snow: ",
 		"Temperature:", ":city_sunrise: ", ":cityscape: ", ":city_dusk: ", ":night_with_stars: ", "%"}
 }
 
+// GetSteamStringArray returns an immutable array of the messages that make up !steamdeals
 func GetSteamStringArray() []string {
 	return []string{":video_game: ",
 		"**Deal ID:** ",
@@ -14,14 +16,17 @@ func GetSteamStringArray() []string {
 		"**Savings:** "}
 }
 
+// GetNewsletterStringArray returns an immutable arrray of the messages that make up !newsletter
 func GetNewsletterStringArray() []string {
 	return []string{"Author: ", "Date: ", "Title: ", "Description: ", "Url: "}
 }
 
+// GetMealplanMessageArray returns an arrray of the messages that make up !mealplan
 func GetMealplanMessageArray() []string {
 	return []string{"Meal message: ", "Title: ", "Ready in minutes: ", "url: ", "Calories: ", "Protein: ", "Fat: ", "CarboHydrates: "}
 }
 
+// GetHelpMessageArray returns an arrray of the messages that format the base helper message
 func GetHelpMessageArray() []string {
 	return []string{"Helper message for discord bot",
 		"With this discord bot you can retrieve information about news, weather",
@@ -36,6 +41,7 @@ func GetHelpMessageArray() []string {
 	}
 }
 
+// GetHelpTodoMessageArray returns an arrray of the messages that format help message for todo
 func GetHelpTodoMessageArray() []string {
 	return []string{"Helper message for discord bot",
 		"Todo list :pencil:",
@@ -56,6 +62,7 @@ func GetHelpTodoMessageArray() []string {
 	}
 }
 
+// GetHelpWeatherMessageArray returns an arrray of the messages that make up !help weather
 func GetHelpWeatherMessageArray() []string {
 	return []string{"Helper message for Weather :partly_sunny:",
 		"`",
@@ -64,6 +71,7 @@ func GetHelpWeatherMessageArray() []string {
 		"If you supply a paramter like: !weather Fredrikstad, you will get the weather for that location"}
 }
 
+// GetHelpNewsletterMessageArray returns an arrray of the messages that make up !help newsletter
 func GetHelpNewsletterMessageArray() []string {
 	return []string{"Helper message for Newsletter :earth_africa:",
 		"`",
@@ -72,6 +80,7 @@ func GetHelpNewsletterMessageArray() []string {
 		"You can also supply a country and headlines between 1-3 such as: !newsletter Denmark 2"}
 }
 
+// GetHelpMealplanMessageArray returns an arrray of the messages that make up !help mealplan
 func GetHelpMealplanMessageArray() []string {
 	return []string{"Helper message for Mealplan :ramen:",
 		"`",
@@ -79,6 +88,7 @@ func GetHelpMealplanMessageArray() []string {
 		"run !mealplan to get a breakfeast -> dinner -> snack mealplan for today!"}
 }
 
+// GetHelpSteamdealsMessageArray returns an arrray of the messages that make up !help steamdeals
 func GetHelpSteamdealsMessageArray() []string {
 	return []string{"Helper message for Steamdeals :video_game:",
 		"`",
