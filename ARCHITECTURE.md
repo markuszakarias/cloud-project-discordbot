@@ -16,7 +16,7 @@ This document serves an explanatory nature of trying to convery the components o
     - utilized to deploy the discord bot to Azure container registry
 
 ## Architecture diagram
-link til diagrammet
+![Architecture diagram](assets/software_diagram.png)
 
 ## control flow of an operation
-link til flow charten
+![Flow Chart](assets/flow_chart.png)
