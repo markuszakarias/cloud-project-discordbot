@@ -22,7 +22,7 @@ var newsLetter structs.NewsLetters
 const newsStored = 3
 
 // Const for database storage duration
-const newsLetterDur = 100
+const newsLetterDur = 3600
 
 // getNewsletters - Requests all newsletters from the api
 // this call is only done when no stored data exists at startup

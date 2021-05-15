@@ -57,7 +57,7 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error 
 	}
 
 	// Sets duration of cache
-	dur, _ := time.ParseDuration("20s")
+	dur, _ := time.ParseDuration("6m")
 
 	// Splits up the input command(s)
 	str := strings.Fields(m.Content)
@@ -95,7 +95,7 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	// Splits up the command(s)
 	str := strings.Fields(m.Content)
 
-	dur, _ := time.ParseDuration("20s")
+	dur, _ := time.ParseDuration("12m")
 
 	// Checks if there are any parameters
 	if len(str) < 2 {
@@ -144,7 +144,7 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 	var country = "no"
 
 	// Sets duration of cache
-	dur, _ := time.ParseDuration("20s")
+	dur, _ := time.ParseDuration("6m")
 
 	// split up the parameter for validation and passing data
 	str := strings.Fields(m.Content)
@@ -199,7 +199,7 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 
 // SendMealplanMessage - sends appropriate message to the bot based on command and parameters
 func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
-	dur, _ := time.ParseDuration("20s")
+	dur, _ := time.ParseDuration("12m")
 	err := caching.CacheMeals(dur)
 	if err != nil {
 		return err

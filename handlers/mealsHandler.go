@@ -14,8 +14,8 @@ import (
 // Struct used to handle data in database management system
 var mealPlan structs.MealPlan
 
-// Const for database storage duration
-const mealPlanDur = 100
+// Const for database storage duration - Every 24 hour
+const mealPlanDur = 86_400
 
 // getMealPlan - Requests all meal plans from the api
 // this call is only done when no stored data exists at startup

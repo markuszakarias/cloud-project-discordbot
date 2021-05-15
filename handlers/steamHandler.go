@@ -13,12 +13,12 @@ import (
 // Struct used to handle data in database management system
 var steamDeals structs.Deals
 
-// Const for database storage duration
-const steamDealsDur = 100
+// Const for database storage duration - Every 24 hour
+const steamDealsDur = 86_400
 
 // getSteamDeals - Requests all Steam deals from the api
-//// this call is only done when no stored data exists at startup
-//// and when a stored object is deleted after timeout
+// this call is only done when no stored data exists at startup
+// and when a stored object is deleted after timeout
 func getSteamDeals(command string) (structs.Deals, error) {
 	resp, err := http.Get("https://www.cheapshark.com/api/1.0/deals")
 	if err != nil {

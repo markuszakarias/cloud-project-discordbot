@@ -18,8 +18,8 @@ import (
 // Struct used to handle data in database management system
 var weatherForecast structs.WeatherForecasts
 
-// Const for database storage duration
-const weatherForecastDur = 100
+// Const for database storage duration - Every hour
+const weatherForecastDur = 1800
 
 // GetWeatherForecastAndIP - Requests weather forecast and ip location from two api's
 // this call is only done when no stored data exists at startup
