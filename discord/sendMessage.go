@@ -383,6 +383,13 @@ func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		return errors.New("missing city name")
 	}
 
+	// Removes webhook
+	if str[1] == "remove" {
+		database.DeleteWeatherWebhook(m.Author.ID)
+		s.ChannelMessageSend(m.ChannelID, "Notification is removed")
+		return nil
+	}
+
 	// Creates a weather API call
 	_, err := handlers.WeatherForecastMainHandler(str[1])
 	if err != nil {
