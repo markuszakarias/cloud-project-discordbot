@@ -54,6 +54,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	switch {
 	case len(m.Content) >= 5 && m.Content[:5] == "!help":
 		SendHelpMessage(s, m)
+	case len(m.Content) >= 5 && m.Content[:5] == "!diag":
+		DiagMessage(s, m)
 	case len(m.Content) >= 11 && m.Content[:11] == "!steamdeals":
 		err = SendSteamMessage(s, m)
 	case len(m.Content) >= 8 && m.Content[:8] == "!weather":
