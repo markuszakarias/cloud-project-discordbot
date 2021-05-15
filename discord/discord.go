@@ -3,8 +3,6 @@ package discord
 
 import (
 	"fmt"
-	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"projectGroup23/utils"
@@ -24,14 +22,6 @@ func RunDiscordBot() {
 	if err = s.Open(); err != nil {
 		fmt.Println(err)
 	}
-
-	// Opening port (0 and listening
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "80"
-	}
-	fmt.Println("Listening on port " + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 	// Runs a webhook routine
 	go webhook.WebhookRoutine(s)
