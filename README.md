@@ -128,7 +128,7 @@ Firestore and azuresql..
 
 ## Discord bot features
 
-- [_] -> Command `!weather` with parameters
+- [x] -> Command `!weather` with parameters
 
 Be able to call the weather command with or without parameters. The default configuration will use the Get IP Location API to retrieve the location based on the ip address of the system that is running the application. Since this will in theory mean that the location would always be the same as the instance that is running the service. 
 
@@ -138,19 +138,19 @@ Because of this, we decided to add parameters to the command. Here you can pick 
 !weather Gjøvik
 ```
 
-- [_] -> Command `!steamdeals` with parameters
+- [x] -> Command `!steamdeals` with parameters
 
 Be able to call to steamdeals...
 
-- [_] -> Command `!mealplan` with parameters
+- [x] -> Command `!mealplan` with parameters
 
 Be able to call to mealplan...
 
-- [_] -> Command `!newsletter` with parameters
+- [x] -> Command `!newsletter` with parameters
 
 Be able to call to newsletter...
 
-- [_] -> Command `!todo` with parameters
+- [x] -> Command `!todo` with parameters
 
 Be able to view, create, update and delete todotasks. These tasks are connected to your discord ID and will be stored in a azuresql database for persistence. This means that the tasks you created with your ID will still be there if the service reboots for whatever reason. There are different different commands for the different functions:
 
@@ -199,7 +199,7 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 !notifyweather <city>
 ```
 
-- [_] -> Command `!jokes` with parameters
+- [x] -> Command `!jokes` with parameters
 
 **Get a random joke**
 
@@ -219,9 +219,19 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 !joke create <joke text>
 ```
 
-- [_] -> Command `!help` with parameters
+- [x] -> Command `!help` without parameters
 
-Be able to call to a help message for the different commands...
+The self-help bot has a help command so the user can view and get instruction on how the different commands work. The `!help` command, without any parameters, will print a helper message giving a small introduction to the discord bot and give further instructions on how to get information about the other commands.
+
+- [x] -> Command `!help todo`
+
+- [x] -> Command `!help newsletter`
+
+- [x] -> Command `!help mealplan`
+
+- [x] -> Command `!help weather`
+
+- [x] -> Command `!help notifyweather`
 
 
 ## Caching
