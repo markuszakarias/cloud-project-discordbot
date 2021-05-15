@@ -199,6 +199,20 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 !notifyweather <city>
 ```
 
+- [_] -> Command `!jokes` with parameters
+
+**Get a random joke**
+
+```
+!jokes
+```
+
+**Creates a joke**
+
+```
+!jokes create <joke text>
+```
+
 
 - [_] -> Command `!help` with parameters
 
