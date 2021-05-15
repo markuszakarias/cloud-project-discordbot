@@ -196,7 +196,7 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 **Register notification for a spesific city**
 
 ```
-!todo city
+!notifyweather <city>
 ```
 
 
