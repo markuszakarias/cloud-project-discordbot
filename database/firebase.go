@@ -80,7 +80,7 @@ func CreateJoke(userId string, jokeText string) error {
 }
 
 // GetAllJokesByUserId - Gets all registered jokes created by user id
-func GetAllJokesByUserId(userId string) []string {
+func GetAllJokesByUserId(userId string) ([]string, error) {
 	// Compares field in firestore document with paramater value
 	iter := Client.Collection("jokes").Where("createdBy", "==", userId).Documents(Ctx)
 	var allJokes []string
@@ -90,13 +90,13 @@ func GetAllJokesByUserId(userId string) []string {
 			break
 		}
 		if err != nil {
-			return allJokes
+			return allJokes, err
 		}
 		//joke := doc.Data()["text"]
 		var joketext string = doc.Data()["text"].(string)
 		allJokes = append(allJokes, joketext)
 	}
-	return allJokes
+	return allJokes, nil
 }
 
 // GetAllWebhooks - Gets all registered webhooks

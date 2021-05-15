@@ -413,25 +413,38 @@ func SendJokeMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// split up command(s)
 	str := strings.Fields(m.Content)
-	if len(str) == 1 { // !joke
+	switch {
+	case len(str) == 1: // !joke
 		joke, err := database.GetRandomJoke()
 		if err != nil {
 			return err
 		}
 		s.ChannelMessageSend(m.ChannelID, joke)
-
-	} else if len(str) == 2 && str[1] == "create" { // misses joke text
+		return nil
+	case len(str) == 2 && str[1] == "myjokes":
+		jokes, err := database.GetAllJokesByUserId(m.Author.ID)
+		if err != nil {
+			return err
+		}
+		allJokeString := ""
+		for i, joke := range jokes {
+			allJokeString += fmt.Sprint(i) + ". " + joke + "\n"
+		}
+		if allJokeString == "" {
+			s.ChannelMessageSend(m.ChannelID, "You have not created any jokes yet")
+		} else {
+			s.ChannelMessageSend(m.ChannelID, allJokeString)
+		}
+		return nil
+	case len(str) == 2 && str[1] == "create": // misses joke text
 		return errors.New("missing joke text")
-
-	} else if len(str) > 2 && str[1] == "create" { // !joke create text here
+	case len(str) > 2 && str[1] == "create": // !joke create text here
 		joke := strings.Join(str[2:], " ")
 		database.CreateJoke(m.Author.ID, joke)
 		s.ChannelMessageSend(m.ChannelID, "joke created")
-
-	} else { // undefined joke command
-
+		return nil
+	default:
 		return errors.New("something is wrong with your joke command")
 	}
 
-	return nil
 }
