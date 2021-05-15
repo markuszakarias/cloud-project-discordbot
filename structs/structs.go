@@ -2,6 +2,10 @@ package structs
 
 import "time"
 
+type Alpha2Code struct {
+	Alpha2Code string `json:"alpha2Code"`
+}
+
 // NewsLetter contains the information for one single news headline from newsapi.
 type NewsLetter struct {
 	Author         string `json:"author"`
@@ -101,6 +105,7 @@ type StoredMealPlan struct {
 type StoredNewsLetter struct {
 	NewsLetters  NewsLetters
 	StoreTime    time.Time
+	Location     string
 	StoreRefresh float64
 	FirestoreID  string
 }

@@ -154,6 +154,27 @@ func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherFor
 	return structs.StoredWeatherForecast{}, nil
 }
 
+func CheckNewsLetterOnFirestore(location string) (structs.StoredNewsLetter, error) {
+	iter := Client.Collection("cached_resp").Documents(Ctx)
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if doc.Data()["Location"] == location {
+			doc.DataTo(&StoredNewsLetter)
+			StoredNewsLetter.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
+			return StoredNewsLetter, nil
+		}
+	}
+
+	return structs.StoredNewsLetter{}, nil
+}
+
 // GetCachedNewsLetterFromFirestore - global function that runs at startup
 // gets all the cached data from firestore
 func GetStoredFromFirestore() {

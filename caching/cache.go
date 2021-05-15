@@ -64,7 +64,7 @@ func CacheMeals(dur time.Duration) error {
 func CacheNews(dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
 	err := CM.Cacheable("cache", "news", func() (interface{}, error) {
-		res, err := handlers.NewsLetterMainHandler()
+		res, err := handlers.NewsLetterMainHandler("no")
 		return res, err
 	}, &NewsCache, dur)
 	return err

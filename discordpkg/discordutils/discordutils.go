@@ -60,15 +60,70 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
+
+	// default amount of newsletter articles
+	var count int = 2
+
+	// default country to retrieve newsletter
+	var country string = "no"
+
+	var err error
+	var res structs.NewsLetters
+
+	// split up the parameter for validation and passing data
+	str := strings.Fields(m.Content)
+
+	if len(str) < 2 {
+		res, err = handlers.NewsLetterMainHandler(country)
+		if err != nil {
+			return err
+		}
+	} else if len(str) > 2 {
+		alpha2Code, err := utils.Get2AlphaCode(str[1])
+		if err != nil {
+			return err
+		}
+
+		if len(str) > 3 {
+			count, err = strconv.Atoi(str[2])
+			fmt.Println(count)
+			if err != nil {
+				s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+				return err
+			}
+		}
+
+		result := strings.ToLower(alpha2Code)
+		res, err = handlers.NewsLetterMainHandler(result)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Println(res)
+
 	stringToPrint := constants.GetNewsletterStringArray()
-	for _, article := range caching.NewsCache.Newsletters {
+
+	fmt.Println(stringToPrint)
+	/* 	   	for i := 0; i < count; i++ {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
+			stringToPrint[0], res.Newsletters[0].Author,
+			stringToPrint[1], res.Newsletters[0].Date_published,
+			stringToPrint[2], res.Newsletters[0].Title,
+			stringToPrint[3], res.Newsletters[0].Description,
+			stringToPrint[4], res.Newsletters[0].Url_to_story))
+	} */
+
+	for _, article := range res.Newsletters {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
 			stringToPrint[0], article.Author, stringToPrint[1], article.Date_published,
 			stringToPrint[2], article.Title, stringToPrint[3], article.Description,
 			stringToPrint[4], article.Url_to_story))
 	}
+
+	return nil
 }
 
 func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -284,7 +339,7 @@ func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	fmt.Println(str)
 
 	if len(str) < 2 {
-		return errors.New("Missing city name")
+		return errors.New("missing city name")
 	}
 
 	_, err := handlers.WeatherForecastMainHandler(str[1])
@@ -297,7 +352,7 @@ func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	if err != nil {
 		return err
 	}
-	s.ChannelMessageSend(m.ChannelID, "Notification is registred. You will be notified with the weather information at 8 am")
+	s.ChannelMessageSend(m.ChannelID, "Notification is registered. You will be notified with the weather information at 8 am")
 
 	return nil
 }

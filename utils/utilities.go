@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"projectGroup23/structs"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -13,6 +14,8 @@ import (
 
 // struct used to retrieved IP location from api
 var ipAddress structs.IPLocation
+
+var alpha2Code []structs.Alpha2Code
 
 func GetIPLocation() (string, error) {
 	resp, err := http.Get("https://ipwhois.app/json/")
@@ -32,6 +35,27 @@ func GetIPLocation() (string, error) {
 	return ipAddress.City, nil
 }
 
+func Get2AlphaCode(countryName string) (string, error) {
+
+	country := strings.Title(strings.ToLower(countryName))
+
+	resp, err := http.Get("https://restcountries.eu/rest/v2/name/" + country + "?fullText=true")
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&alpha2Code)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println(alpha2Code[0].Alpha2Code)
+
+	return alpha2Code[0].Alpha2Code, nil
+}
+
 // PopulateNewsLetters walks through the response from the newsletter api and creates a
 // newsletter json array with 5 newsletters.
 func PopulateNewsLetters(count int, jsonResponseString string) structs.NewsLetters {
@@ -39,7 +63,7 @@ func PopulateNewsLetters(count int, jsonResponseString string) structs.NewsLette
 	var nws structs.NewsLetter
 	var returnNews structs.NewsLetters
 
-	for i := 0; i < count; i++ {
+	for i := 0; i < 8; i++ {
 		indexAsString := strconv.Itoa(i) // this counts i as a string from 0-4 throughout the loops iterations.
 
 		nws.Author = gjson.Get(jsonResponseString, "articles."+indexAsString+".author").String()
