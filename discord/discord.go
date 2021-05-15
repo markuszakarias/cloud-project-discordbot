@@ -78,7 +78,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if err != nil {
-		log.Fatal(err.Error())
 		s.ChannelMessageSend(m.ChannelID, "Error: "+err.Error())
 	}
 }

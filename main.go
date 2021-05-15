@@ -11,9 +11,7 @@ import (
 
 func init() {
 	database.InitFirebase()
-
 	database.InitSQL()
-
 	caching.InitCache()
 }
 
