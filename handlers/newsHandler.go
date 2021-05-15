@@ -15,99 +15,105 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+// Struct used to handle data in database management system
 var newsLetter structs.NewsLetters
 
-// const for newsletters stored in firebase
+// Const for number of newsletters stored in firebase
 const newsStored = 3
 
-// const for cache duration
+// Const for database storage duration
 const newsLetterDur = 100
 
-// getNewsletters - gets all the newsletters from the api
-// this call is only done when no cached data exists at startup
-// and when a cached object is deleted after timeout
+// getNewsletters - Requests all newsletters from the api
+// this call is only done when no stored data exists at startup
+// and when a stored object is deleted after timeout
 func getNewsletters(country string) (structs.NewsLetters, error) {
-	fmt.Println("API call made!") // for debugging
-
-	fmt.Println(country)
+	// Get api key from env variable
 	apikey := os.Getenv("NEWS_KEY")
-	resp, err := http.Get("https://newsapi.org/v2/top-headlines?country=" + country + "&apiKey=" + apikey)
 
+	resp, err := http.Get("https://newsapi.org/v2/top-headlines?country=" + country + "&apiKey=" + apikey)
 	if err != nil {
 		return newsLetter, err
 	}
+
 	output, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return newsLetter, err
 	}
+
 	jsonRes := string(output)
+
 	articles := gjson.Get(jsonRes, "totalResults").Float()
 
-	if articles == 0 { // if input country has not newsletter articles
+	if articles == 0 { // If input country has no newsletter articles
 		return newsLetter, errors.New("country '" + country + "' has no newsletter articles")
 	}
-
 	if err != nil {
 		return newsLetter, err
 	}
 
+	// Populates object with JSON response
 	newsLetter = utils.PopulateNewsLetters(newsStored, jsonRes)
 
-	// cache the data retrieved from API
+	// Store the data retrieved from API
 	err = storeNewsLetter(newsLetter, country)
 
 	return newsLetter, err
 }
 
-// NewsLetterMainHandler
+// NewsLetterMainHandler - Main handler for the !newsletter command
 func NewsLetterMainHandler(country string) (structs.NewsLetters, error) {
 	var err error
-	fmt.Println("NewsletterTest() was run!")
-	// use function to retrieve cached newsletter
 
+	// Checks if the requested data exists in database
 	storedNews, err := database.CheckNewsLetterOnFirestore(country)
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	// Retrieving possible stored data
 	nws := getStoredNewsLetter(storedNews)
 
-	// check if the interface is null
+	// Checks if it exists stored data
 	if nws.Newsletters == nil || storedNews.Location != country {
-		fmt.Println("struct is empty")
-		// get the newsletters from API if empty
 		nws, err = getNewsletters(country)
 	}
 
 	return nws, err
 }
 
-// storeNewsLetter - stores a NewsLetter object to Firestore
+// storeNewsLetter - Stores a NewsLetters object in the database
 func storeNewsLetter(resp structs.NewsLetters, country string) error {
-	// populate struct with data to be store
+	// Populate struct with data to be stored
 	database.StoredNewsLetter = structs.StoredNewsLetter{
 		NewsLetters:  resp,
 		Location:     country,
 		StoreTime:    time.Now(),
 		StoreRefresh: newsLetterDur,
 	}
-	// save the object to firestore
+	// Store the object
 	err := database.SaveNewsLetterToFirestore(&database.StoredNewsLetter)
 	return err
 }
 
-// getStoredNewsLetter
-func getStoredNewsLetter(storednews structs.StoredNewsLetter) structs.NewsLetters {
-	if storednews.NewsLetters.Newsletters == nil {
+// getStoredNewsLetter - Updates timestamps in database storage and retrieves matching object to request
+func getStoredNewsLetter(stored structs.StoredNewsLetter) structs.NewsLetters {
+	// Checks if it exists a stored response
+	if stored.NewsLetters.Newsletters == nil {
 		return structs.NewsLetters{}
 	}
-	storednews.StoreRefresh -= time.Since(storednews.StoreTime).Seconds()
-	storednews.StoreTime = time.Now()
-	database.UpdateTimeFirestore(storednews.FirestoreID, storednews.StoreTime, storednews.StoreRefresh)
-	fmt.Println(storednews.StoreRefresh)
-	if storednews.StoreRefresh <= 0 {
-		database.DeleteObjectFromFirestore(storednews.FirestoreID)
+
+	// Calculates timestamps and duration stored in database
+	stored.StoreRefresh -= time.Since(stored.StoreTime).Seconds()
+	stored.StoreTime = time.Now()
+
+	// Updates new timestamp and duration to Firestore object
+	database.UpdateTimeFirestore(stored.FirestoreID, stored.StoreTime, stored.StoreRefresh)
+
+	// If the object storage timer is timed out the object is deleted and then renewed when the next command is called
+	if stored.StoreRefresh <= 0 {
+		database.DeleteObjectFromFirestore(stored.FirestoreID)
 		return structs.NewsLetters{}
 	}
-	return storednews.NewsLetters
+	return stored.NewsLetters
 }
