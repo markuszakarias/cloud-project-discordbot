@@ -9,19 +9,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func main() {
-	// Initializes Firebase database
+func init() {
 	database.InitFirebase()
 
-	// Initializes AzureSQL database
 	database.InitSQL()
 
-	// Initializes the cache
 	caching.InitCache()
+}
 
-	// Gets stored API response from last session
+func main() {
 	database.GetStoredFromFirestore()
-
-	// Initialize Discord Bot
-	discord.InitDiscord()
+	discord.RunDiscordBot()
 }

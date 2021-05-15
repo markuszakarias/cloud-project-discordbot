@@ -16,7 +16,7 @@ import (
 )
 
 // InitDiscord - Initializer to the discord bot. Runs at startup
-func InitDiscord() {
+func RunDiscordBot() {
 	token := utils.EnvVar("DC_TOKEN")
 	s, err := discordgo.New("Bot " + token)
 	if err != nil {

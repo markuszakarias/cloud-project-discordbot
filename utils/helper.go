@@ -1,3 +1,5 @@
+// package utils contains functions that populate the structures that contain the reponses from the api.
+// It also has the function that format the various print-outs that happend in the discord client.
 package utils
 
 import (
@@ -28,7 +30,7 @@ func EnvVar(key string) string {
 	return os.Getenv(key)
 }
 
-// GetIPLocation -
+// GetIPLocation returns the city location of the person calling the discord bot.
 func GetIPLocation() (string, error) {
 	resp, err := http.Get("https://ipwhois.app/json/")
 	if err != nil {
@@ -45,6 +47,7 @@ func GetIPLocation() (string, error) {
 	return ipAddress.City, nil
 }
 
+// Get2AlphaCode is used to match the city name supplied in newsletter command to actual cities.
 func Get2AlphaCode(countryName string) (string, error) {
 
 	country := strings.Title(strings.ToLower(countryName))
@@ -61,11 +64,10 @@ func Get2AlphaCode(countryName string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println(alpha2Code[0].Alpha2Code)
-
 	return alpha2Code[0].Alpha2Code, nil
 }
 
+// CheckIfSameDate is a helper for the webhook functionality.
 func CheckIfSameDate(date, date2 time.Time) bool {
 	y, m, d := date.Date()
 	y2, m2, d2 := date2.Date()
