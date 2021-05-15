@@ -57,17 +57,32 @@ func GetHelpTodoMessageArray() []string {
 }
 
 func GetHelpWeatherMessageArray() []string {
-	return []string{"Helper message for Weather :partly_sunny:"}
+	return []string{"Helper message for Weather :partly_sunny:",
+		"`",
+		"**",
+		"Using the weather command you can call with just !weather to get your location!",
+		"If you supply a paramter like: !weather Fredrikstad, you will get the weather for that location"}
 }
 
 func GetHelpNewsletterMessageArray() []string {
-	return []string{"Helper message for Newsletter :earth_africa:"}
+	return []string{"Helper message for Newsletter :earth_africa:",
+		"`",
+		"**",
+		"call !newsletter to get current 3 norwegian headlines",
+		"You can also supply a country and headlines between 1-3 such as: !newsletter Denmark 2"}
 }
 
 func GetHelpMealplanMessageArray() []string {
-	return []string{"Helper message for Mealplan :ramen:"}
+	return []string{"Helper message for Mealplan :ramen:",
+		"`",
+		"**",
+		"run !mealplan to get a breakfeast -> dinner -> snack mealplan for today!"}
 }
 
 func GetHelpSteamdealsMessageArray() []string {
-	return []string{"Helper message for Steamdeals :video_game:"}
+	return []string{"Helper message for Steamdeals :video_game:",
+		"`",
+		"**",
+		"call !steamdeals to get a list of 4 current deals on the steam store",
+		"if you can less you can specify an amount: !steamdeals 2"}
 }
