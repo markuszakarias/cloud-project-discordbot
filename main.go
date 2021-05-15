@@ -9,13 +9,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func init() {
+func main() {
 	database.InitFirebase()
 	database.InitSQL()
 	caching.InitCache()
-}
-
-func main() {
 	database.GetStoredFromFirestore()
 	discord.RunDiscordBot()
 }
