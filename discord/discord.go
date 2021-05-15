@@ -14,8 +14,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// InitDiscord - Initializer to the discord bot. Runs at startup
 func InitDiscord() {
-	// Initializes Discord bot with token
 	token := utils.EnvVar("DC_TOKEN")
 	s, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -25,6 +25,7 @@ func InitDiscord() {
 		log.Fatal(err.Error())
 	}
 
+	// Runs a webhook routine
 	go webhook.WebhookRoutine(s)
 	s.AddHandler(messageCreate)
 	s.Identify.Intents = discordgo.IntentsGuildMessages
@@ -38,6 +39,7 @@ func InitDiscord() {
 	s.Close()
 }
 
+// messageCreate - runs appropriate functions based on command
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.

@@ -28,6 +28,7 @@ func EnvVar(key string) string {
 	return os.Getenv(key)
 }
 
+// GetIPLocation -
 func GetIPLocation() (string, error) {
 	resp, err := http.Get("https://ipwhois.app/json/")
 	if err != nil {

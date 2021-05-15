@@ -135,7 +135,7 @@ func CreateWeatherWebhook(userId string, city string) error {
 	return err
 }
 
-// CheckWeatherForecastsOnFirestore - Compares a call to the stored struct with specific field
+// CheckWeatherForecastsOnFirestore - Compares a call to the stored struct with specific field in the weather struct
 func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherForecast, error) {
 	iter := Client.Collection("cached_resp").Documents(Ctx)
 
@@ -147,6 +147,7 @@ func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherFor
 		if err != nil {
 			log.Fatal(err)
 		}
+		// Will return the struct if it finds a match
 		if doc.Data()["IPLocation"] == location {
 			doc.DataTo(&StoredWeatherForecast)
 			StoredWeatherForecast.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
@@ -154,10 +155,11 @@ func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherFor
 		}
 	}
 
+	// Will return a empty struct, so it makes another call to API and stores the new object
 	return structs.StoredWeatherForecast{}, nil
 }
 
-// CheckNewsLetterOnFirestore - Compares a call to the stored struct with specific field
+// CheckNewsLetterOnFirestore - Compares a call to the stored struct with specific field int he newsletter struct
 func CheckNewsLetterOnFirestore(location string) (structs.StoredNewsLetter, error) {
 	iter := Client.Collection("cached_resp").Documents(Ctx)
 
@@ -169,6 +171,7 @@ func CheckNewsLetterOnFirestore(location string) (structs.StoredNewsLetter, erro
 		if err != nil {
 			log.Fatal(err)
 		}
+		// Will return the struct if it finds a match
 		if doc.Data()["Location"] == location {
 			doc.DataTo(&StoredNewsLetter)
 			StoredNewsLetter.FirestoreID = doc.Ref.ID // matching the firestore ID with the one stored
@@ -176,11 +179,11 @@ func CheckNewsLetterOnFirestore(location string) (structs.StoredNewsLetter, erro
 		}
 	}
 
+	// Will return a empty struct, so it makes another call to API and stores the new object
 	return structs.StoredNewsLetter{}, nil
 }
 
-// GetCachedNewsLetterFromFirestore - global function that runs at startup
-// gets all the cached data from firestore
+// GetStoredFromFirestore - global function that runs at startup. Gets all stored structs
 func GetStoredFromFirestore() {
 	iter := Client.Collection("cached_resp").Documents(Ctx)
 	for {
@@ -238,31 +241,30 @@ func UpdateTimeFirestore(firestoreID string, storeTime time.Time, storeRefresh f
 	}
 }
 
-// saveNewsLetterToFirestore - saves an object to firestore
+// SaveSteamDealsToFirestore - saves a steamdeals object to firestore
 func SaveSteamDealsToFirestore(stored *structs.StoredSteamDeals) error {
 	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
-	stored.FirestoreID = doc.ID     // storing firestore ID for later use
-	fmt.Println(stored.FirestoreID) // confirming the storage of document ID
+	stored.FirestoreID = doc.ID // storing firestore ID for later use
 	return err
 }
 
-// saveNewsLetterToFirestore - saves an object to firestore
+// SaveMealPlannerToFirestore - saves a mealplan object to firestore
 func SaveMealPlannerToFirestore(stored *structs.StoredMealPlan) error {
 	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
 	stored.FirestoreID = doc.ID // storing firestore ID for later use
 	return err
 }
 
-// saveNewsLetterToFirestore - saves an object to firestore
+// SaveNewsLetterToFirestore - saves a newsletter object to firestore
 func SaveNewsLetterToFirestore(stored *structs.StoredNewsLetter) error {
 	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
 	stored.FirestoreID = doc.ID // storing firestore ID for later use
 	return err
 }
 
-// saveNewsLetterToFirestore - saves an object to firestore
+// SaveWeatherForecastToFirestore - saves a weather forecast object to firestore
 func SaveWeatherForecastToFirestore(stored *structs.StoredWeatherForecast) error {
-	_, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
-	//stored.FirestoreID = doc.ID // storing firestore ID for later use
+	doc, _, err := Client.Collection("cached_resp").Add(Ctx, *stored)
+	stored.FirestoreID = doc.ID // storing firestore ID for later use
 	return err
 }

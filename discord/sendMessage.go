@@ -16,6 +16,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// SendWeatherMessage - sends appropriate message to the bot based on command and parameters
 func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// Sets the default location to the GeoPosition of the computer making the request
@@ -27,9 +28,11 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error 
 	// Sets duration of cache
 	dur, _ := time.ParseDuration("20s")
 
+	// Splits up the input command(s)
 	str := strings.Fields(m.Content)
 	fmt.Println(str)
 
+	// Checks if there are any parameters
 	if len(str) < 2 {
 		err := caching.CacheForecasts(defaultLocation, dur)
 		if err != nil {
@@ -43,6 +46,7 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error 
 		}
 	}
 
+	// Printer function
 	stringToPrint := utils.GetWeatherStringArray()
 	for _, day := range caching.ForecastsCache.Forecasts {
 		s.ChannelMessageSend(m.ChannelID, utils.WeatherMessageStringFormat(stringToPrint, day))
@@ -50,15 +54,19 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error 
 	return nil
 }
 
+// SendSteamMessage - sends appropriate message to the bot based on command and parameters
 func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
+	// count variable to set amount to be displayed in the output
 	var count int
 	var err error
 
+	// Splits up the command(s)
 	str := strings.Fields(m.Content)
 
 	dur, _ := time.ParseDuration("20s")
 
+	// Checks if there are any parameters
 	if len(str) < 2 {
 		count = 5
 		err = caching.CacheDeals(m.Content, dur)
@@ -66,6 +74,7 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 			return err
 		}
 	} else {
+		// If there are any number parameters, convert
 		count, err = strconv.Atoi(str[1])
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
@@ -80,6 +89,7 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		}
 	}
 
+	// Printer function
 	stringToPrint := utils.GetSteamStringArray()
 	for i := 0; i < count; i++ {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
@@ -93,6 +103,7 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	return nil
 }
 
+// SendNewsletterMessage - sends appropriate message to the bot based on command and parameters
 func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// Default amount of newsletter articles
@@ -107,6 +118,7 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 	// split up the parameter for validation and passing data
 	str := strings.Fields(m.Content)
 
+	// Checks if there are any parameters
 	if len(str) < 2 {
 		err := caching.CacheNews(country, dur)
 		if err != nil {
@@ -136,6 +148,7 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 		}
 	}
 
+	// Print function
 	stringToPrint := utils.GetNewsletterStringArray()
 	if len(caching.NewsCache.Newsletters) < count {
 		count = len(caching.NewsCache.Newsletters)
@@ -153,7 +166,9 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 	return nil
 }
 
+// SendMealplanMessage - sends appropriate message to the bot based on command and parameters
 func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	// Printer function
 	stringToPrint := utils.GetMealplanMessageArray()
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s\n", stringToPrint[0]))
 	for _, meal := range caching.MealsCache.Meals {
@@ -166,25 +181,32 @@ func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		stringToPrint[7], fmt.Sprint(caching.MealsCache.Nutrients.CarboHydrates)))
 }
 
+// SendTodoMessage - sends appropriate message to the bot based on command and parameters
 func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
+	// strings to be assigned value
 	var createTodo string
 	var updateTodo string
 
+	// struct to be used for todo object
 	var todoObject structs.TodoStruct
 	todoObject.Userid = m.Author.ID
 	todoObject.State = "active"
 
+	// split up command(s)
 	str := strings.Fields(m.Content)
 	fmt.Println(str)
 
+	// Checks if there are any parameters with todo command
 	if len(str) < 2 {
 		s.ChannelMessageSend(m.ChannelID, "Command missing for !todo. ")
 		return
 	}
 
+	// Switch to handle the different parameters
 	switch {
 	case str[1] == "mylist":
+		// gets the todo objects from azure sql
 		allTodos, err := database.GetTodoObject(m.Author.ID)
 		if err != nil {
 			log.Fatal("Error reading all todo objects: ", err.Error())
@@ -193,15 +215,17 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, fmt.Sprint(i+1)+": "+todo.Description+" -- status: "+todo.State)
 		}
 	case str[1] == "create":
+		// splits up the parameters, taking everything after the "create" parameter as the todo task
 		createTodo = strings.Join(str[2:], " ")
 
 		if createTodo == "" {
 			s.ChannelMessageSend(m.ChannelID, "Missing description for todo task!")
 			return
 		}
-
+		// inserts it into the struct object
 		todoObject.Description = createTodo
 
+		// inserts it into azure sql
 		err := database.CreateTodoObject(todoObject)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Something went wrong while creating todo object")
@@ -213,11 +237,15 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
 			return
 		}
+		// converts string number from parameter to int number
+		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
 			return
 		}
+
+		// converts the id number to the id on azure sql
 		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
@@ -239,20 +267,25 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+		// converts string number from parameter to int number
+		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
 			return
 		}
 
+		// converts the id number to the id on azure sql
 		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
 		}
 
+		// splits up the parameters and takes everything from index 3 as a string
 		updateTodo = strings.Join(str[3:], " ")
 
+		// updates the object in azure sql
 		err = database.UpdateTodoObject(res, updateTodo)
 		if err != nil {
 			fmt.Println(err)
@@ -264,17 +297,23 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
 			return
 		}
+
+		// converts string number from parameter to int number
+		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
 			return
 		}
 
+		// converts the id number to the id on azure sql
 		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
 		}
+
+		// updates the object in azure sql
 		err = database.UpdateTodoObjectStatus(res, str[1])
 		if err != nil {
 			fmt.Println(err)
@@ -284,10 +323,11 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+// SendHelpMessage - sends appropriate message to the bot based on command and parameters
 func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
+	// split up command(s)
 	str := strings.Fields(m.Content)
-	fmt.Println(str)
 
 	if len(str) < 2 {
 		stringToPrint := utils.GetHelpMessageArray()
@@ -300,7 +340,8 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if str[1] == "todo" {
+	switch {
+	case str[1] == "todo":
 		stringToPrint := utils.GetHelpTodoMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n%s\n%s",
@@ -311,56 +352,52 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			stringToPrint[12], stringToPrint[13], stringToPrint[14],
 			stringToPrint[15]))
 		return
-	}
-	if str[1] == "weather" {
+	case str[1] == "weather":
 		stringToPrint := utils.GetHelpWeatherMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
 		return
-
-	}
-	if str[1] == "newsletter" {
+	case str[1] == "newsletter":
 		stringToPrint := utils.GetHelpNewsletterMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
 		return
-
-	}
-	if str[1] == "steamdeals" {
+	case str[1] == "steamdeals":
 		stringToPrint := utils.GetHelpSteamdealsMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
 		return
-
-	}
-	if str[1] == "mealplan" {
+	case str[1] == "mealplan":
 		stringToPrint := utils.GetHelpMealplanMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
 		return
-
 	}
-
 }
 
+// NotifyWeather - sends appropriate message to the bot based on command and parameters
 func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
+	// split up the command(s)
 	str := strings.Fields(m.Content)
 	fmt.Println(str)
 
+	// Checks if there are any parameters with the command
 	if len(str) < 2 {
 		return errors.New("missing city name")
 	}
 
+	// Creates a weather API call
 	_, err := handlers.WeatherForecastMainHandler(str[1])
 	if err != nil {
 		return err
 	}
 
+	// create a webhook on the weather
 	err = database.CreateWeatherWebhook(m.Author.ID, str[1])
 
 	if err != nil {
@@ -371,7 +408,10 @@ func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	return nil
 }
 
+// SendJokeMessage - sends appropriate message to the bot based on command and parameters
 func SendJokeMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
+
+	// split up command(s)
 	str := strings.Fields(m.Content)
 	if len(str) == 1 { // !joke
 		joke, err := database.GetRandomJoke()
@@ -380,7 +420,7 @@ func SendJokeMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		}
 		s.ChannelMessageSend(m.ChannelID, joke)
 
-	} else if len(str) == 2 && str[1] == "create" { // misses
+	} else if len(str) == 2 && str[1] == "create" { // misses joke text
 		return errors.New("missing joke text")
 
 	} else if len(str) > 2 && str[1] == "create" { // !joke create text here
