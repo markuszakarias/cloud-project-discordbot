@@ -417,7 +417,6 @@ func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// split up the command(s)
 	str := strings.Fields(m.Content)
-	fmt.Println(str)
 
 	// Checks if there are any parameters with the command
 	if len(str) < 2 {

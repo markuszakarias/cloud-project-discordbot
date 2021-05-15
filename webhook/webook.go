@@ -1,7 +1,7 @@
 package webhook
 
 import (
-	"log"
+	"fmt"
 	"projectGroup23/database"
 	"projectGroup23/handlers"
 	"projectGroup23/utils"
@@ -14,12 +14,12 @@ import (
 func WebhookRoutine(s *discordgo.Session) {
 	webhooks, err := database.GetAllWebhooks()
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
 	}
 	for _, webhook := range webhooks {
 		weather, err := handlers.GetWeatherForecastAndIP(webhook.City)
 		if err != nil {
-			log.Fatalln(err)
+			fmt.Println(err)
 		}
 		userChannel, _ := s.UserChannelCreate(webhook.UserId)
 

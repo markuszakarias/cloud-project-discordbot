@@ -3,7 +3,6 @@ package discord
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"projectGroup23/utils"
@@ -18,10 +17,10 @@ func RunDiscordBot() {
 	token := utils.EnvVar("DC_TOKEN")
 	s, err := discordgo.New("Bot " + token)
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err)
 	}
 	if err = s.Open(); err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err)
 	}
 
 	// Runs a webhook routine

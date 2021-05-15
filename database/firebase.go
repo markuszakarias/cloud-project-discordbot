@@ -145,7 +145,7 @@ func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherFor
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			return structs.StoredWeatherForecast{}, err
 		}
 		// Will return the struct if it finds a match
 		if doc.Data()["IPLocation"] == location {
@@ -169,7 +169,7 @@ func CheckNewsLetterOnFirestore(location string) (structs.StoredNewsLetter, erro
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			return structs.StoredNewsLetter{}, err
 		}
 		// Will return the struct if it finds a match
 		if doc.Data()["Location"] == location {
@@ -192,7 +192,7 @@ func GetStoredFromFirestore() {
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 		if doc.Data()["WeatherForecasts"] != nil {
 			doc.DataTo(&StoredWeatherForecast)

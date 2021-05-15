@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"projectGroup23/structs"
 	"reflect"
 	"testing"
@@ -13,7 +13,7 @@ func TestMealPopulationFunction(t *testing.T) {
 	content, err := ioutil.ReadFile("/projectgroup23/assets/meal.txt")
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	stringOutput := string(content)
@@ -48,7 +48,7 @@ func TestNewsletterPopulationFunction(t *testing.T) {
 
 	content, err := ioutil.ReadFile("/projectgroup23/assets/news.txt")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	stringOutput := string(content)
 
@@ -73,7 +73,7 @@ func TestSteamPopulationFunction(t *testing.T) {
 
 	content, err := ioutil.ReadFile("/projectgroup23/assets/steam.txt")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 	stringOutput := string(content)
 
@@ -98,7 +98,7 @@ func TestWeatherPopulationFunction(t *testing.T) {
 
 	content, err := ioutil.ReadFile("/projectgroup23/assets/weather.txt")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	stringOutput := string(content)
