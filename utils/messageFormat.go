@@ -1,4 +1,4 @@
-package constants
+package utils
 
 func GetWeatherStringArray() []string {
 	return []string{":calendar: ", ":map: ", " - ", ":cloud: ", ":dash: ",
@@ -7,8 +7,11 @@ func GetWeatherStringArray() []string {
 }
 
 func GetSteamStringArray() []string {
-	return []string{"title: ", "DealID: ", "NormalPrice: ", "SalePrice: ", "Savings: ",
-		"MetacriticScore: ", "SteamRatingText: ", "SteamRatingPercent: ", "SteamRatingCount: "}
+	return []string{":video_game: ",
+		"**Deal ID:** ",
+		"**Normal Price:** ",
+		"**Sale Price:** ",
+		"**Savings:** "}
 }
 
 func GetNewsletterStringArray() []string {

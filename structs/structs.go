@@ -12,7 +12,7 @@ type NewsLetter struct {
 	Date_published string `json:"date_published"`
 	Title          string `json:"title"`
 	Description    string `json:"description"`
-	Url_to_story   string `json:"url_to_story"`
+	UrlToStory     string `json:"url_to_story"`
 }
 
 // NewsLetters prepares a array with 5 newsletters.
@@ -82,7 +82,7 @@ type Deals struct {
 }
 
 // Struct todo_struct - struct for a todo object
-type Todo_struct struct {
+type TodoStruct struct {
 	Id          int
 	Userid      string
 	Description string

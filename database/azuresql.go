@@ -5,30 +5,60 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"projectGroup23/structs"
+	"projectGroup23/utils"
 )
 
-var Db *sql.DB
+// variable for the database connection
+var db *sql.DB
 
-var Err error
+// global package error variable
+var err error
 
-func UpdateTodoObject(sqlId int, description string) error {
+// variables to establish azure sql database connection
+var server = utils.EnvVar("DB_SERVER")
+var port = utils.EnvVar("DB_PORT")
+var user = utils.EnvVar("DB_USER")
+var password = utils.EnvVar("DB_PASSWORD")
+var azuredb = utils.EnvVar("DB")
+
+// InitSQL - Used in main to initialize the azure sql database connection
+func InitSQL() {
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+		server, user, password, port, azuredb)
+
+	// Create connection pool
+	db, err = sql.Open("sqlserver", connString)
+	if err != nil {
+		log.Fatal("Error creating connection pool: ", err.Error())
+	}
 	ctx := context.Background()
+	err = db.PingContext(ctx)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
 
-	if Db == nil {
-		Err = errors.New("create todo object: db is null")
+// UpdateTodoObject - Updates a todo object from the ID with a new description
+func UpdateTodoObject(sqlId int, description string) error {
+
+	ctx := context.Background()
+	if db == nil {
+		err = errors.New("create todo object: db is null")
 	}
 
 	// Check db connection
-	Err = Db.PingContext(ctx)
-	if Err != nil {
-		return Err
+	err = db.PingContext(ctx)
+	if err != nil {
+		return err
 	}
 
+	// The sql query
 	tsql := "UPDATE [dbo].[todo] SET Description = @Description WHERE Id = @Id;"
 
 	// Execute non-query with named parameters
-	_, err := Db.ExecContext(ctx, tsql,
+	_, err := db.ExecContext(ctx, tsql,
 		sql.Named("Id", sqlId),
 		sql.Named("Description", description))
 
@@ -39,23 +69,25 @@ func UpdateTodoObject(sqlId int, description string) error {
 	return nil
 }
 
+// UpdateTodoObjectStatus - Updates a todo object from the ID with a status
 func UpdateTodoObjectStatus(sqlId int, status string) error {
-	ctx := context.Background()
 
-	if Db == nil {
-		Err = errors.New("create todo object: db is null")
+	ctx := context.Background()
+	if db == nil {
+		return errors.New("create todo object: db is null")
 	}
 
 	// Check db connection
-	Err = Db.PingContext(ctx)
-	if Err != nil {
-		return Err
+	err = db.PingContext(ctx)
+	if err != nil {
+		return err
 	}
 
+	// The sql query
 	tsql := "UPDATE [dbo].[todo] SET State = @State WHERE Id = @Id;"
 
 	// Execute non-query with named parameters
-	_, err := Db.ExecContext(ctx, tsql,
+	_, err := db.ExecContext(ctx, tsql,
 		sql.Named("Id", sqlId),
 		sql.Named("State", status))
 
@@ -66,57 +98,61 @@ func UpdateTodoObjectStatus(sqlId int, status string) error {
 	return nil
 }
 
+// DeleteTodoObject - Deletes a todo object matching the ID
 func DeleteTodoObject(sqlId int) error {
-	ctx := context.Background()
 
-	if Db == nil {
-		Err = errors.New("create todo object: db is null")
+	ctx := context.Background()
+	if db == nil {
+		return errors.New("create todo object: db is null")
 	}
 
 	// Check db connection
-	Err = Db.PingContext(ctx)
-	if Err != nil {
-		return Err
+	err = db.PingContext(ctx)
+	if err != nil {
+		return err
 	}
 
+	// The sql query
 	tsql := "DELETE FROM [dbo].[todo] WHERE Id = @Id;"
 
 	// Execute non-query with named parameters
-	res, err := Db.ExecContext(ctx, tsql,
+	_, err := db.ExecContext(ctx, tsql,
 		sql.Named("Id", sqlId))
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(res)
-
 	return nil
 }
 
-func CreateTodoObject(todoObject structs.Todo_struct) error {
-	ctx := context.Background()
+// CreateTodoObject - Creates a todo object with new id and description from the user
+func CreateTodoObject(todoObject structs.TodoStruct) error {
 
-	if Db == nil {
-		Err = errors.New("create todo object: db is null")
+	ctx := context.Background()
+	if db == nil {
+		return errors.New("create todo object: db is null")
 	}
 
 	// Check db connection
-	Err = Db.PingContext(ctx)
-	if Err != nil {
-		return Err
+	err = db.PingContext(ctx)
+	if err != nil {
+		return err
 	}
 
+	// The sql query
 	tsql := `INSERT INTO [dbo].[todo] (Userid, Description, State) VALUES (@Userid, @Description, @State);
 			select isNull(SCOPE_IDENTITY(), -1);`
 
-	stmt, err := Db.Prepare(tsql)
+	// prepares the sql insertion
+	stmt, err := db.Prepare(tsql)
 	if err != nil {
 		return err
 	}
 
 	defer stmt.Close()
 
+	// insert the data into a row
 	row := stmt.QueryRowContext(ctx,
 		sql.Named("Userid", todoObject.Userid),
 		sql.Named("Description", todoObject.Description),
@@ -127,35 +163,34 @@ func CreateTodoObject(todoObject structs.Todo_struct) error {
 		return err
 	}
 
-	fmt.Println("New ID was created:", todoObject.Id)
-
 	return nil
 }
 
-func GetTodoAll() ([]structs.Todo_struct, error) {
-	var allTodos []structs.Todo_struct
+// GetTodoObject - Displayes the todo tasks of the user running the command
+func GetTodoObject(userid string) ([]structs.TodoStruct, error) {
+
+	// list of todo structs to insert todo object(s)
+	var allTodos []structs.TodoStruct
 
 	ctx := context.Background()
 
 	// Check database connection
-	err := Db.PingContext(ctx)
+	err := db.PingContext(ctx)
 	if err != nil {
 		return allTodos, err
 	}
 
-	// The sql query to be executed
-	tsql := "SELECT Id, Userid, Description, State FROM [dbo].[todo];"
+	// The sql query
+	tsql := "SELECT Id, Userid, Description, State FROM [dbo].[todo] WHERE Userid = @Userid;"
 
 	// Execute query
-	rows, err := Db.QueryContext(ctx, tsql)
+	rows, err := db.QueryContext(ctx, tsql, sql.Named("Userid", userid))
 	if err != nil {
 		return allTodos, err
 	}
 
 	// Wait until function ends before
 	defer rows.Close()
-
-	fmt.Println("Print all todo data:")
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -168,7 +203,7 @@ func GetTodoAll() ([]structs.Todo_struct, error) {
 			return allTodos, err
 		}
 
-		todoItem := structs.Todo_struct{
+		todoItem := structs.TodoStruct{
 			Id:          id,
 			Userid:      userid,
 			Description: description,
@@ -176,56 +211,21 @@ func GetTodoAll() ([]structs.Todo_struct, error) {
 		}
 
 		allTodos = append(allTodos, todoItem)
-
-		fmt.Printf("Id:%d Userid:%s Description: %s, State: %s\n", id, userid, description, state)
 	}
 
 	return allTodos, nil
 }
 
-func GetTodoObject(userid string) ([]structs.Todo_struct, error) {
-	var allTodos []structs.Todo_struct
-
-	ctx := context.Background()
-
-	// Check database connection
-	err := Db.PingContext(ctx)
+// ConvertIndexToId - helper function to convert the ID of a todo task, to the ID in azure sql
+func ConvertIndexToId(i int, userid string) (int, error) {
+	resp, err := GetTodoObject(userid)
 	if err != nil {
-		return allTodos, err
+		return 0, err
 	}
-
-	// The sql query to be executed
-	tsql := "SELECT Id, Userid, Description, State FROM [dbo].[todo] WHERE Userid = @Userid;"
-
-	// Execute query
-	rows, err := Db.QueryContext(ctx, tsql, sql.Named("Userid", userid))
-	if err != nil {
-		return allTodos, err
+	if len(resp) <= i {
+		return 0, errors.New("id does not exist")
 	}
+	convID := resp[i].Id
 
-	// Wait until function ends before
-	defer rows.Close()
-
-	// Iterate through the result set.
-	for rows.Next() {
-		var userid, description, state string
-		var id int
-
-		// Get values from row.
-		err := rows.Scan(&id, &userid, &description, &state)
-		if err != nil {
-			return allTodos, err
-		}
-
-		todoItem := structs.Todo_struct{
-			Id:          id,
-			Userid:      userid,
-			Description: description,
-			State:       state,
-		}
-
-		allTodos = append(allTodos, todoItem)
-	}
-
-	return allTodos, nil
+	return convID, nil
 }

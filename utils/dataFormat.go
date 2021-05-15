@@ -1,60 +1,13 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"projectGroup23/structs"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/tidwall/gjson"
 )
-
-// struct used to retrieved IP location from api
-var ipAddress structs.IPLocation
-
-var alpha2Code []structs.Alpha2Code
-
-func GetIPLocation() (string, error) {
-	resp, err := http.Get("https://ipwhois.app/json/")
-	if err != nil {
-		return "", err
-		//fmt.Errorf("Error in response: ", err.Error())
-	}
-
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(&ipAddress)
-	if err != nil {
-		return "", err
-		//fmt.Errorf("Error in JSON decoding: ", err.Error())
-	}
-
-	return ipAddress.City, nil
-}
-
-func Get2AlphaCode(countryName string) (string, error) {
-
-	country := strings.Title(strings.ToLower(countryName))
-
-	resp, err := http.Get("https://restcountries.eu/rest/v2/name/" + country + "?fullText=true")
-	if err != nil {
-		return "", err
-	}
-
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(&alpha2Code)
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Println(alpha2Code[0].Alpha2Code)
-
-	return alpha2Code[0].Alpha2Code, nil
-}
 
 // PopulateNewsLetters walks through the response from the newsletter api and creates a
 // newsletter json array with 5 newsletters.
@@ -70,7 +23,7 @@ func PopulateNewsLetters(count int, jsonResponseString string) structs.NewsLette
 		nws.Title = gjson.Get(jsonResponseString, "articles."+indexAsString+".title").String()
 		nws.Description = gjson.Get(jsonResponseString, "articles."+indexAsString+".description").String()
 		nws.Date_published = gjson.Get(jsonResponseString, "articles."+indexAsString+".publishedAt").String()
-		nws.Url_to_story = gjson.Get(jsonResponseString, "articles."+indexAsString+".url").String()
+		nws.UrlToStory = gjson.Get(jsonResponseString, "articles."+indexAsString+".url").String()
 
 		returnNews.Newsletters = append(returnNews.Newsletters, nws)
 	}
@@ -198,12 +151,6 @@ func PopulateSteamDeals(jsonResponseString string, command string, count int) st
 		}
 	}
 	return deals
-}
-
-func CheckIfSameDate(date, date2 time.Time) bool {
-	y, m, d := date.Date()
-	y2, m2, d2 := date2.Date()
-	return y == y2 && m == m2 && d == d2
 }
 
 func WeatherMessageStringFormat(stringToPrint []string, day structs.WeatherForecast) string {

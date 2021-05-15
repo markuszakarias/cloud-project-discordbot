@@ -15,10 +15,6 @@ import (
 	"google.golang.org/api/option"
 )
 
-type Joke struct {
-	text string
-}
-
 var Ctx context.Context
 var Client *firestore.Client
 
@@ -44,8 +40,12 @@ func InitFirebase() {
 	}
 
 	Client, err = app.Firestore(Ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
+// GetRandomJoke - Gets and  a random joke from firestore
 func GetRandomJoke() (string, error) {
 	iter := Client.Collection("jokes").Documents(Ctx)
 	var allJokes []string
@@ -57,12 +57,11 @@ func GetRandomJoke() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		//joke := doc.Data()["text"]
-		var test string = doc.Data()["text"].(string)
-		allJokes = append(allJokes, test)
+		var joke string = doc.Data()["text"].(string)
+		allJokes = append(allJokes, joke)
 	}
 	if len(allJokes) == 0 { // if no jokes in firebase
-		return "", errors.New("No jokes in database. Create one with the '!joke create' command")
+		return "", errors.New("no jokes in database. Create one with the '!joke create' command")
 	}
 
 	rand.Seed(time.Now().Unix())                     // pseudo random
@@ -70,6 +69,7 @@ func GetRandomJoke() (string, error) {
 	return randomJoke, nil                           // returns the random joke
 }
 
+// CreateJoke - Creates a joke and puts it in the firestore collection
 func CreateJoke(userId string, jokeText string) error {
 	_, _, err := Client.Collection("jokes").Add(Ctx,
 		map[string]interface{}{
@@ -79,8 +79,9 @@ func CreateJoke(userId string, jokeText string) error {
 	return err
 }
 
+// GetAllJokesByUserId - Gets all registered jokes created by user id
 func GetAllJokesByUserId(userId string) []string {
-	//iter := client.Collection("jokes").Documents(ctx)
+	// Compares field in firestore document with paramater value
 	iter := Client.Collection("jokes").Where("createdBy", "==", userId).Documents(Ctx)
 	var allJokes []string
 	for {
@@ -98,6 +99,7 @@ func GetAllJokesByUserId(userId string) []string {
 	return allJokes
 }
 
+// GetAllWebhooks - Gets all registered webhooks
 func GetAllWebhooks() ([]structs.CloudWebhook, error) {
 	iter := Client.Collection("cloudwebhook").Documents(Ctx)
 	var allWebhooks []structs.CloudWebhook
@@ -109,7 +111,6 @@ func GetAllWebhooks() ([]structs.CloudWebhook, error) {
 		if err != nil {
 			return allWebhooks, err
 		}
-		//joke := doc.Data()["text"]
 		webhookPlaceholder := structs.CloudWebhook{
 			UserId: doc.Data()["UserId"].(string),
 			City:   doc.Data()["City"].(string),
@@ -119,28 +120,22 @@ func GetAllWebhooks() ([]structs.CloudWebhook, error) {
 	return allWebhooks, nil
 }
 
+// DeleteWebhook - Deletes a webhook with parameter id
 func DeleteWebhook(userId string) error {
 	_, err := Client.Collection("cloudwebhook").Doc(userId).Delete(Ctx)
 	return err
 }
 
-// if user already has a weather webhook, it will be updated!
+// CreateWeatherWebhook - Creates a webhook. if user already has a weather webhook, it will be updated
 func CreateWeatherWebhook(userId string, city string) error {
 	_, err := Client.Collection("cloudwebhook").Doc(userId).Set(Ctx, map[string]interface{}{
-		"Id":     "",
 		"UserId": userId,
 		"City":   city,
-		// "CloudPercentages": cloudPercentages,
-		// "LastDateNotified": time.Now().AddDate(0, 0, -1), // sets the dat before since it has not been notified today yet.
 	}, firestore.MergeAll)
 	return err
 }
 
-func updateWeatherWebhook(userId string, webhookData map[string]interface{}) error {
-	_, err := Client.Collection("cloudwebhook").Doc(userId).Set(Ctx, webhookData, firestore.MergeAll)
-	return err
-}
-
+// CheckWeatherForecastsOnFirestore - Compares a call to the stored struct with specific field
 func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherForecast, error) {
 	iter := Client.Collection("cached_resp").Documents(Ctx)
 
@@ -162,6 +157,7 @@ func CheckWeatherForecastsOnFirestore(location string) (structs.StoredWeatherFor
 	return structs.StoredWeatherForecast{}, nil
 }
 
+// CheckNewsLetterOnFirestore - Compares a call to the stored struct with specific field
 func CheckNewsLetterOnFirestore(location string) (structs.StoredNewsLetter, error) {
 	iter := Client.Collection("cached_resp").Documents(Ctx)
 

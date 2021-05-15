@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"projectGroup23/database"
-	"projectGroup23/discordpkg/constants"
 	"projectGroup23/handlers"
 	"projectGroup23/utils"
 	"time"
@@ -35,7 +34,7 @@ func WebhookRoutine(s *discordgo.Session) {
 		}
 		userChannel, _ := s.UserChannelCreate(webhook.UserId)
 
-		stringToPrint := constants.GetWeatherStringArray()
+		stringToPrint := utils.GetWeatherStringArray()
 		for _, day := range weather.Forecasts {
 			s.ChannelMessageSend(userChannel.ID, utils.WeatherMessageStringFormat(stringToPrint, day))
 		}

@@ -1,4 +1,4 @@
-package discordutils
+package discord
 
 import (
 	"errors"
@@ -6,7 +6,6 @@ import (
 	"log"
 	"projectGroup23/caching"
 	"projectGroup23/database"
-	"projectGroup23/discordpkg/constants"
 	"projectGroup23/handlers"
 	"projectGroup23/structs"
 	"projectGroup23/utils"
@@ -44,22 +43,54 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error 
 		}
 	}
 
-	stringToPrint := constants.GetWeatherStringArray()
+	stringToPrint := utils.GetWeatherStringArray()
 	for _, day := range caching.ForecastsCache.Forecasts {
 		s.ChannelMessageSend(m.ChannelID, utils.WeatherMessageStringFormat(stringToPrint, day))
 	}
 	return nil
 }
 
-func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
-	stringToPrint := constants.GetSteamStringArray()
-	for _, deal := range caching.DealsCache.Deals {
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s",
-			stringToPrint[0], deal.Title, stringToPrint[1], deal.DealID, stringToPrint[2], deal.NormalPrice,
-			stringToPrint[3], deal.SalePrice, stringToPrint[4], deal.Savings, stringToPrint[5], deal.MetacriticScore,
-			stringToPrint[6], deal.SteamRatingText, stringToPrint[7], deal.SteamRatingPercent, stringToPrint[8], deal.SteamRatingCount))
+func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
+
+	var count int
+	var err error
+
+	str := strings.Fields(m.Content)
+
+	dur, _ := time.ParseDuration("20s")
+
+	if len(str) < 2 {
+		count = 5
+		err = caching.CacheDeals(m.Content, dur)
+		if err != nil {
+			return err
+		}
+	} else {
+		count, err = strconv.Atoi(str[1])
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
+			return err
+		}
+		if count < 1 || count > 4 {
+			return errors.New("number of steamdeals needs to be between 1-4")
+		}
+		err = caching.CacheDeals(m.Content, dur)
+		if err != nil {
+			return err
+		}
 	}
+
+	stringToPrint := utils.GetSteamStringArray()
+	for i := 0; i < count; i++ {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
+			stringToPrint[0], caching.DealsCache.Deals[i].Title,
+			stringToPrint[1], caching.DealsCache.Deals[i].DealID,
+			stringToPrint[2], caching.DealsCache.Deals[i].NormalPrice,
+			stringToPrint[3], caching.DealsCache.Deals[i].SalePrice,
+			stringToPrint[4], caching.DealsCache.Deals[i].Savings))
+	}
+	return nil
 }
 
 func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
@@ -105,7 +136,7 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 		}
 	}
 
-	stringToPrint := constants.GetNewsletterStringArray()
+	stringToPrint := utils.GetNewsletterStringArray()
 	if len(caching.NewsCache.Newsletters) < count {
 		count = len(caching.NewsCache.Newsletters)
 	}
@@ -117,13 +148,13 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 			stringToPrint[1], caching.NewsCache.Newsletters[i].Date_published,
 			stringToPrint[2], caching.NewsCache.Newsletters[i].Title,
 			stringToPrint[3], caching.NewsCache.Newsletters[i].Description,
-			stringToPrint[4], caching.NewsCache.Newsletters[i].Url_to_story))
+			stringToPrint[4], caching.NewsCache.Newsletters[i].UrlToStory))
 	}
 	return nil
 }
 
 func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
-	stringToPrint := constants.GetMealplanMessageArray()
+	stringToPrint := utils.GetMealplanMessageArray()
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s\n", stringToPrint[0]))
 	for _, meal := range caching.MealsCache.Meals {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
@@ -140,7 +171,7 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	var createTodo string
 	var updateTodo string
 
-	var todoObject structs.Todo_struct
+	var todoObject structs.TodoStruct
 	todoObject.Userid = m.Author.ID
 	todoObject.State = "active"
 
@@ -187,7 +218,7 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
 			return
 		}
-		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
@@ -214,7 +245,7 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
@@ -239,7 +270,7 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		res, err := convertIndexToId((conv - 1), m.Author.ID)
+		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 			return
@@ -259,7 +290,7 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	fmt.Println(str)
 
 	if len(str) < 2 {
-		stringToPrint := constants.GetHelpMessageArray()
+		stringToPrint := utils.GetHelpMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n%s\n%s\n%s\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n",
 			stringToPrint[0], stringToPrint[1], stringToPrint[2],
@@ -270,7 +301,7 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if str[1] == "todo" {
-		stringToPrint := constants.GetHelpTodoMessageArray()
+		stringToPrint := utils.GetHelpTodoMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n%s\n%s",
 			stringToPrint[0], stringToPrint[1], stringToPrint[2],
@@ -282,7 +313,7 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	if str[1] == "weather" {
-		stringToPrint := constants.GetHelpWeatherMessageArray()
+		stringToPrint := utils.GetHelpWeatherMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
@@ -290,7 +321,7 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 	if str[1] == "newsletter" {
-		stringToPrint := constants.GetHelpNewsletterMessageArray()
+		stringToPrint := utils.GetHelpNewsletterMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
@@ -298,7 +329,7 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 	if str[1] == "steamdeals" {
-		stringToPrint := constants.GetHelpSteamdealsMessageArray()
+		stringToPrint := utils.GetHelpSteamdealsMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
@@ -306,7 +337,7 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 	if str[1] == "mealplan" {
-		stringToPrint := constants.GetHelpMealplanMessageArray()
+		stringToPrint := utils.GetHelpMealplanMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s\n\n",
 			stringToPrint[0]))
@@ -314,19 +345,6 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 
-}
-
-func convertIndexToId(i int, userid string) (int, error) {
-	resp, err := database.GetTodoObject(userid)
-	if err != nil {
-		return 0, err
-	}
-	if len(resp) <= i {
-		return 0, errors.New("id does not exist")
-	}
-	deleteId := resp[i].Id
-
-	return deleteId, nil
 }
 
 func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
@@ -363,7 +381,7 @@ func SendJokeMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		s.ChannelMessageSend(m.ChannelID, joke)
 
 	} else if len(str) == 2 && str[1] == "create" { // misses
-		return errors.New("Missing joke text")
+		return errors.New("missing joke text")
 
 	} else if len(str) > 2 && str[1] == "create" { // !joke create text here
 		joke := strings.Join(str[2:], " ")
@@ -372,7 +390,7 @@ func SendJokeMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	} else { // undefined joke command
 
-		return errors.New("something is wrong with your joke command!")
+		return errors.New("something is wrong with your joke command")
 	}
 
 	return nil
