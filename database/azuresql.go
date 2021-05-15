@@ -1,3 +1,7 @@
+// Package database - contains our handling of the Azure SQL and Firestore connection. It initiates the connection and has the functionality to
+// to view, create, update and delete todo tasks from azure sql. And also view and create jokes from Firestore. It also uses the environment
+// variables for the database credentials. It also contains functionality for handling webhooks and stored struct object regarding the weather,
+// steamdeals, newsletter and mealplan API data.
 package database
 
 import (

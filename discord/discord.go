@@ -1,3 +1,4 @@
+// Package discord - contains our handling of the discord bot. It initiates the bot and has the functionality to
 package discord
 
 import (

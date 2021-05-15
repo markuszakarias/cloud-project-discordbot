@@ -1,3 +1,5 @@
+// Package that contains our local caching. It adds a cache manager that handles all cache modules across the entire program.
+// This package also manages the caching of each individual document in firestore.
 package caching
 
 import (
