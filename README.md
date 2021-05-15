@@ -204,13 +204,19 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 **Get a random joke**
 
 ```
-!jokes
+!joke
+```
+
+**Get all jokes that the user have made**
+
+```
+!joke myjokes
 ```
 
 **Creates a joke**
 
 ```
-!jokes create <joke text>
+!joke create <joke text>
 ```
 
 - [_] -> Command `!help` with parameters
