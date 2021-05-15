@@ -34,17 +34,8 @@ func main() {
 	// Initializes Firebase database
 	database.InitFirebase()
 
-	// Initializes BigCache cache
-	err := caching.AddCacheModule("cache")
-	if err != nil {
-		fmt.Println("Error with initialize cache: " + err.Error())
-	}
-
-	// Initializes BigCache cache
-	err = caching.AddCacheModule("weather")
-	if err != nil {
-		fmt.Println("Error with initialize cache: " + err.Error())
-	}
+	// Initializes the cache
+	caching.InitCache()
 
 	// Gets stored API response from last session
 	database.GetStoredFromFirestore()
@@ -117,8 +108,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		err = caching.CacheMeals(dur)
 		discordutils.SendMealplanMessage(s, m)
 	case len(m.Content) >= 11 && m.Content[:11] == "!newsletter":
-		/* dur, _ := time.ParseDuration("20s")
-		err = caching.CacheNews(dur) */
 		err = discordutils.SendNewsletterMessage(s, m)
 	case len(m.Content) >= 5 && m.Content[:5] == "!todo":
 		discordutils.SendTodoMessage(s, m)

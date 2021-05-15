@@ -65,15 +65,15 @@ func NewsLetterMainHandler(country string) (structs.NewsLetters, error) {
 	fmt.Println("NewsletterTest() was run!")
 	// use function to retrieve cached newsletter
 
-	storednews, err := database.CheckNewsLetterOnFirestore(country)
+	storedNews, err := database.CheckNewsLetterOnFirestore(country)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	nws := getStoredNewsLetter(storednews)
+	nws := getStoredNewsLetter(storedNews)
 
 	// check if the interface is null
-	if nws.Newsletters == nil || storednews.Location != country {
+	if nws.Newsletters == nil || storedNews.Location != country {
 		fmt.Println("struct is empty")
 		// get the newsletters from API if empty
 		nws, err = getNewsletters(country)

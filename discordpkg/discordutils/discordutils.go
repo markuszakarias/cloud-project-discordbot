@@ -19,23 +19,25 @@ import (
 
 func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
+	// Sets the default location to the GeoPosition of the computer making the request
 	defaultLocation, err := utils.GetIPLocation()
 	if err != nil {
 		return err
 	}
 
+	// Sets duration of cache
+	dur, _ := time.ParseDuration("20s")
+
 	str := strings.Fields(m.Content)
 	fmt.Println(str)
 
 	if len(str) < 2 {
-		dur, _ := time.ParseDuration("20s")
 		err := caching.CacheForecasts(defaultLocation, dur)
 		if err != nil {
 			return err
 		}
 	} else {
 		location := strings.Title(strings.ToLower(str[1]))
-		dur, _ := time.ParseDuration("10m")
 		err := caching.CacheForecasts(location, dur)
 		if err != nil {
 			return err
@@ -62,20 +64,20 @@ func SendSteamMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
-	// default amount of newsletter articles
+	// Default amount of newsletter articles
 	var count = 3
 
-	// default country to retrieve newsletter
+	// Default country to retrieve newsletter
 	var country = "no"
 
-	var err error
-	var res structs.NewsLetters
+	// Sets duration of cache
+	dur, _ := time.ParseDuration("20s")
 
 	// split up the parameter for validation and passing data
 	str := strings.Fields(m.Content)
 
 	if len(str) < 2 {
-		res, err = handlers.NewsLetterMainHandler(country)
+		err := caching.CacheNews(country, dur)
 		if err != nil {
 			return err
 		}
@@ -97,26 +99,25 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 		}
 
 		result := strings.ToLower(alpha2Code)
-		res, err = handlers.NewsLetterMainHandler(result)
+		err = caching.CacheNews(result, dur)
 		if err != nil {
 			return err
 		}
 	}
 
 	stringToPrint := constants.GetNewsletterStringArray()
-
-	if len(res.Newsletters) < count {
-		count = len(res.Newsletters)
+	if len(caching.NewsCache.Newsletters) < count {
+		count = len(caching.NewsCache.Newsletters)
 	}
 
 	for i := 0; i < count; i++ {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
 			"%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n",
-			stringToPrint[0], res.Newsletters[i].Author,
-			stringToPrint[1], res.Newsletters[i].Date_published,
-			stringToPrint[2], res.Newsletters[i].Title,
-			stringToPrint[3], res.Newsletters[i].Description,
-			stringToPrint[4], res.Newsletters[i].Url_to_story))
+			stringToPrint[0], caching.NewsCache.Newsletters[i].Author,
+			stringToPrint[1], caching.NewsCache.Newsletters[i].Date_published,
+			stringToPrint[2], caching.NewsCache.Newsletters[i].Title,
+			stringToPrint[3], caching.NewsCache.Newsletters[i].Description,
+			stringToPrint[4], caching.NewsCache.Newsletters[i].Url_to_story))
 	}
 	return nil
 }

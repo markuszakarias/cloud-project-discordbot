@@ -43,10 +43,20 @@ func CacheDeals(command string, dur time.Duration) error {
 // CacheForecasts - Caches the function return value and sets a timer for when the cache is dirty
 func CacheForecasts(location string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
-	err := CM.Cacheable("weather", location, func() (interface{}, error) {
+	err := CM.Cacheable("cache", location, func() (interface{}, error) {
 		res, err := handlers.WeatherForecastMainHandler(location)
 		return res, err
 	}, &ForecastsCache, dur)
+	return err
+}
+
+// InitCache - Initializes the cache modules to be used in the bot
+func InitCache() error {
+	// Initializes BigCache cache
+	err := AddCacheModule("cache")
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -61,10 +71,10 @@ func CacheMeals(dur time.Duration) error {
 }
 
 // CacheNews - Caches the function return value and sets a timer for when the cache is dirty
-func CacheNews(dur time.Duration) error {
+func CacheNews(location string, dur time.Duration) error {
 	// Cacheable adds cache to the function passed as parameter
-	err := CM.Cacheable("cache", "news", func() (interface{}, error) {
-		res, err := handlers.NewsLetterMainHandler("no")
+	err := CM.Cacheable("cache", location, func() (interface{}, error) {
+		res, err := handlers.NewsLetterMainHandler(location)
 		return res, err
 	}, &NewsCache, dur)
 	return err
