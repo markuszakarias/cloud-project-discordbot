@@ -84,6 +84,12 @@ go build .
 
 To run the executable, run `./<executable>`
 
+## Connect bot to Discord Server
+
+To use our Discord bot, open the following invite link and select the Discord server you want to add the bot to: https://discord.com/oauth2/authorize?client_id=836983652251336775&scope=bot
+
+If you want create your own Bot with our code, then create a new application on https://discord.com/developers/, copy the token that is generated, and insert it in DC_TOKEN in the .env file. Then you can get take the invite link (https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID_HERE&scope=bot) from the discord website to add the bot to your discord server or to invite other people to use the bot.
+
 ## Deployment
 
 We have decided to deploy the bot on Azure. We use the Azure Container Registry which store our docker image, and we use this together with Azure App Service which runs the application.
