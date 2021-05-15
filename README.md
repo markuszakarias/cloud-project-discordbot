@@ -122,112 +122,143 @@ in a reasonable amount of lines of code we did write ourselves. Some things we h
 
 ## Project technologies
 
-- [x] -> Azure Deployment
+- [x] Azure Deployment
 
-- [x] -> Docker
+- [x] Docker
 
-- [x] -> Firebase storage
+- [x] Firebase storage
 
-- [x] -> Azure SQL storage
+- [x] Azure SQL storage
 
-- [x] -> Webhook functionality
+- [x] Webhook functionality
 
-- [x] -> Caching system
+- [x] Caching system
 
-## Implemented Discord bot features
+## Implemented Discord Bot features
 
-- [x] -> Command `!weather` with parameters
+**Todays weather forecast**
 
-Be able to call the weather command with or without parameters. The default configuration will use the Get IP Location API to retrieve the location based on the ip address of the system that is running the application. Since this will in theory mean that the location would always be the same as the instance that is running the service. 
+The default configuration without parameters will use the geolocation of the IP addres running the application. You can pick a city location to retrieve the current weather for the specified location with the parameter.
 
-Because of this, we decided to add parameters to the command. Here you can pick a city location to retrieve the current weather for the specified location. Example:  
+```
+!weather <city>
+``` 
 
-`!weather <city>` 
+**Steam sales deals**
 
+The default configuration without parameters will give you 4 deals. You can get a number between 1-4 deals based on the parameter you specify.
 
-- [x] -> Command `!steamdeals` with parameters
+```
+!steamdeals <number of deals>
+```
 
-Be able to call to !steamdeals with or without a parameter to change the amount of deals returned.
+**Daily meal plan**
 
+Gives you your daily meal plan.
 
-- [x] -> Command `!mealplan` with parameters
+```
+!mealplan
+```
 
-Call a mealplan to receive a breakfeast, dinner and snack meal plan.
+**Daily newsletter**
 
+The default configuration without parameters will give you your daily news for Norway. You can get a newsletter from any given country based on the parameter you specify. If there are no news articles for your specified country, you will be notified. You can 1-3 news articles based on the parameter you specified.
 
-- [x] -> Command `!newsletter` with parameters
+```
+!newsletter <country> <number of articles>
+```
 
-Call !newsletter with or without parameter on location of the news. You can also give an optional number between 1-4 to change amount of headlines.
+**Your very own todo list**
 
+You can view, create, update and delete tasks in your todo list. These tasks are connected to your discord ID and will be stored in a AzureSQL database for persistence. The tasks you created with your ID will be persistantly stored if the service reboots.
 
-- [x] -> Command `!todo` with parameters
+***View todo tasks***
 
-Be able to view, create, update and delete todotasks. These tasks are connected to your discord ID and will be stored in a azuresql database for persistence. This means that the tasks you created with your ID will still be there if the service reboots for whatever reason. There are different different commands for the different functions:
+```
+!todo mylist
+```
 
-**View todo tasks**
+***Create todo task***
 
-`!todo mylist`
+```
+!todo create <text for task>
+```
 
-**Create todo task**
+***Update todo task description***
 
-`!todo create This is my task`
+```
+!todo update <taskID> <text for task>
+```
 
-**Update todo task description**
+***Label task as finished***
 
-`!todo update <taskid> This is the update`
+```
+!todo finished <taskID>
+```
 
-**Label task as finished**
+***Label task as inactive***
 
-`!todo finished <taskid>`
+```
+!todo inactive <taskID>
+```
 
-**Label task as inactive**
+***Delete todo task***
 
-`!todo inactive <taskid>`
+```
+!todo delete <taskID>
+```
 
-**Delete todo task**
+**Weather notifications**
 
-`!todo delete <taskid>`
+You can subscribe to get a weather forecast from a specific city. You can only have one subscription per user. By creating a new notification you will update the already existing subscription. You can also unsubscribe to stop notifications. 
 
+***Register/update notifications for a spesific city***
 
-- [x] -> Command `!notifyweather` with parameters
+```
+!notifyweather <city>
+```
 
-**Register/update notification for a spesific city**
+***Remove notifications***
 
-`!notifyweather <city>`
+```
+!notifyweather remove
+```
 
-**remove notification**
-
-`!notifyweather remove`
+** Jokes **
   
-  
-- [x] -> Command `!jokes` with parameters
+The default configuration without parameters will give you a random joke. You can create a joke and then list all your created jokes.
 
-**Get a random joke**
+***Get a random joke***
 
-`!joke`
+```
+!joke
+```
 
-**Get all jokes that the user have made**
+***Creates a joke***
 
-`!joke myjokes`
+```
+!joke create <joke text>
+```
 
-**Creates a joke**
+***Get all jokes that the user have made***
 
-`!joke create <joke text>`
+```
+!joke myjokes
+```
 
-
-- [x] -> Command `!help` without parameters
+**Help tool**
 
 The self-help bot has a help command so the user can view and get instruction on how the different commands work. The `!help` command, without any parameters, will print a helper message giving a small introduction to the discord bot and give further instructions on how to get information about the other commands.
 
-- [x] -> Command `!help todo`
+- `!help todo`
 
-- [x] -> Command `!help newsletter`
+- `!help newsletter`
 
-- [x] -> Command `!help mealplan`
+- `!help mealplan`
 
-- [x] -> Command `!help weather`
+- `!help weather`
 
-- [x] -> Command `!help notifyweather`
+- `!help notifyweather`
 
 
 ## Caching
