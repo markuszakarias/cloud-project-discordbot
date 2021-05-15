@@ -72,7 +72,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		err = SendJokeMessage(s, m)
 
 	default:
-		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help (not implemented) if you need a reminder!")
+		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help if you need a reminder!")
 	}
 
 	if err != nil {

@@ -61,7 +61,6 @@ func SendWeatherMessage(s *discordgo.Session, m *discordgo.MessageCreate) error 
 
 	// Splits up the input command(s)
 	str := strings.Fields(m.Content)
-	fmt.Println(str)
 
 	// Checks if there are any parameters
 	if len(str) < 2 {
@@ -232,7 +231,6 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// split up command(s)
 	str := strings.Fields(m.Content)
-	fmt.Println(str)
 
 	// Checks if there are any parameters with todo command
 	if len(str) < 2 {
