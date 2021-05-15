@@ -1,0 +1,34 @@
+`{
+    "meals": [
+        {
+            "id": 306432,
+            "imageType": "jpeg",
+            "title": "Grape Jelly Breakfast Tarts",
+            "readyInMinutes": 120,
+            "servings": 5,
+            "sourceUrl": "http://www.foodnetwork.com/recipes/food-network-kitchens/grape-jelly-breakfast-tarts-recipe.html"
+        },
+        {
+            "id": 1094058,
+            "imageType": "jpg",
+            "title": "Kimchi fried rice",
+            "readyInMinutes": 20,
+            "servings": 2,
+            "sourceUrl": "https://www.bbcgoodfood.com/recipes/kimchi-fried-rice"
+        },
+        {
+            "id": 428311,
+            "imageType": "jpg",
+            "title": "Popcorn & Pretzel Chicken Tenders",
+            "readyInMinutes": 45,
+            "servings": 6,
+            "sourceUrl": "http://www.tasteofhome.com/Recipes/popcorn---pretzel-chicken-tenders"
+        }
+    ],
+    "nutrients": {
+        "calories": 1924.26,
+        "protein": 53.55,
+        "fat": 70.32,
+        "carbohydrates": 269.38
+    }
+}`

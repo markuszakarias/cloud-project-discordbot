@@ -1,0 +1,53 @@
+`{
+    "city": {
+        "id": 3143244,
+        "name": "Oslo",
+        "coord": {
+            "lon": 10.7461,
+            "lat": 59.9127
+        },
+        "country": "NO",
+        "population": 580000,
+        "timezone": 7200
+    },
+    "cod": "200",
+    "message": 4.5581576,
+    "cnt": 1,
+    "list": [
+        {
+            "dt": 1620903600,
+            "sunrise": 1620873861,
+            "sunset": 1620934950,
+            "temp": {
+                "day": 20.17,
+                "min": 6.91,
+                "max": 20.82,
+                "night": 15.32,
+                "eve": 16.93,
+                "morn": 9.4
+            },
+            "feels_like": {
+                "day": 19.73,
+                "night": 15.02,
+                "eve": 16.64,
+                "morn": 8.74
+            },
+            "pressure": 1007,
+            "humidity": 57,
+            "weather": [
+                {
+                    "id": 501,
+                    "main": "Rain",
+                    "description": "moderate rain",
+                    "icon": "10d"
+                }
+            ],
+            "speed": 3.07,
+            "deg": 56,
+            "gust": 4.73,
+            "clouds": 75,
+            "pop": 0.95,
+            "rain": 7.22
+        }
+    ]
+}`

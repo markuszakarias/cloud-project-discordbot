@@ -1,0 +1,266 @@
+`{
+    "status": "ok",
+    "totalResults": 30,
+    "articles": [
+        {
+            "source": {
+                "id": null,
+                "name": "Www.vg.no"
+            },
+            "author": "Håkon Kvam Lyngstad",
+            "title": "Innstramming i Risør – flere hundre i karantene – VG - VG",
+            "description": "Risør kommune forbyr alle arrangementer og stenger en rekke institusjoner som følge av et coronautbrudd.",
+            "url": "https://www.vg.no/nyheter/innenriks/i/mBkqPq/innstramming-i-risoer-flere-hundre-i-karantene",
+            "urlToImage": "https://akamai.vgc.no/v2/images/286fe940-1680-45b1-8eff-85d1e6f3a6c4?fit=crop&h=1267&w=1900&s=95eb2d5ae2568a9d25b1f06841aed123746247b1",
+            "publishedAt": "2021-05-13T15:52:37Z",
+            "content": "«DEN HVITE BY»: Gjestehavnen i Risør. Foto: Erik Johansen / NTB\r\nRisør kommune forbyr alle arrangementer og stenger en rekke institusjoner som følge av et coronautbrudd.\r\nPublisert:For mindre enn 10 … [+2017 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Www.vg.no"
+            },
+            "author": "Yngve Gjerde, Christina Paulos Syversen",
+            "title": "Målvakten (!) Guro Pettersen scoret fra midtbanen – VG - VG",
+            "description": "Med kampens siste spark på ballen vartet Piteå-keeper Guro Pettersen (29) opp med noe spektakulært: Scoring fra midtbanen.",
+            "url": "https://www.vg.no/sport/fotball/i/qA0q6m/maalvakten-guro-pettersen-scoret-fra-midtbanen-skjoente-ikke-hva-som-skjedde",
+            "urlToImage": "https://imbo.vgtv.no/users/vgtv/images/d934c627d6dc52aab99169a0054a2f49.jpg?t%5B%5D=1960x1100q50",
+            "publishedAt": "2021-05-13T15:24:39Z",
+            "content": "Med kampens siste spark på ballen vartet Piteå-keeper Guro Pettersen (29) opp med noe spektakulært: Scoring fra midtbanen. \r\nPublisert:\r\nPiteå tapte kampen mot Linköping 34, men kampen huskes nok uan… [+2409 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "E24.no"
+            },
+            "author": "Eivind Bøe, Svein Olav Sæter",
+            "title": "Wall Street henter seg inn: – Vi kan vente oss mer turbulens fremover - E24",
+            "description": "Etter tre strake dager med fall, vender pilene igjen opp på Wall Street. Men veien fremover for markedet er uforutsigbar, mener sjeføkonom.",
+            "url": "https://e24.no/boers-og-finans/i/Qm1VlV/wall-street-henter-seg-inn-vi-kan-vente-oss-mer-turbulens-fremover",
+            "urlToImage": "https://smp.vgc.no/v2/images/9ba340b9-c653-49ea-bffe-428498a8da69?fit=crop&h=1267&w=1900&s=ef513aaf3cb49f55f8fb4e2ce6aa03e7e4ada4e0",
+            "publishedAt": "2021-05-13T15:17:45Z",
+            "content": "Etter tre strake dager med fall, vender pilene igjen opp på Wall Street. Men veien fremover for markedet er uforutsigbar, mener sjeføkonom.\r\nSNUR: Wall Street har de siste dagene falt i takt med øken… [+4911 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagbladet.no"
+            },
+            "author": "Nicolai Eriksen",
+            "title": "Banksjef advarer mot kryptovaluta: - - Vær forberedt på å tape alt - Dagbladet.no",
+            "description": "Storbritannias sentralbanksjef advarer mot å investere i krytpovaluta. «En godt voksen mann som klager på framtida», kontrer kryptoekspert.",
+            "url": "https://borsen.dagbladet.no/nyheter/vaer-forberedt-pa-a-tape-alt/73752776",
+            "urlToImage": "https://borsen.dagbladet.no/images/73759646.jpg?imageId=73759646&panow=100&panoh=100&panox=0&panoy=0&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T14:51:49Z",
+            "content": "I takt med de voldsomme oppturene for flere typer kryptovalutaer det siste året, har også tilliten blant investorer økt. Men fortsatt er langt fra alle overbeviste.\r\nStorbritannias sentralbanksjef An… [+5493 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagbladet.no"
+            },
+            "author": "Amanda Nordhagen Walnum",
+            "title": "Corona i USA - Lover bort millioner i vaksine-lotteri - Dagbladet.no",
+            "description": "Guvernøren vil gi fem vaksinerte personer én million dollar hver.",
+            "url": "https://www.dagbladet.no/nyheter/lover-bort-millioner-i-vaksine-lotteri/73762208",
+            "urlToImage": "https://www.dagbladet.no/images/73762361.jpg?imageId=73762361&panow=100&panoh=50.714285714286&panox=0&panoy=10&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T14:48:53Z",
+            "content": "Guvernøren i Ohio lover bort én million dollar, altså rundt 8,3 millioner norske kroner, til fem tilfeldige vaksinerte personer.\r\nJa, du leste rett.\r\nGuvernør Mike DeWine vil gi bort totalt fem milli… [+2477 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagbladet.no"
+            },
+            "author": "Stian Drake",
+            "title": "Dødsfall på Mount Everest - To døde på Mount Everest - Dagbladet.no",
+            "description": "Årets to første dødsfall på verdens høyeste fjell er et faktum.",
+            "url": "https://www.dagbladet.no/nyheter/to-dode-pa-mount-everest/73763186",
+            "urlToImage": "https://www.dagbladet.no/images/73686757.jpg?imageId=73686757&panow=100&panoh=100&panox=0&panoy=0&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T14:14:32Z",
+            "content": "Klatrerne var en amerikaner i 50-åra og en sveitser i 40-åra. Begge livene ble forsøkt reddet av lokale sherpaer, men forsøkene var ikke vellykket.\r\nDet skriver The Guardian.\r\n- Sveitseren nådde topp… [+1672 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Www.vg.no"
+            },
+            "author": "Hanna Haug Røset, Oda Ording",
+            "title": "Jazzmusikeren Svante Thuresson er død: – En fenomenal sanger - VG",
+            "description": "Den folkekjære, svenske artisten og skuespilleren Svante Thuresson er død. Han ble 84 år gammel. Hans artiskollega Lill Lindfors er blant dem som er i sorg.",
+            "url": "https://www.vg.no/rampelys/musikk/i/GakVG4/jazzmusikeren-svante-thuresson-er-doed-en-fenomenal-sanger",
+            "urlToImage": "https://akamai.vgc.no/v2/images/7b42cb41-6c59-437b-a1a0-c6e35aa478be?fit=crop&h=1438&w=1900&s=1ba94a6da766a7937af2f310b009109a42a030a9",
+            "publishedAt": "2021-05-13T14:09:54Z",
+            "content": "VANT: Lill Lindfors og Svante Thuresson synger «Nygammal vals» i den svenske Melodifestivalen i 1966. Foto: Jan Björsell / TT / \r\nDen folkekjære, svenske artisten og skuespilleren Svante Thuresson er… [+1941 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Www.vg.no"
+            },
+            "author": "Jostein Matre, Synne Eggum Myrvang",
+            "title": "Nesodden-ordfører om vaksinefordeling: – Vi er i sjokk og vantro - VG",
+            "description": "Som en enslig grå øy ligger Nesodden omringet av et hav av grønne kommuner på VGs vaksinekart. De risikerer nå å måtte gi fra seg coronadoser til sine naboer. Det forstår de lite av.",
+            "url": "https://www.vg.no/nyheter/innenriks/i/PRMbV7/nesodden-ordfoerer-om-vaksinefordeling-vi-er-i-sjokk-og-vantro",
+            "urlToImage": "https://akamai.vgc.no/v2/images/9200a363-c085-4145-90bd-01d6a3a0f7b5?fit=crop&h=1267&w=1900&s=23f801a8a5985ae77f326d3dcb54bc273ae5c300",
+            "publishedAt": "2021-05-13T13:54:49Z",
+            "content": "FUNGERENDE ORDFØRER: Eivind Hoff-Elimari konstaterer at alle kommunene (grønt) rundt dem kan få flere vaksinedoser, mens hans Nesodden (grå) risikerer færre. De oransje vil få like mange som tidliger… [+5117 chars]"
+        },
+        {
+            "source": {
+                "id": "aftenposten",
+                "name": "Aftenposten"
+            },
+            "author": "Ingrid Elida Karo Johansen, Vilde Skorpen Wikan",
+            "title": "Særlig én ting kan stanse planen om flere vaksiner til østlandet. Nå sier flere ordførere at de vil løse kabalen. - Aftenposten",
+            "description": "Små kommuner må vaksinere mange i slutten av juli hvis Oslo skal få flere vaksiner. – Det står ikke på kapasiteten, sier de.",
+            "url": "https://www.aftenposten.no/norge/i/jB4Wkq/saerlig-en-ting-kan-stanse-planen-om-flere-vaksiner-til-oslo-naa-sier-f",
+            "urlToImage": "https://premium.vgc.no/v2/images/6a4a9f87-9d44-405f-90a3-c13114231f36?fit=crop&h=1072&w=2048&s=5f313fe07a7e3aba337834c5d9f0c0ff02527806",
+            "publishedAt": "2021-05-13T13:51:34Z",
+            "content": "Små kommuner må vaksinere mange i slutten av juli hvis Oslo skal få flere vaksiner. Det står ikke på kapasiteten, sier de. \r\nI kommunen til ordfører Robin Martin Kåss (Ap) er det smitterekord. Det ka… [+333 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Seher.no"
+            },
+            "author": null,
+            "title": "Colton Underwood: - - Jeg ble utpresset - Seoghør.no",
+            "description": "«The Bachelor»-stjernen hevder han ble presset til å stå frem som homofil.",
+            "url": "https://www.seher.no/kjendis/jeg-ble-utpresset/73762286",
+            "urlToImage": "https://www.seher.no/images/73762322.jpg?imageId=73762322&panow=100.00521284404&panoh=22.984895652174&panox=0.0052128440366909&panoy=6.2111801242236&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T13:26:53Z",
+            "content": "Colton Underwood (29), kjent fra det populære tv-programmet «The Bachelor», fikk fansen til å gispe da han sto fram som homofil på «Good Morning America» i april.\r\n- Jeg har rømt fra meg selv i veldi… [+3804 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Www.vg.no"
+            },
+            "author": "Camilla Vesteng",
+            "title": "15-åring knuste rekorden til Jakob Ingebrigtsen – VG - VG",
+            "description": "Andreas Fjeld Halvorsen (15) tok rekorden til sitt store forbilde Jakob Ingebrigtsen (20) på 3000 meter i 16-årsklassen på Bislett onsdag.",
+            "url": "https://www.vg.no/sport/friidrett/i/we1lWG/15-aaring-knuste-rekorden-til-jakob-ingebrigtsen",
+            "urlToImage": "https://akamai.vgc.no/v2/images/ed213d43-e43b-4707-a522-101394dac558?fit=crop&h=791&w=1189&s=3aec26300facb867c753259c195ea2e6e8e76508",
+            "publishedAt": "2021-05-13T13:21:32Z",
+            "content": "RASK: Andreas Fjeld Halvorsen har satt ny norsk rekord for 16-åringer på 3000 meter. Tidligere har blant andre Jakob og Henrik Ingebrigtsen og Sondre Nordstad Moen hatt den. Foto: PRIVAT\r\nAndreas Fje… [+3134 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagbladet.no"
+            },
+            "author": "Amanda Nordhagen Walnum",
+            "title": "Skjevfordeling av vaksiner - Svarer illsinte ordførere - Dagbladet.no",
+            "description": "Mens flere kunne slippe jubelen løs, var ikke alle like begeistret for at regjeringen åpner opp for mer skjevfordeling av coronavaksiner. Statssekretær Korkunc og Raymond Johansen sier til Dagbladet at de har stor forståelse for reaksjonene.",
+            "url": "https://www.dagbladet.no/nyheter/svarer-illsinte-ordforere/73762627",
+            "urlToImage": "https://www.dagbladet.no/images/73762918.jpg?imageId=73762918&panow=100&panoh=100&panox=0&panoy=0&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T12:29:19Z",
+            "content": "Statsminister Erna Solberg kunngjorde at 24 østlandskommuner vil ifølge FHIs anbefaling få 60 prosent flere vaksinedoser. Forutsetningen for skjevfordelingen er at det ikke må føre til en forsinkelse… [+6968 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Nettavisen.no"
+            },
+            "author": "Jørgen Berge",
+            "title": "Mener MDG og Frp bommer i kjøttkake-strid: - De eldre skal ikke redde klima - Nettavisen",
+            "description": "- Partene graver hver sin skyttergrav, og begge bommer på mål, mener Høyre-politiker etter opphetet kjøttkake-debatt.",
+            "url": "https://www.nettavisen.no/nyheter/mener-mdg-og-frp-bommer-i-kjottkake-strid-de-eldre-skal-ikke-redde-klima/s/12-95-3424126051",
+            "urlToImage": "https://g.api.no/obscura/API/dynamic/r1/nadp/tr_2000_2000_s_f/1620736495526/2021/05/11/3424126158/1/original/42867858.jpg?chk=34B10A",
+            "publishedAt": "2021-05-13T12:23:22Z",
+            "content": "- Partene graver hver sin skyttergrav, og begge bommer på mål, mener Høyre-politiker etter opphetet kjøttkake-debatt.\r\n13.05.21 14:23\r\n13.05.21 14:34\r\nSøndag kunne Nettavisen fortelle at Oslo kommune… [+7174 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Abcnyheter.no"
+            },
+            "author": "NTB",
+            "title": "Hamas: – Skjøt rakett mot flyplassen ved Eilat - ABC Nyheter",
+            "description": "Nyhetsbyrået AFP meldte torsdag at angrepet hadde funnet sted. En talsmann for Hamas' væpnede gren sier raketten var av en ny type som veier 250 kilo.",
+            "url": "https://www.abcnyheter.no/nyheter/verden/2021/05/13/195759029/hamas-skjot-rakett-mot-flyplassen-ved-eilat",
+            "urlToImage": "https://imaginary.abcmedia.no/resize?width=980&interlace=true&url=https%3A%2F%2Fimaginary.abcmedia.no%2Fpipe%3Furl%3Dhttps%253A%252F%252Fabcnyheter.drpublish.aptoma.no%252Fout%252Fimages%252Farticle%252F%252F2021%252F05%252F13%252F195759039%252F1%252Foriginal%252F44670459.jpg",
+            "publishedAt": "2021-05-13T12:11:41Z",
+            "content": "Den israelske avisa Haaretz skriver at raketten landet i et ubebodd område og at den ikke forårsaket skader. Driften av flyplassen Ramon skal ha blitt stanset en kort periode.\r\nEn israelsk kilde sier… [+570 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Seher.no"
+            },
+            "author": null,
+            "title": "Frank Løke: - Hevder Løke slo rekord - Seoghør.no",
+            "description": "Den tidligere håndballspilleren snakker ut om om ekspedisjonen til verdens høyeste fjell.",
+            "url": "https://www.seher.no/kjendis/hevder-loke-slo-rekord/73762865",
+            "urlToImage": "https://www.seher.no/images/73762898.jpg?imageId=73762898&panow=62.1114997151&panoh=29.72343935743&panox=7.6923076923077&panoy=10.441767068273&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T11:43:06Z",
+            "content": "For to dager siden nådde Frank Løke (41) toppen av verdens høyeste fjell, Mount Everest. Det skrev reisebyrået Ascent Himalayas i en oppdatering på Facebook.\r\n«Hele teamet vårt klarte seg til toppen … [+2510 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Abcnyheter.no"
+            },
+            "author": "NTB",
+            "title": "Bitcoin stupte etter å ha blitt droppet av Tesla - ABC Nyheter",
+            "description": "Verdien av bitcoin stupte etter at kryptovalutaen ble droppet av elbilprodusenten Tesla.",
+            "url": "https://www.abcnyheter.no/penger/2021/05/13/195759021/bitcoin-stupte-etter-a-ha-blitt-droppet-av-tesla",
+            "urlToImage": "https://imaginary.abcmedia.no/resize?width=980&interlace=true&url=https%3A%2F%2Fimaginary.abcmedia.no%2Fpipe%3Furl%3Dhttps%253A%252F%252Fabcnyheter.drpublish.aptoma.no%252Fout%252Fimages%252Farticle%252F%252F2021%252F05%252F13%252F195759022%252F1%252Foriginal%252F44666405.jpg",
+            "publishedAt": "2021-05-13T11:39:12Z",
+            "content": "På ett tidspunkt torsdag var 1 bitcoin verdt 48.000 dollar, 15 prosent mindre enn dagen før.\r\nSenere gikk kursen noe opp igjen, til et nivå som var 8 prosent lavere enn onsdag.\r\nÅrsaken var Teslas be… [+505 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagsavisen.no"
+            },
+            "author": "Sturla Smári Hanssen",
+            "title": "– Det skjærer i ørene mine når folk sier «itte» - Dagsavisen",
+            "description": "NAVN I NYHETENE: Sanna Sarromaa går hardt ut mot det hun kaller dialekttotalitarisme og dialektmasturbering.  Men det er én norsk dialekt hun er svak for.",
+            "url": "https://www.dagsavisen.no/nyheter/innenriks/2021/05/13/det-skjaerer-i-orene-mine-nar-folk-sier-itte/",
+            "urlToImage": "https://www.dagsavisen.no/resizer/HT6lzA60uSBGMwwk-bIwLU5PNP0=/1200x630/cloudfront-eu-central-1.images.arcpublishing.com/mentormedier/KKPQJV5QTNH7ZN3B2S6PASDI6Y.jpg",
+            "publishedAt": "2021-05-13T11:29:21Z",
+            "content": "Hvem: Sanna Sarromaa (41)\r\nHva: Finne, feminist, forfatter, ungdomsskolelærer og samfunnsdebattant\r\nHvorfor: Har gått hardt ut mot såkalte dialektfanatikere\r\nI VG-kronikken «Dialekter er djevelens ve… [+9453 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagbladet.no"
+            },
+            "author": "Kristine Larsen",
+            "title": "USA - Tristyn (13) drept - gutt (14) pågrepet - Dagbladet.no",
+            "description": "En 14 år gammel gutt i Florida er arrestert og siktet for drapet på 13 år gamle Tristyn Bailey. Nå etterforskes et Snapchat-bilde som en del av etterforskningen.",
+            "url": "https://www.dagbladet.no/nyheter/tristyn-13-drept---gutt-14-pagrepet/73761828",
+            "urlToImage": "https://www.dagbladet.no/images/73762470.jpg?imageId=73762470&panow=100&panoh=100&panox=0&panoy=0&heightw=100&heighth=100&heightx=0&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T11:15:03Z",
+            "content": "Et Snapchat-bilde av en tenåring i en patruljebil som viser fredstegnet med to fingre, og spør: «Hei folkens har noen sett Tristyn i det siste?» blir etterforsket etter at en 14 år gammel gutt ble si… [+1907 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Dagbladet.no"
+            },
+            "author": "Frode Andresen, Ivan Larsson",
+            "title": "Dette er rådene for 17. mai - Dagbladet.no",
+            "description": "Både helseministeren og helsedirektøren minner om at festing på 17. mai kan ha betydning for videre gjenåpning.",
+            "url": "https://www.dagbladet.no/nyheter/klar-17-mai-beskjed/73762600",
+            "urlToImage": "https://www.dagbladet.no/images/73762692.jpg?imageId=73762692&panow=100&panoh=51.449275362319&panox=0&panoy=23.913043478261&heightw=40.358744394619&heighth=100&heightx=39.910313901345&heighty=0&width=1200&height=630",
+            "publishedAt": "2021-05-13T11:12:19Z",
+            "content": "Helseminister Bent Høie og helsedirektør Bjørn Guldvog gir klar beskjed om at folks atferd under årets 17. mai-feiring kan ha betydning for videre gjenåpning. Høie sier at folk ikke må ødelegge, mens… [+3569 chars]"
+        },
+        {
+            "source": {
+                "id": null,
+                "name": "Www.bt.no"
+            },
+            "author": "Kari Pedersen",
+            "title": "Helikopteret må ned for drivstoff mens pasienten kjemper for livet - Bergens Tidende",
+            "description": "Nå får Helse Førde støtte for kravet om større helikopter.",
+            "url": "https://www.bt.no/nyheter/lokalt/i/OQv7ew/helikopteret-maatte-ned-for-drivstoff-mens-pasienten-kjempet-for-livet",
+            "urlToImage": "https://premium.vgc.no/v2/images/964d6c70-00a3-430e-9f26-15e5d9ee895c?fit=crop&h=995&w=1900&s=d6e8e20580e2dc8285bd345aa80f461de41de2d0",
+            "publishedAt": "2021-05-13T11:02:37Z",
+            "content": null
+        }
+    ]
+}`
