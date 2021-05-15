@@ -7,9 +7,9 @@ For this project we have decided to create a self help discord bot! This bot act
 **Members: Jørgen Eriksen, Elvis Arifagic, Markus Strømseth, Salvador Bascunan**  
   
 # Installation and deployment guide
-## structure
+## Structure
 - Installing golang
-- adding our deployed bot to your discord server 
+- Adding our deployed bot to your discord server 
 - How to deploy and add the bot yourself to a discord server
 
 ### Installing golang
@@ -69,7 +69,7 @@ If you want create your own Bot with our code, then create a new application on 
 ## Deploy and run the bot yourself (payment needed for full access)
 1. Install docker for your system with the offical tutorial [docker installation](https://docs.docker.com/get-docker/)  
 
-2. create an account on all of the following api websites  
+2. Create an account on all of the following api websites  
    a. https://spoonacular.com/food-api  
    b. https://newsapi.org/  
    c. https://openweathermap.org/api  
@@ -141,15 +141,19 @@ in a reasonable amount of lines of code we did write ourselves. Some things we h
 Be able to call the weather command with or without parameters. The default configuration will use the Get IP Location API to retrieve the location based on the ip address of the system that is running the application. Since this will in theory mean that the location would always be the same as the instance that is running the service. 
 
 Because of this, we decided to add parameters to the command. Here you can pick a city location to retrieve the current weather for the specified location. Example:  
-`!weather Gjøvik`  
+
+`!weather <city>` 
+
 
 - [x] -> Command `!steamdeals` with parameters
 
 Be able to call to !steamdeals with or without a parameter to change the amount of deals returned.
 
+
 - [x] -> Command `!mealplan` with parameters
 
 Call a mealplan to receive a breakfeast, dinner and snack meal plan.
+
 
 - [x] -> Command `!newsletter` with parameters
 
@@ -184,7 +188,8 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 
 `!todo delete <taskid>`
 
-- [_] -> Command `!notifyweather` with parameters
+
+- [x] -> Command `!notifyweather` with parameters
 
 **Register notification for a spesific city**
 
