@@ -167,7 +167,12 @@ func SendNewsletterMessage(s *discordgo.Session, m *discordgo.MessageCreate) err
 }
 
 // SendMealplanMessage - sends appropriate message to the bot based on command and parameters
-func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	dur, _ := time.ParseDuration("20s")
+	err := caching.CacheMeals(dur)
+	if err != nil {
+		return err
+	}
 	// Printer function
 	stringToPrint := utils.GetMealplanMessageArray()
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s\n", stringToPrint[0]))
@@ -179,10 +184,11 @@ func SendMealplanMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s%s\n%s%s\n%s%s\n%s%s\n", stringToPrint[4], fmt.Sprint(caching.MealsCache.Nutrients.Calories),
 		stringToPrint[5], fmt.Sprint(caching.MealsCache.Nutrients.Protein), stringToPrint[6], fmt.Sprint(caching.MealsCache.Nutrients.Fat),
 		stringToPrint[7], fmt.Sprint(caching.MealsCache.Nutrients.CarboHydrates)))
+	return nil
 }
 
 // SendTodoMessage - sends appropriate message to the bot based on command and parameters
-func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// strings to be assigned value
 	var createTodo string
@@ -199,8 +205,7 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Checks if there are any parameters with todo command
 	if len(str) < 2 {
-		s.ChannelMessageSend(m.ChannelID, "Command missing for !todo. ")
-		return
+		return errors.New("Command missing for !todo. ")
 	}
 
 	// Switch to handle the different parameters
@@ -219,67 +224,56 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		createTodo = strings.Join(str[2:], " ")
 
 		if createTodo == "" {
-			s.ChannelMessageSend(m.ChannelID, "Missing description for todo task!")
-			return
+			return errors.New("Missing description for todo task!")
 		}
 		// inserts it into the struct object
 		todoObject.Description = createTodo
-
 		// inserts it into azure sql
 		err := database.CreateTodoObject(todoObject)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Something went wrong while creating todo object")
-			fmt.Println(err)
+			return errors.New("Something went wrong while creating todo object")
 		}
 		s.ChannelMessageSend(m.ChannelID, "Task was created.")
 	case str[1] == "delete":
 		if str[2] == "" {
-			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
-			return
+			return errors.New("Missing id for todo task!")
 		}
 		// converts string number from parameter to int number
 		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
-			return
+			return errors.New("Id needs to be a number!")
 		}
 
 		// converts the id number to the id on azure sql
 		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
+			return err
 		}
 		err = database.DeleteTodoObject(res)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
+			return err
 		}
 		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" was deleted.")
 	case str[1] == "update":
 		if str[2] == "" {
-			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
-			return
+			return errors.New("Missing id for todo task!")
 		}
 		if str[3] == "" {
-			s.ChannelMessageSend(m.ChannelID, "Missing data to update!")
-			return
+			return errors.New("Missing data to update!")
 		}
 
 		// converts string number from parameter to int number
 		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
-			return
+			return errors.New("Id needs to be a number!")
 		}
 
 		// converts the id number to the id on azure sql
 		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
+			return err
 		}
 
 		// splits up the parameters and takes everything from index 3 as a string
@@ -288,39 +282,37 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// updates the object in azure sql
 		err = database.UpdateTodoObject(res, updateTodo)
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 
 		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" was updated.")
 	case str[1] == "finished" || str[1] == "inactive" || str[1] == "active":
 		if str[2] == "" {
-			s.ChannelMessageSend(m.ChannelID, "Missing id for todo task!")
-			return
+			return errors.New("Missing id for todo task!")
 		}
 
 		// converts string number from parameter to int number
 		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Id needs to be a number!")
-			return
+			return errors.New("Id needs to be a number!")
 		}
 
 		// converts the id number to the id on azure sql
 		res, err := database.ConvertIndexToId((conv - 1), m.Author.ID)
 		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-			return
+			return err
 		}
 
 		// updates the object in azure sql
 		err = database.UpdateTodoObjectStatus(res, str[1])
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 
 		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" status was updated with: "+fmt.Sprint(str[1]))
 	}
+	return nil
 }
 
 // SendHelpMessage - sends appropriate message to the bot based on command and parameters

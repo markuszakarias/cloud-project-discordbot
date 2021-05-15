@@ -6,11 +6,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"projectGroup23/caching"
 	"projectGroup23/utils"
 	"projectGroup23/webhook"
 	"syscall"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -61,13 +59,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case len(m.Content) >= 8 && m.Content[:8] == "!weather":
 		err = SendWeatherMessage(s, m)
 	case m.Content == "!mealplan":
-		dur, _ := time.ParseDuration("20s")
-		err = caching.CacheMeals(dur)
-		SendMealplanMessage(s, m)
+		err = SendMealplanMessage(s, m)
 	case len(m.Content) >= 11 && m.Content[:11] == "!newsletter":
 		err = SendNewsletterMessage(s, m)
 	case len(m.Content) >= 5 && m.Content[:5] == "!todo":
-		SendTodoMessage(s, m)
+		err = SendTodoMessage(s, m)
 	case len(m.Content) >= 14 && m.Content[:14] == "!notifyweather":
 		err = NotifyWeather(s, m)
 	case len(m.Content) >= 5 && m.Content[:5] == "!joke":
