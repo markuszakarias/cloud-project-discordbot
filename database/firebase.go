@@ -2,8 +2,10 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"projectGroup23/structs"
 	"time"
 
@@ -44,7 +46,7 @@ func InitFirebase() {
 	Client, err = app.Firestore(Ctx)
 }
 
-func GetAllJokes() []string {
+func GetRandomJoke() (string, error) {
 	iter := Client.Collection("jokes").Documents(Ctx)
 	var allJokes []string
 	for {
@@ -53,13 +55,19 @@ func GetAllJokes() []string {
 			break
 		}
 		if err != nil {
-			return allJokes
+			return "", err
 		}
 		//joke := doc.Data()["text"]
 		var test string = doc.Data()["text"].(string)
 		allJokes = append(allJokes, test)
 	}
-	return allJokes
+	if len(allJokes) == 0 { // if no jokes in firebase
+		return "", errors.New("No jokes in database. Create one with the '!joke create' command")
+	}
+
+	rand.Seed(time.Now().Unix())                     // pseudo random
+	randomJoke := allJokes[rand.Intn(len(allJokes))] // takes a random joke from allJokes
+	return randomJoke, nil                           // returns the random joke
 }
 
 func CreateJoke(userId string, jokeText string) error {
