@@ -205,7 +205,7 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	// Checks if there are any parameters with todo command
 	if len(str) < 2 {
-		return errors.New("Command missing for !todo. ")
+		return errors.New("command missing for !todo ")
 	}
 
 	// Switch to handle the different parameters
@@ -224,25 +224,25 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		createTodo = strings.Join(str[2:], " ")
 
 		if createTodo == "" {
-			return errors.New("Missing description for todo task!")
+			return errors.New("missing description for todo task")
 		}
 		// inserts it into the struct object
 		todoObject.Description = createTodo
 		// inserts it into azure sql
 		err := database.CreateTodoObject(todoObject)
 		if err != nil {
-			return errors.New("Something went wrong while creating todo object")
+			return errors.New("something went wrong while creating todo object")
 		}
 		s.ChannelMessageSend(m.ChannelID, "Task was created.")
 	case str[1] == "delete":
 		if str[2] == "" {
-			return errors.New("Missing id for todo task!")
+			return errors.New("missing id for todo task")
 		}
 		// converts string number from parameter to int number
 		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
-			return errors.New("Id needs to be a number!")
+			return errors.New("id needs to be a number")
 		}
 
 		// converts the id number to the id on azure sql
@@ -257,17 +257,17 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" was deleted.")
 	case str[1] == "update":
 		if str[2] == "" {
-			return errors.New("Missing id for todo task!")
+			return errors.New("missing id for todo task")
 		}
 		if str[3] == "" {
-			return errors.New("Missing data to update!")
+			return errors.New("missing data to update")
 		}
 
 		// converts string number from parameter to int number
 		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
-			return errors.New("Id needs to be a number!")
+			return errors.New("id needs to be a number")
 		}
 
 		// converts the id number to the id on azure sql
@@ -288,14 +288,14 @@ func SendTodoMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		s.ChannelMessageSend(m.ChannelID, "Task with id: "+fmt.Sprint(conv)+" was updated.")
 	case str[1] == "finished" || str[1] == "inactive" || str[1] == "active":
 		if str[2] == "" {
-			return errors.New("Missing id for todo task!")
+			return errors.New("missing id for todo task")
 		}
 
 		// converts string number from parameter to int number
 		// will exit if failure
 		conv, err := strconv.Atoi(str[2])
 		if err != nil {
-			return errors.New("Id needs to be a number!")
+			return errors.New("id needs to be a number")
 		}
 
 		// converts the id number to the id on azure sql
@@ -347,26 +347,38 @@ func SendHelpMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case str[1] == "weather":
 		stringToPrint := utils.GetHelpWeatherMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s\n\n",
-			stringToPrint[0]))
+			"%s\n\n%s%s%s\n\n%s\n%s\n",
+			stringToPrint[0], stringToPrint[1], stringToPrint[3],
+			stringToPrint[1], stringToPrint[4], stringToPrint[5]))
 		return
 	case str[1] == "newsletter":
 		stringToPrint := utils.GetHelpNewsletterMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s\n\n",
-			stringToPrint[0]))
+			"%s\n\n%s%s%s\n\n%s\n%s\n",
+			stringToPrint[0], stringToPrint[1], stringToPrint[3],
+			stringToPrint[1], stringToPrint[4], stringToPrint[5]))
 		return
 	case str[1] == "steamdeals":
 		stringToPrint := utils.GetHelpSteamdealsMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s\n\n",
-			stringToPrint[0]))
+			"%s\n\n%s%s%s\n\n%s\n%s\n",
+			stringToPrint[0], stringToPrint[1], stringToPrint[3],
+			stringToPrint[1], stringToPrint[4], stringToPrint[5]))
 		return
 	case str[1] == "mealplan":
 		stringToPrint := utils.GetHelpMealplanMessageArray()
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
-			"%s\n\n",
-			stringToPrint[0]))
+			"%s\n\n%s%s%s\n\n%s\n",
+			stringToPrint[0], stringToPrint[1], stringToPrint[3],
+			stringToPrint[1], stringToPrint[4]))
+		return
+	case str[1] == "notifyweather":
+		stringToPrint := utils.GetHelpNotifyWeatherMessageArray()
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf(
+			"%s\n\n%s%s%s\n\n%s\n\n%s\n%s\n%s\n",
+			stringToPrint[0], stringToPrint[1], stringToPrint[3],
+			stringToPrint[1], stringToPrint[4], stringToPrint[5],
+			stringToPrint[6], stringToPrint[7]))
 		return
 	}
 }

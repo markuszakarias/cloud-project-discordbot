@@ -67,8 +67,21 @@ func GetHelpWeatherMessageArray() []string {
 	return []string{"Helper message for Weather :partly_sunny:",
 		"`",
 		"**",
+		"!weather",
 		"Using the weather command you can call with just !weather to get your location!",
-		"If you supply a paramter like: !weather Fredrikstad, you will get the weather for that location"}
+		"If you supply a parameter like: !weather Fredrikstad, you will get the weather for that location"}
+}
+
+// GetHelpNotifyWeatherMessageArray returns an arrray of the messages that make up !help notifyweather
+func GetHelpNotifyWeatherMessageArray() []string {
+	return []string{"Helper message for Notify weather :partly_sunny: :grey_exclamation:",
+		"`",
+		"**",
+		"!notifyweather",
+		"Using the weather notify command to register a webhook!",
+		"This will subscribe you to get a message every day at 08.00 am with the current days weather report.",
+		"You can only be subscribed to one city at a time, so calling a new notify weather command with a different",
+		"city will replace the old one."}
 }
 
 // GetHelpNewsletterMessageArray returns an arrray of the messages that make up !help newsletter
@@ -76,8 +89,9 @@ func GetHelpNewsletterMessageArray() []string {
 	return []string{"Helper message for Newsletter :earth_africa:",
 		"`",
 		"**",
-		"call !newsletter to get current 3 norwegian headlines",
-		"You can also supply a country and headlines between 1-3 such as: !newsletter Denmark 2"}
+		"!newsletter",
+		"call the command to get current 3 norwegian headlines.",
+		"You can also supply a country and headlines between 1-3 such as: `!newsletter Sweden 2`"}
 }
 
 // GetHelpMealplanMessageArray returns an arrray of the messages that make up !help mealplan
@@ -85,7 +99,8 @@ func GetHelpMealplanMessageArray() []string {
 	return []string{"Helper message for Mealplan :ramen:",
 		"`",
 		"**",
-		"run !mealplan to get a breakfeast -> dinner -> snack mealplan for today!"}
+		"!mealplan",
+		"run the command to get a breakfeast -> dinner -> snack mealplan for today!"}
 }
 
 // GetHelpSteamdealsMessageArray returns an arrray of the messages that make up !help steamdeals
@@ -93,6 +108,7 @@ func GetHelpSteamdealsMessageArray() []string {
 	return []string{"Helper message for Steamdeals :video_game:",
 		"`",
 		"**",
-		"call !steamdeals to get a list of 4 current deals on the steam store",
-		"if you can less you can specify an amount: !steamdeals 2"}
+		"!steamdeals",
+		"call the command to get a list of 4 current deals on the steam store",
+		"if you can less you can specify an amount: `!steamdeals 2`"}
 }
