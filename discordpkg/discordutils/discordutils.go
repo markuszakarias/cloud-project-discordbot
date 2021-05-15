@@ -351,3 +351,28 @@ func NotifyWeather(s *discordgo.Session, m *discordgo.MessageCreate) error {
 
 	return nil
 }
+
+func SendJokeMessage(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	str := strings.Fields(m.Content)
+	if len(str) == 1 { // !joke
+		joke, err := database.GetRandomJoke()
+		if err != nil {
+			return err
+		}
+		s.ChannelMessageSend(m.ChannelID, joke)
+
+	} else if len(str) == 2 && str[1] == "create" { // misses
+		return errors.New("Missing joke text")
+
+	} else if len(str) > 2 && str[1] == "create" { // !joke create text here
+		joke := strings.Join(str[2:], " ")
+		database.CreateJoke(m.Author.ID, joke)
+		s.ChannelMessageSend(m.ChannelID, "joke created")
+
+	} else { // undefined joke command
+
+		return errors.New("something is wrong with your joke command!")
+	}
+
+	return nil
+}

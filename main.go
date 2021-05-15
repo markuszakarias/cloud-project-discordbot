@@ -124,6 +124,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		discordutils.SendTodoMessage(s, m)
 	case len(m.Content) >= 14 && m.Content[:14] == "!notifyweather":
 		err = discordutils.NotifyWeather(s, m)
+	case len(m.Content) >= 5 && m.Content[:5] == "!joke":
+		err = discordutils.SendJokeMessage(s, m)
 
 	default:
 		s.ChannelMessageSend(m.ChannelID, "Unable to recognize command, try !help (not implemented) if you need a reminder!")
