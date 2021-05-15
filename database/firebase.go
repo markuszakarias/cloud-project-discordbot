@@ -121,7 +121,7 @@ func GetAllWebhooks() ([]structs.CloudWebhook, error) {
 }
 
 // DeleteWebhook - Deletes a webhook with parameter id
-func DeleteWebhook(userId string) error {
+func DeleteWeatherWebhook(userId string) error {
 	_, err := Client.Collection("cloudwebhook").Doc(userId).Delete(Ctx)
 	return err
 }
