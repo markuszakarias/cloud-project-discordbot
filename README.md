@@ -191,9 +191,13 @@ Be able to view, create, update and delete todotasks. These tasks are connected 
 
 - [x] -> Command `!notifyweather` with parameters
 
-**Register notification for a spesific city**
+**Register/update notification for a spesific city**
 
 `!notifyweather <city>`
+
+**remove notification**
+
+`!notifyweather remove`
   
   
 - [x] -> Command `!jokes` with parameters
